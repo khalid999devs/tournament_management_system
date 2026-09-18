@@ -3,8 +3,16 @@ import "server-only";
 import { and, desc, eq } from "drizzle-orm";
 import { cache } from "react";
 import { getDatabase } from "@/db";
-import { games, tournamentGames, tournaments } from "@/db/schema";
-import type { RegistrationTournament } from "@/features/registration/domain/types";
+import {
+  games,
+  paymentMethods,
+  tournamentGames,
+  tournaments,
+} from "@/db/schema";
+import type {
+  RegistrationCheckout,
+  RegistrationTournament,
+} from "@/features/registration/domain/types";
 
 export const getRegistrationTournament = cache(
   async (): Promise<RegistrationTournament | null> => {
@@ -57,3 +65,27 @@ export const getRegistrationTournament = cache(
     };
   },
 );
+
+export async function getRegistrationCheckout(): Promise<RegistrationCheckout | null> {
+  const tournament = await getRegistrationTournament();
+
+  if (!tournament) return null;
+
+  const methods = await getDatabase()
+    .select({
+      provider: paymentMethods.provider,
+      displayName: paymentMethods.displayName,
+      receivingAccount: paymentMethods.receivingAccount,
+      instructions: paymentMethods.instructions,
+    })
+    .from(paymentMethods)
+    .where(
+      and(
+        eq(paymentMethods.tournamentId, tournament.id),
+        eq(paymentMethods.enabled, true),
+      ),
+    )
+    .orderBy(paymentMethods.sortOrder, paymentMethods.displayName);
+
+  return { ...tournament, paymentMethods: methods };
+}

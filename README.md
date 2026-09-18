@@ -2,18 +2,20 @@
 
 A clean, account-free participant experience and a controlled staff workspace for running the NDCAK Indoor Games from registration through results.
 
-Phase 0 of the approved seven-phase roadmap is complete, and Phase 1 is underway. The repository includes the public experience foundation, live Supabase schema and staff-auth connection, a server-backed registration reader, and project quality tooling. Final participant submission remains intentionally disabled until committee-approved event and payment configuration is available.
+Phases 0-2 of the approved seven-phase roadmap are implementation-complete. The repository includes the public experience, atomic participant registration, live Supabase schema and staff authorization, Super Admin verification queue, audited approval/rejection, notification retries, and project quality tooling. Live routes remain honest and closed until committee-approved event and payment configuration is published.
 
 ## What is working
 
 - Responsive public event landing page and information routes.
 - Multi-game registration details form with shared Zod validation.
 - Live Supabase tournament, capacity, and fee reads when registration is open.
-- Browser-local draft review without creating a participant account.
+- Browser-local draft review, configured payment instructions, atomic pending submission, and a stable registration code without creating a participant account.
 - Applied Drizzle schema and migration for tournaments, registrations, payments, staff, assignments, matches, notifications, and audit logs.
-- Supabase SSR client/server boundaries for future staff authentication.
-- Live staff email/password login, verified SSR sessions, sign-out, and invite-token confirmation.
-- Unit tests for fee, capacity, and participant-data normalization rules.
+- Supabase SSR claim verification plus active staff-profile and Super Admin authorization.
+- Server-side registration search, filters, sorting, pagination, and full payment review.
+- Idempotent audited approval/rejection with transactional capacity finalization/release.
+- Resend outbox processing, delivery status, manual retry, and approval calendar invitations.
+- Unit tests for fee, capacity, normalization, review transitions, email wording, and calendar output.
 - Editable Mermaid architecture, data, authorization, and state-flow diagrams.
 
 ## Local setup

@@ -31,18 +31,28 @@ const sections = [
 export default function RulebookPage() {
   return (
     <PublicPageShell
-      eyebrow="Official rulebook"
-      title="Compete clearly. Compete fairly."
+      eyebrow="Official document"
+      title="Tournament rulebook."
       intro="General event rules apply to every participant. Final game-specific formats, tie-breaks, walkovers, and scoring rules will be published after committee approval."
     >
-      <div className={styles.ruleGrid}>
-        {sections.map((section, index) => (
-          <article key={section.title}>
-            <span>0{index + 1}</span>
-            <h2>{section.title}</h2>
-            <p>{section.copy}</p>
-          </article>
-        ))}
+      <div className={styles.rulebookLayout}>
+        <nav className={styles.rulebookNav} aria-label="Rulebook sections">
+          <p>General rules</p>
+          {sections.map((section, index) => (
+            <a href={`#rule-${index + 1}`} key={section.title}>
+              <span>0{index + 1}</span> {section.title}
+            </a>
+          ))}
+        </nav>
+        <div className={styles.ruleGrid}>
+          {sections.map((section, index) => (
+            <article id={`rule-${index + 1}`} key={section.title}>
+              <span>0{index + 1}</span>
+              <h2>{section.title}</h2>
+              <p>{section.copy}</p>
+            </article>
+          ))}
+        </div>
       </div>
     </PublicPageShell>
   );

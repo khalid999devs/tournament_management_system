@@ -37,3 +37,23 @@ export function createRegistrationDetailsSchema(maxGames: number) {
 export type RegistrationDetails = z.infer<
   ReturnType<typeof createRegistrationDetailsSchema>
 >;
+
+export const registrationSubmissionSchema = z.object({
+  tournamentId: z.uuid(),
+  idempotencyKey: z.uuid(),
+  details: z.object({
+    fullName: z.string().trim().min(2).max(160),
+    studentId: z.string().trim().min(3).max(64),
+    email: z.email().max(254),
+    phone: z.string().trim().min(10).max(32),
+    department: z.string().trim().min(1).max(120),
+    academicYear: z.string().trim().min(1).max(40),
+    selectedGameIds: z.array(z.uuid()).min(1).max(20),
+  }),
+  paymentProvider: z.string().trim().min(1).max(40),
+  transactionId: z.string().trim().min(4).max(160),
+});
+
+export type RegistrationSubmission = z.infer<
+  typeof registrationSubmissionSchema
+>;

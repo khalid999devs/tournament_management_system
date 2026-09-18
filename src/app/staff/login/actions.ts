@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getCurrentStaff } from "@/features/auth/server/staff-session";
 import { staffLoginSchema } from "@/features/auth/domain/staff-login";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,5 +22,12 @@ export async function signIn(formData: FormData) {
     redirect("/staff/login?error=invalid_credentials");
   }
 
-  redirect("/staff");
+  const staff = await getCurrentStaff();
+
+  if (!staff) {
+    await supabase.auth.signOut();
+    redirect("/staff/login?error=access_denied");
+  }
+
+  redirect(staff.role === "SUPER_ADMIN" ? "/admin" : "/operator");
 }

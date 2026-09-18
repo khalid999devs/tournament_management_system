@@ -28,3 +28,14 @@ export type RegistrationTournament = {
   maxGamesPerParticipant: number;
   games: RegistrationGameOption[];
 };
+
+export type RegistrationPaymentMethod = {
+  provider: string;
+  displayName: string;
+  receivingAccount: string;
+  instructions: string | null;
+};
+
+export type RegistrationCheckout = RegistrationTournament & {
+  paymentMethods: RegistrationPaymentMethod[];
+};

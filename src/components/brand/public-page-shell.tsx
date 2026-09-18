@@ -1,4 +1,5 @@
 import { PublicHeader } from "./public-header";
+import { PublicFooter } from "./public-footer";
 import styles from "./public-information.module.css";
 
 type PublicPageShellProps = {
@@ -27,6 +28,7 @@ export function PublicPageShell({
         </div>
       </section>
       <div className={`${styles.content} page-width`}>{children}</div>
+      <PublicFooter />
     </main>
   );
 }

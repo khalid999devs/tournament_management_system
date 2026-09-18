@@ -52,4 +52,4 @@ stateDiagram-v2
     FAILED --> QUEUED: authorized retry
 ```
 
-Notifications are created after authoritative state commits. Delivery failures never reverse registration or match state.
+Notification outbox records are committed atomically with authoritative state. Delivery starts only after that transaction commits, and delivery failures never reverse registration or match state.

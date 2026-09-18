@@ -1,62 +1,68 @@
 .page {
   min-height: 100vh;
-  background: #f4f3ee;
+  background:
+    linear-gradient(rgba(228, 194, 122, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(228, 194, 122, 0.035) 1px, transparent 1px),
+    var(--navy-950);
+  background-size: 72px 72px;
+  color: var(--ivory-100);
 }
 
 .headerShell {
-  color: var(--ivory-100);
-  background: var(--navy-950);
+  position: relative;
+  z-index: 5;
+  background: rgba(4, 12, 29, 0.96);
 }
 
 .intro {
-  padding-block: 66px 38px;
+  padding-block: 70px 44px;
 }
 
 .intro a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 28px;
-  color: var(--slate-700);
-  font-size: 13px;
+  margin-bottom: 32px;
+  color: var(--slate-300);
+  font-size: 12px;
   font-weight: 700;
 }
 
 .intro p,
 .reviewHeading p {
-  margin: 0 0 12px;
-  color: var(--green-600);
-  font-size: 11px;
+  margin: 0 0 13px;
+  color: var(--gold-500);
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.19em;
   text-transform: uppercase;
 }
 
 .intro h1 {
+  max-width: 900px;
   margin: 0;
-  color: var(--navy-900);
   font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: clamp(48px, 7vw, 76px);
+  font-size: clamp(54px, 7vw, 82px);
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 0.95;
+  line-height: 0.92;
   text-transform: uppercase;
 }
 
 .intro > div > span {
   display: block;
-  max-width: 600px;
+  max-width: 660px;
   margin-top: 18px;
-  color: var(--slate-700);
-  font-size: 15px;
-  line-height: 1.7;
+  color: var(--slate-300);
+  font-size: 14px;
+  line-height: 1.75;
 }
 
 .steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  max-width: 520px;
-  margin-top: 36px;
+  max-width: 560px;
+  margin-top: 38px;
   padding: 0;
   list-style: none;
 }
@@ -64,19 +70,21 @@
 .steps li {
   position: relative;
   display: grid;
-  gap: 8px;
-  color: #7b8497;
-  font-size: 11px;
-  font-weight: 700;
+  gap: 9px;
+  color: var(--slate-500);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .steps li::after {
   position: absolute;
-  top: 13px;
+  top: 14px;
   right: 12px;
-  left: 38px;
+  left: 40px;
   height: 1px;
-  background: #d4d7df;
+  background: var(--line-light);
   content: "";
 }
 
@@ -87,21 +95,22 @@
 .steps b {
   display: grid;
   z-index: 1;
-  width: 27px;
-  height: 27px;
+  width: 29px;
+  height: 29px;
   place-items: center;
-  border: 1px solid #c8ccd6;
-  border-radius: 50%;
-  background: #f4f3ee;
+  border: 1px solid var(--line-light);
+  background: var(--navy-950);
+  color: var(--slate-300);
 }
 
-.steps .active {
-  color: var(--navy-900);
+.steps .active,
+.steps .complete {
+  color: var(--ivory-100);
 }
 
 .steps .active b,
 .steps .complete b {
-  border-color: var(--green-600);
+  border-color: var(--green-500);
   background: var(--green-600);
   color: white;
 }
@@ -109,58 +118,66 @@
 .form,
 .reviewLayout {
   display: grid;
-  gap: 22px;
-  padding-bottom: 96px;
+  width: min(100%, 1080px);
+  gap: 24px;
+  margin-inline: auto;
+  padding-bottom: 104px;
 }
 
 .panel,
 .quotePanel,
 .reviewState {
-  border: 1px solid rgba(22, 38, 74, 0.12);
-  background: white;
-  box-shadow: 0 18px 50px rgba(18, 31, 62, 0.05);
+  border: 1px solid var(--line-light);
+  background: rgba(13, 27, 57, 0.9);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
 }
 
 .panel {
-  padding: 34px;
+  padding: 38px;
 }
 
 .panelHeading {
   display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 16px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid #e3e5e9;
+  grid-template-columns: 44px 1fr;
+  gap: 18px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--line-light);
 }
 
 .panelHeading > span {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   place-items: center;
-  border: 1px solid rgba(17, 138, 74, 0.3);
-  border-radius: 50%;
-  color: var(--green-600);
-  font-size: 11px;
+  border: 1px solid var(--line-gold);
+  color: var(--gold-500);
+  font-size: 10px;
   font-weight: 800;
 }
 
-.panelHeading h2 {
+.panelHeading h2,
+.reviewHeading h2,
+.reviewState h2 {
   margin: 0;
-  font-size: 20px;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
 }
 
 .panelHeading p {
   margin: 7px 0 0;
-  color: var(--slate-700);
-  font-size: 13px;
+  color: var(--slate-300);
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .fieldsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
-  padding-top: 30px;
+  gap: 24px;
+  padding-top: 32px;
 }
 
 .field {
@@ -175,66 +192,75 @@
 .field > span {
   display: flex;
   justify-content: space-between;
-  color: var(--navy-900);
-  font-size: 12px;
-  font-weight: 750;
+  color: var(--slate-300);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .field small {
-  color: #7b8497;
+  color: var(--slate-500);
   font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .field input,
 .field select {
   width: 100%;
-  min-height: 48px;
-  padding: 0 13px;
-  border: 1px solid #cfd3dc;
-  border-radius: 3px;
-  background: #fff;
-  color: var(--navy-900);
-  font: inherit;
+  min-height: 54px;
+  padding: 0 15px;
+  border: 1px solid var(--line-light);
+  border-radius: 2px;
+  background: rgba(7, 17, 39, 0.78);
+  color: var(--ivory-100);
   font-size: 14px;
+}
+
+.field select {
+  color-scheme: dark;
 }
 
 .field input:focus,
 .field select:focus {
-  border-color: var(--gold-600);
-  outline: 3px solid rgba(228, 194, 122, 0.28);
+  border-color: var(--gold-500);
+  outline: 3px solid rgba(228, 194, 122, 0.16);
 }
 
 .field em,
 .selectionError {
-  color: #ad3445;
-  font-size: 12px;
+  color: #f29ca8;
+  font-size: 11px;
   font-style: normal;
 }
 
 .gameGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  padding-top: 28px;
+  padding-top: 30px;
 }
 
 .gameOption {
   position: relative;
   display: grid;
-  grid-template-columns: 26px 1fr;
-  gap: 14px;
-  min-height: 148px;
-  padding: 20px;
-  border: 1px solid #d9dce2;
-  border-radius: 3px;
+  grid-template-columns: 28px 1fr;
+  gap: 17px;
+  min-height: 116px;
+  padding: 22px;
+  border: 1px solid var(--line-light);
+  border-radius: 2px;
+  background: rgba(7, 17, 39, 0.48);
   cursor: pointer;
   transition:
     border-color 150ms ease,
-    background 150ms ease;
+    background 150ms ease,
+    transform 150ms ease;
 }
 
 .gameOption:hover {
-  border-color: rgba(17, 138, 74, 0.45);
+  transform: translateY(-2px);
+  border-color: var(--line-gold);
 }
 
 .gameOption input {
@@ -250,64 +276,68 @@
 }
 
 .gameOptionSelected {
-  border-color: var(--green-600);
-  background: rgba(17, 138, 74, 0.045);
+  border-color: var(--green-500);
+  background: rgba(17, 138, 74, 0.12);
 }
 
 .gameOptionDisabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.48;
 }
 
 .gameCheck {
   display: grid;
-  width: 23px;
-  height: 23px;
+  width: 24px;
+  height: 24px;
   place-items: center;
-  border: 1px solid #b9bec9;
-  border-radius: 3px;
+  border: 1px solid var(--slate-500);
   color: white;
 }
 
 .gameOptionSelected .gameCheck {
-  border-color: var(--green-600);
+  border-color: var(--green-500);
   background: var(--green-600);
 }
 
 .gameCopy {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 5px 24px;
 }
 
 .gameCopy > strong {
-  font-size: 16px;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 23px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .gameCopy > small {
-  margin-top: 6px;
-  color: var(--slate-700);
-  font-size: 12px;
+  grid-column: 1;
+  color: var(--slate-300);
+  font-size: 11px;
 }
 
 .gameMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 20px;
-  border-top: 1px solid #e8e9ec;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
   font-size: 12px;
 }
 
 .gameMeta b {
-  color: var(--green-600);
+  color: var(--gold-500);
+  font-size: 15px;
 }
 
 .gameMeta span {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #70798c;
+  color: var(--slate-300);
 }
 
 .selectionError {
@@ -316,37 +346,37 @@
 
 .summaryBar {
   position: sticky;
-  bottom: 16px;
+  bottom: 14px;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px 20px;
-  border: 1px solid rgba(228, 194, 122, 0.5);
-  border-radius: 4px;
-  background: rgba(16, 31, 64, 0.97);
-  color: white;
-  box-shadow: 0 14px 40px rgba(8, 20, 44, 0.24);
-  backdrop-filter: blur(12px);
+  padding: 16px 18px 16px 24px;
+  border: 1px solid var(--line-gold);
+  background: rgba(4, 12, 29, 0.96);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(14px);
 }
 
 .summaryBar > div {
   display: grid;
   grid-template-columns: auto auto;
   align-items: baseline;
-  gap: 3px 18px;
+  gap: 4px 20px;
 }
 
 .summaryBar span,
 .summaryBar small {
   color: var(--slate-300);
-  font-size: 11px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .summaryBar strong {
   color: var(--gold-500);
-  font-size: 22px;
+  font-size: 23px;
 }
 
 .summaryBar small {
@@ -356,28 +386,29 @@
 .summaryBar button,
 .primaryAction {
   display: inline-flex;
-  min-height: 48px;
+  min-height: 52px;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding-inline: 20px;
+  padding-inline: 24px;
   border: 0;
-  border-radius: 3px;
+  border-radius: 2px;
   background: var(--gold-500);
   color: var(--navy-950);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .summaryBar button:disabled {
   cursor: wait;
-  opacity: 0.75;
+  opacity: 0.72;
 }
 
 .reviewLayout {
-  grid-template-columns: 1.25fr 0.75fr;
+  grid-template-columns: 1fr;
 }
 
 .reviewHeading {
@@ -385,60 +416,64 @@
   align-items: flex-start;
   justify-content: space-between;
   padding-bottom: 28px;
-  border-bottom: 1px solid #e3e5e9;
-  color: var(--green-600);
+  border-bottom: 1px solid var(--line-light);
+  color: var(--gold-500);
 }
 
 .reviewHeading h2 {
-  margin: 0;
-  color: var(--navy-900);
-  font-size: 23px;
+  color: var(--ivory-100);
 }
 
 .reviewDetails {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 26px;
   margin: 0;
-  padding-top: 30px;
+  padding-top: 14px;
 }
 
-.reviewItemWide {
-  grid-column: 1 / -1;
+.reviewDetails > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  padding-block: 18px;
+  border-bottom: 1px solid var(--line-light);
+}
+
+.reviewDetails > div:last-child {
+  border-bottom: 0;
 }
 
 .reviewDetails dt {
-  color: #798195;
+  color: var(--slate-500);
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.reviewDetails dd {
-  margin: 7px 0 0;
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.quotePanel {
-  padding: 28px;
-  background: var(--navy-900);
-  color: white;
-}
-
-.quotePanel > p:first-child {
-  margin: 0;
-  color: var(--gold-500);
-  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.13em;
   text-transform: uppercase;
 }
 
+.reviewDetails dd {
+  max-width: 66%;
+  margin: 0;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.quotePanel {
+  padding: 30px 36px;
+}
+
+.quotePanel > p:first-child {
+  margin: 0;
+  color: var(--gold-500);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
 .quotePanel ul {
   display: grid;
-  gap: 0;
   margin: 22px 0 0;
   padding: 0;
   list-style: none;
@@ -450,7 +485,7 @@
   justify-content: space-between;
   gap: 16px;
   padding-block: 17px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid var(--line-light);
 }
 
 .quotePanel li span {
@@ -479,79 +514,412 @@
 
 .quoteTotal span {
   color: var(--slate-300);
-  font-size: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
 }
 
 .quoteTotal strong {
   color: var(--gold-500);
-  font-size: 24px;
+  font-size: 25px;
 }
 
 .pendingNote {
-  margin: 20px 0 0;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 18px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-light);
 }
 
 .reviewActions {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   padding-top: 8px;
 }
 
 .reviewActions > a {
   display: inline-flex;
+  min-height: 52px;
   align-items: center;
+  justify-content: center;
   gap: 9px;
-  min-height: 48px;
-  padding-inline: 18px;
-  font-size: 13px;
-  font-weight: 750;
+  padding-inline: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reviewActions .primaryAction {
+  min-width: 260px;
 }
 
 .reviewState {
-  margin-bottom: 96px;
-  padding: 54px;
+  width: min(100%, 1080px);
+  min-height: 300px;
+  margin: 0 auto 104px;
+  padding: 58px;
   text-align: center;
 }
 
-.reviewState h2 {
-  margin: 0;
-  font-size: 23px;
+.reviewState svg {
+  color: var(--gold-500);
 }
 
 .reviewState p {
-  color: var(--slate-700);
+  max-width: 680px;
+  margin: 14px auto 0;
+  color: var(--slate-300);
+  line-height: 1.7;
 }
 
 .reviewState a {
   display: inline-block;
-  margin-top: 12px;
-  color: var(--green-600);
+  margin-top: 18px;
+  color: var(--gold-500);
   font-weight: 800;
+}
+
+.paymentForm {
+  display: grid;
+  width: min(100%, 1080px);
+  gap: 22px;
+  margin-inline: auto;
+  padding-bottom: 104px;
+}
+
+.amountPanel,
+.paymentInstruction,
+.finalSubmission {
+  border: 1px solid var(--line-light);
+  background: rgba(13, 27, 57, 0.9);
+}
+
+.amountPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+  border-color: var(--line-gold);
+}
+
+.amountPanel p,
+.paymentInstruction > p,
+.paymentMethods legend,
+.transactionField > span {
+  margin: 0 0 8px;
+  color: var(--slate-300);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.amountPanel strong {
+  color: var(--gold-500);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.amountPanel > span {
+  color: var(--slate-300);
+  font-size: 12px;
+}
+
+.amountPanel > span b {
+  color: var(--ivory-100);
+  font-size: 18px;
+}
+
+.paymentMethods {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.paymentMethods > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.paymentMethods label {
+  display: flex;
+  min-height: 92px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--line-light);
+  background: rgba(13, 27, 57, 0.7);
+  color: var(--slate-300);
+  cursor: pointer;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 21px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.paymentMethods input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.paymentMethods label:focus-within {
+  outline: 3px solid var(--gold-500);
+  outline-offset: 3px;
+}
+
+.paymentMethods .paymentMethodSelected {
+  border-color: var(--gold-500);
+  background: rgba(228, 194, 122, 0.1);
+  color: var(--gold-500);
+}
+
+.paymentInstruction {
+  padding: 30px 32px;
+  border-left: 4px solid var(--gold-500);
+}
+
+.paymentInstruction > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.paymentInstruction strong {
+  color: var(--gold-500);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: clamp(32px, 5vw, 48px);
+  letter-spacing: 0.04em;
+}
+
+.paymentInstruction button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid var(--line-light);
+  background: transparent;
+  color: var(--ivory-100);
+  cursor: pointer;
+}
+
+.paymentInstruction > span {
+  display: block;
+  max-width: 760px;
+  margin-top: 14px;
+  color: var(--slate-300);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.transactionField {
+  display: grid;
+  gap: 8px;
+}
+
+.transactionField input {
+  min-height: 58px;
+  padding-inline: 17px;
+  border: 1px solid var(--line-light);
+  background: rgba(13, 27, 57, 0.9);
+  color: var(--ivory-100);
+  font: inherit;
+  font-size: 15px;
+}
+
+.transactionField input:focus {
+  border-color: var(--gold-500);
+  outline: 3px solid rgba(228, 194, 122, 0.16);
+}
+
+.transactionField small {
+  color: var(--slate-500);
+  font-size: 10px;
+}
+
+.submissionError {
+  padding: 14px 16px;
+  border: 1px solid rgba(242, 156, 168, 0.55);
+  background: rgba(142, 32, 50, 0.2);
+  color: #ffd3da;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.finalSubmission {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px;
+}
+
+.finalSubmission > div {
+  display: flex;
+  max-width: 560px;
+  align-items: center;
+  gap: 12px;
+  color: var(--slate-300);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.finalSubmission > div svg {
+  flex: 0 0 auto;
+  color: var(--gold-500);
+}
+
+.finalSubmission button {
+  display: inline-flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  padding-inline: 28px;
+  border: 0;
+  background: var(--gold-500);
+  color: var(--navy-950);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.finalSubmission button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.submittedState {
+  display: grid;
+  max-width: 780px;
+  justify-items: center;
+  padding-block: 100px 120px;
+  text-align: center;
+}
+
+.submittedIcon {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  border: 1px solid var(--line-gold);
+  color: var(--gold-500);
+}
+
+.submittedState > p {
+  margin: 30px 0 12px;
+  color: var(--gold-500);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.submittedState h1 {
+  margin: 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: clamp(54px, 8vw, 82px);
+  font-weight: 600;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.submittedState > span {
+  max-width: 620px;
+  margin-top: 19px;
+  color: var(--slate-300);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.registrationCode {
+  display: grid;
+  gap: 9px;
+  width: min(100%, 520px);
+  margin-top: 34px;
+  padding: 24px;
+  border: 1px solid var(--line-gold);
+  background: rgba(13, 27, 57, 0.9);
+}
+
+.registrationCode small {
+  color: var(--slate-300);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.registrationCode strong {
+  color: var(--gold-500);
+  font-size: clamp(22px, 5vw, 34px);
+  letter-spacing: 0.08em;
+}
+
+.submittedNotes {
+  display: grid;
+  width: min(100%, 520px);
+  gap: 10px;
+  margin-top: 18px;
+  text-align: left;
+}
+
+.submittedNotes span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--slate-300);
+  font-size: 11px;
+}
+
+.submittedNotes svg {
+  flex: 0 0 auto;
+  color: var(--gold-500);
+}
+
+.submittedState > a {
+  margin-top: 32px;
+  color: var(--gold-500);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 @media (max-width: 760px) {
   .intro {
-    padding-block: 48px 30px;
+    padding-block: 50px 32px;
   }
 
-  .fieldsGrid,
-  .gameGrid,
-  .reviewLayout,
-  .reviewDetails {
+  .fieldsGrid {
     grid-template-columns: 1fr;
   }
 
-  .fieldWide,
-  .reviewItemWide {
+  .fieldWide {
     grid-column: auto;
   }
 
   .panel,
   .quotePanel {
     padding: 22px;
+  }
+
+  .gameCopy {
+    grid-template-columns: 1fr;
+  }
+
+  .gameMeta {
+    grid-column: 1;
+    grid-row: auto;
+    justify-items: start;
+    margin-top: 14px;
   }
 
   .summaryBar {
@@ -564,13 +932,59 @@
     width: 100%;
   }
 
+  .reviewDetails > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .reviewDetails dd {
+    max-width: 100%;
+    text-align: left;
+  }
+
   .reviewActions {
     align-items: stretch;
     flex-direction: column-reverse;
-    gap: 10px;
   }
 
-  .reviewActions > a {
-    justify-content: center;
+  .reviewActions .primaryAction {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .reviewState {
+    min-height: 280px;
+    padding: 42px 22px;
+  }
+
+  .paymentMethods > div {
+    grid-template-columns: 1fr;
+  }
+
+  .amountPanel,
+  .finalSubmission {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .paymentInstruction {
+    padding: 24px 20px;
+  }
+
+  .paymentInstruction > div {
+    align-items: flex-start;
+  }
+
+  .paymentInstruction strong {
+    overflow-wrap: anywhere;
+  }
+
+  .finalSubmission button {
+    width: 100%;
+  }
+
+  .submittedState {
+    padding-block: 70px 90px;
   }
 }

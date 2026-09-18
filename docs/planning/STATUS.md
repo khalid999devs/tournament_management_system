@@ -4,63 +4,56 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phase 1 - Public Site and Registration. Phase 0 foundation is complete.
+Phase 2 - Admin Verification is implementation-complete. Work is paused at the Phase 3 boundary as requested.
 
 ## Completed
 
-- Reviewed all repository source artifacts.
-- Extracted all 25 PRD pages into a searchable text artifact.
-- Visually reviewed every PRD page and all supplied design/architecture assets.
-- Researched comparable tournament products and multi-step form patterns.
-- Scaffolded Next.js App Router with TypeScript, Tailwind CSS, and ESLint.
-- Established the NDCAK design direction and first responsive public landing slice.
-- Added branded Open Graph artwork and site metadata.
-- Added core database, auth, form, validation, icon, formatting, and testing packages.
-- Defined the seven-phase delivery plan and initial architecture documents.
-- Defined all 16 initial database tables, constraints, indexes, row-level security activation, and generated migrations.
-- Applied the initial migration to the live Supabase project through the IPv4 Transaction Pooler.
-- Verified 16 public tables, RLS on all 16, 28 foreign keys, 66 indexes, and no missing foreign-key indexes.
-- Kept the browser-facing Data API default-deny: no anonymous or authenticated RLS policies exist yet.
-- Added environment validation and Supabase browser, server, and staff-route session boundaries.
-- Connected the supplied Supabase project URL and publishable key through the ignored local environment.
-- Verified the Supabase Auth API, Data API client path, and expected pre-migration schema state.
-- Added staff email/password sign-in, verified SSR claims, sign-out, invite-token confirmation, and noindex metadata.
-- Configured the official Super Admin and reply-to email identity.
-- Added and validated the Resend SDK, server-only environment boundary, and email transport wrapper.
-- Verified the Resend API key; no sending domain is currently configured.
+- Reviewed every repository source artifact and visually reviewed all 25 PRD pages and supplied design assets.
+- Extracted the complete PRD into a searchable text artifact and established the seven-phase roadmap.
+- Built and verified the Next.js, TypeScript, Drizzle, Supabase, Resend, validation, and testing foundation.
+- Applied the 16-table schema to the live Supabase PostgreSQL database with row-level security enabled and default-deny browser access.
+- Added Supabase SSR session refresh, verified-claim staff identity, application-profile authorization, and role routing.
 - Generated and integrated compact and full NDCAK logo variants with corrected proportions.
-- Added shared registration fee, capacity, validation, and normalization domain logic with unit tests.
-- Built the participant details, game selection, review, and intentionally blocked payment routes.
-- Replaced participant-route demo data with live, server-only Supabase tournament and game reads.
-- Added schedule, rulebook, and results routes with honest pre-publication states.
-- Verified formatting, type checking, linting, unit tests, and a production build.
+- Refined the public home, registration, schedule, rulebook, results, navigation, and footer around the approved NDCAK visual system.
+- Implemented the complete account-free participant flow: details, multi-game selection, review, configured payment instructions, atomic submission, and pending receipt.
+- Made fee, availability, registration-window, payment-method, participant, and transaction checks server-authoritative.
+- Enforced idempotent submission, normalized provider transaction uniqueness, duplicate active-registration prevention, and guarded capacity reservations.
+- Added submission, approval, and rejection email builders with escaped participant content and approval-only calendar invitations.
+- Added the Super Admin dashboard, server-side registration search/filter/sort/pagination, review detail, approval, rejection, and notification delivery views.
+- Made approval/rejection idempotent and atomic, with registration, payment, game-entry, capacity-counter, notification-outbox, and audit updates in one transaction.
+- Kept email delivery outside authoritative transactions and made failed/queued delivery manually retryable.
+- Added deterministic registration and notification pagination state to URL query parameters.
+- Verified formatting, type checking, linting, 19 unit tests, production build, live public route rendering, protected admin redirect, and live database connectivity.
 
-## In progress
+## Phase boundary
 
-- First Auth user creation and Super Admin staff-profile bootstrap.
-- Resend sender-domain verification and Supabase Auth SMTP dashboard configuration.
-- Committee confirmation of event configuration and payment instructions.
-- Server-authoritative registration submission and acknowledgment workflow.
+Phase 1 and Phase 2 exit evidence is recorded in `PHASE_2_COMPLETION.md`. Phase 3 operator and assignment work has not started.
 
-## Next
+## Operational activation still required
 
-1. Create the official email as a Supabase Auth user, then bind it to a Super Admin staff profile.
-2. Verify an NDCAK-controlled sender domain and configure Supabase Auth SMTP.
-3. Replace development tournament fixtures with approved event, game, and payment configuration.
-4. Complete the atomic registration-submission transaction and pending acknowledgment.
-5. Start the Phase 2 administration queue after the Phase 1 exit criteria pass.
+The implementation is complete, but the live database intentionally contains no invented event configuration:
+
+- `tournaments`: 0
+- `payment_methods`: 0
+- `staff_profiles`: 0
+- `registrations`: 0
+
+Before people can use the live workflows:
+
+1. Create or invite `ndcakofficial@gmail.com` in Supabase Auth, then run `pnpm db:bootstrap-admin`.
+2. Supply the committee-approved tournament, games, capacities, fees, registration window, event dates, venue, rules, and payment receiving accounts.
+3. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
+4. Configure Supabase Auth SMTP in the dashboard with the verified sender.
+5. Supply Vercel access, the production domain, and production environment ownership when deployment is authorized.
 
 ## Decision log
 
-| Date       | Decision                                                                                 | Reason                                                                                                   |
-| ---------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Resend, Vercel. | It matches the approved product direction and the relational/concurrency requirements.                   |
-| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.         | This is the central experience boundary in the PRD.                                                      |
-| 2026-09-19 | Use one feature-oriented monolith.                                                       | It keeps transactional workflows cohesive without premature infrastructure.                              |
-| 2026-09-19 | Use deterministic Mermaid architecture diagrams and a single generated social asset.     | Technical diagrams need exact, editable labels; the social card benefits from original visual treatment. |
-| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.           | The committee has not finalized them and the PRD explicitly requires configuration.                      |
-| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.            | It avoids exposing payment and registration mutations directly to anonymous clients.                     |
-
-## Known blockers
-
-The official Super Admin email does not yet exist in Supabase Auth, so its application profile cannot be created safely. Resend is connected, but production sending and Supabase Auth SMTP require a verified sender domain. Enabling participant payment instructions still requires committee-approved payment methods and receiving accounts. See `EXTERNAL_ACCESS.md` for the complete request list.
+| Date       | Decision                                                                                               | Reason                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Resend, Vercel.               | It matches the approved product direction and the relational/concurrency requirements.                    |
+| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                       | This is the central experience boundary in the PRD.                                                       |
+| 2026-09-19 | Use one feature-oriented monolith.                                                                     | It keeps transactional workflows cohesive without premature infrastructure.                               |
+| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                         | The committee has not finalized them and the PRD explicitly requires configuration.                       |
+| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                          | It avoids exposing payment and registration mutations directly to anonymous clients.                      |
+| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction. | Authoritative state remains correct on provider failure while every intended delivery remains observable. |
+| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.               | Approval email must contain an accurate calendar invitation; the application must not invent event data.  |

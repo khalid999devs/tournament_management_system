@@ -1,16 +1,32 @@
+import { Brain, CircleDot, Gamepad2, Medal } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { PublicFooter } from "@/components/brand/public-footer";
 import { PublicHeader } from "@/components/brand/public-header";
 
 const games = [
-  { name: "Chess", detail: "Strategy under pressure", mark: "CH" },
+  { name: "Chess", detail: "Strategy under pressure", icon: Brain },
   {
     name: "Table Tennis",
     detail: "Fast rallies. Precise finishes.",
-    mark: "TT",
+    icon: CircleDot,
   },
-  { name: "Carrom", detail: "Control, patience, accuracy", mark: "CA" },
-  { name: "Mobile Football", detail: "Head-to-head digital play", mark: "MF" },
+  {
+    name: "Carrom",
+    detail: "Control, patience, accuracy",
+    icon: Medal,
+  },
+  {
+    name: "Mobile Football",
+    detail: "Head-to-head digital play",
+    icon: Gamepad2,
+  },
+];
+
+const platformFacts = [
+  { value: "One", label: "clear application" },
+  { value: "No", label: "participant account" },
+  { value: "Live", label: "official schedule" },
+  { value: "Verified", label: "published results" },
 ];
 
 const milestones = [
@@ -27,12 +43,19 @@ export default function Home() {
     <main>
       <section className="hero-shell">
         <PublicHeader />
+        <div className="announcement-rail">
+          <div className="page-width announcement-inner">
+            <span>Official NDCAK tournament platform</span>
+            <span>Registration dates will be announced</span>
+            <span>Built for KUET students</span>
+          </div>
+        </div>
 
         <div className="hero-grid page-width">
           <div className="hero-copy">
             <p className="eyebrow">Play · Connect · Compete · Belong</p>
             <h1>
-              Every move counts.
+              NDCAK indoor games.
               <span>Every player belongs.</span>
             </h1>
             <p className="hero-intro">
@@ -53,32 +76,30 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="event-board" aria-label="Championship highlights">
-            <div className="event-board-topline">
-              <span>NDCAK 2026</span>
-              <span className="status-pill">Coming soon</span>
-            </div>
-            <div className="event-emblem" aria-hidden="true">
-              <span>N</span>
-            </div>
-            <div className="event-board-message">
-              <p>More than a game</p>
-              <strong>A stronger community</strong>
-            </div>
-            <dl className="event-meta">
+          <div className="arena-panel" aria-label="Championship game lineup">
+            <div className="arena-panel-heading">
               <div>
-                <dt>Venue</dt>
-                <dd>KUET Campus</dd>
+                <p>Championship lineup</p>
+                <strong>Choose your arena</strong>
               </div>
-              <div>
-                <dt>For</dt>
-                <dd>KUET Students</dd>
-              </div>
-              <div>
-                <dt>Format</dt>
-                <dd>Multiple Games</dd>
-              </div>
-            </dl>
+              <span>Configuration pending</span>
+            </div>
+            <div className="arena-grid">
+              {games.map((game) => {
+                const Icon = game.icon;
+
+                return (
+                  <article className="arena-card" key={game.name}>
+                    <Icon size={24} aria-hidden="true" />
+                    <div>
+                      <h2>{game.name}</h2>
+                      <p>{game.detail}</p>
+                    </div>
+                    <span>Details coming soon</span>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -95,30 +116,25 @@ export default function Home() {
 
       <section
         className="games-section page-width"
-        aria-labelledby="games-heading"
+        aria-labelledby="platform-heading"
       >
         <div className="section-heading">
           <div>
-            <p className="eyebrow dark">Championship lineup</p>
-            <h2 id="games-heading">Find your arena.</h2>
+            <p className="eyebrow dark">Designed for clarity</p>
+            <h2 id="platform-heading">Everything participants need.</h2>
           </div>
           <p>
-            Register for one or more eligible games, review the combined fee,
-            and submit payment information once.
+            One official source for registration, event instructions, schedules,
+            rulebooks, and approved results—without forcing participants to
+            create an account.
           </p>
         </div>
 
-        <div className="games-grid">
-          {games.map((game, index) => (
-            <article className="game-card" key={game.name}>
-              <div className="game-mark" aria-hidden="true">
-                {game.mark}
-              </div>
-              <div>
-                <p>0{index + 1}</p>
-                <h3>{game.name}</h3>
-                <span>{game.detail}</span>
-              </div>
+        <div className="platform-facts">
+          {platformFacts.map((fact) => (
+            <article key={fact.label}>
+              <strong>{fact.value}</strong>
+              <span>{fact.label}</span>
             </article>
           ))}
         </div>
@@ -144,18 +160,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="site-footer">
-        <div className="page-width footer-inner">
-          <Image
-            className="footer-brand"
-            src="/brand/ndcak-lockup.png"
-            alt="Notre Dame College Association of KUET"
-            width={1536}
-            height={700}
-          />
-          <Link href="/staff/login">Staff login</Link>
-        </div>
-      </footer>
+      <PublicFooter />
     </main>
   );
 }

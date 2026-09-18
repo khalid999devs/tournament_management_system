@@ -1,14 +1,20 @@
-import { Check, ChevronLeft, LockKeyhole } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicHeader } from "@/components/brand/public-header";
+import { RegistrationPayment } from "@/features/registration/components/registration-payment";
 import styles from "@/features/registration/components/registration.module.css";
+import { getRegistrationCheckout } from "@/features/tournaments/server/get-registration-tournament";
 
 export const metadata: Metadata = {
   title: "Payment information",
 };
 
-export default function RegistrationPaymentPage() {
+export const dynamic = "force-dynamic";
+
+export default async function RegistrationPaymentPage() {
+  const checkout = await getRegistrationCheckout();
+
   return (
     <main className={styles.page}>
       <div className={styles.headerShell}>
@@ -45,16 +51,18 @@ export default function RegistrationPaymentPage() {
         </ol>
       </section>
       <div className="page-width">
-        <div className={styles.reviewState}>
-          <LockKeyhole size={38} aria-hidden="true" />
-          <h2>Payment setup is not connected yet</h2>
-          <p>
-            Final submission stays disabled until the committee provides
-            approved payment methods and receiving accounts. The database is
-            connected, but no draft has been submitted or confirmed.
-          </p>
-          <Link href="/register/review">Return to review</Link>
-        </div>
+        {checkout ? (
+          <RegistrationPayment checkout={checkout} />
+        ) : (
+          <div className={styles.reviewState}>
+            <h2>Registration is not open</h2>
+            <p>
+              Payment and final submission become available when the approved
+              event configuration is published.
+            </p>
+            <Link href="/register/review">Return to review</Link>
+          </div>
+        )}
       </div>
     </main>
   );

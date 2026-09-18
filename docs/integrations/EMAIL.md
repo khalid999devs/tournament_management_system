@@ -38,7 +38,11 @@ Use TLS/SSL with port 465. Production Auth invitations must not be enabled until
 
 ## Delivery rules
 
-- Authoritative database writes complete before sending email.
+- Notification outbox rows are committed with the authoritative database change; sending starts only after commit.
 - Email failures are recorded and retried; they do not roll back registration or review transactions.
 - Notification idempotency keys prevent duplicate delivery.
 - Provider errors and credentials are never returned to the browser.
+- Submission email always says pending review and never includes a calendar file.
+- Approval email requires configured event start/end times and includes an RFC 5545 `.ics` invitation.
+- Rejection email includes only the participant-safe reason entered by the administrator.
+- Failed and queued messages can be retried from `/admin/notifications` without repeating the registration decision.
