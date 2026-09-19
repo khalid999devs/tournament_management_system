@@ -1,5 +1,6 @@
 import { createTransport, type Transporter } from "nodemailer";
 import { getEmailEnv } from "@/lib/env/server";
+import { emailLogo, emailLogoCid } from "./logo";
 
 type SendEmailInput = {
   to: string | string[];
@@ -30,6 +31,18 @@ export async function sendEmail(input: SendEmailInput) {
     replyTo: env.EMAIL_REPLY_TO,
     headers: { "X-Entity-Ref-ID": idempotencyKey },
     ...message,
+    // Every template shows the NDCAK mark from this inline attachment; Gmail
+    // blocks SVG and data-URL images, but renders cid: images everywhere.
+    attachments: [
+      ...(message.attachments ?? []),
+      {
+        filename: "ndcak-logo.png",
+        content: emailLogo.png,
+        contentType: "image/png",
+        cid: emailLogoCid,
+        contentDisposition: "inline",
+      },
+    ],
   });
 
   return { id: info.messageId };

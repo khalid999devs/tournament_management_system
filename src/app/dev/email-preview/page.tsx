@@ -5,6 +5,7 @@ import { buildOperationalEmail } from "@/features/notifications/domain/operation
 import { buildRegistrationEmail } from "@/features/notifications/domain/registration-email";
 import { EmailFrame } from "./email-frame";
 import styles from "./preview.module.css";
+import { emailLogoCid } from "@/lib/email/logo";
 
 export const metadata: Metadata = {
   title: "Email design preview",
@@ -64,7 +65,10 @@ export default async function EmailPreviewPage({
         </div>
         <EmailFrame
           title={`${state} email preview`}
-          html={email.html}
+          html={email.html.replaceAll(
+            `cid:${emailLogoCid}`,
+            "/brand/ndcak-mark.webp",
+          )}
           className={styles.frame}
         />
       </div>

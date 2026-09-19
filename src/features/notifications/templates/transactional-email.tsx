@@ -8,12 +8,14 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Link,
   Preview,
   Row,
   Section,
   Text,
 } from "react-email";
+import { emailLogo, emailLogoCid } from "@/lib/email/logo";
 
 export type EmailTone = "pending" | "success" | "attention" | "info";
 
@@ -77,7 +79,15 @@ export function TransactionalEmail({
               NOTRE DAME COLLEGE ASSOCIATION OF KUET
             </Text>
             <Row>
-              <Column style={brandMark}>∞</Column>
+              <Column style={brandMark}>
+                <Img
+                  src={`cid:${emailLogoCid}`}
+                  width={emailLogo.width / 2}
+                  height={emailLogo.height / 2}
+                  alt="NDCAK"
+                  style={brandLogo}
+                />
+              </Column>
               <Column style={brandName}>NDCAK</Column>
             </Row>
             <Text style={headerCaption}>INDOOR GAMES CHAMPIONSHIP</Text>
@@ -181,11 +191,13 @@ const brandKicker: CSSProperties = {
 };
 
 const brandMark: CSSProperties = {
-  width: "54px",
-  color: palette.gold,
-  fontSize: "42px",
-  fontWeight: 700,
-  lineHeight: "46px",
+  width: "88px",
+  verticalAlign: "middle",
+};
+
+const brandLogo: CSSProperties = {
+  display: "block",
+  border: 0,
 };
 
 const brandName: CSSProperties = {
