@@ -1,5 +1,7 @@
 # External Access Checklist
 
+For the exact Phase 3 activation order and a read-only readiness command, see [Phase 3 activation](../operations/PHASE_3_ACTIVATION.md).
+
 No secrets should be pasted into chat, committed, or placed in client-exposed variables unless explicitly public.
 
 ## Connection status

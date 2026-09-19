@@ -2,6 +2,8 @@
 
 Status: implementation ready; live staff rehearsal pending external configuration.
 
+Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and run `pnpm phase3:check` as each external prerequisite is completed.
+
 ## Delivered
 
 - Super Admin operator directory, invite action, account deactivation/reactivation, and audited assignment grant/revoke actions.
