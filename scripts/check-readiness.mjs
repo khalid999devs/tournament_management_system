@@ -1,6 +1,5 @@
 import { createTransport } from "nodemailer";
 import postgres from "postgres";
-import { Resend } from "resend";
 
 const env = process.env;
 const checks = {
@@ -83,53 +82,27 @@ if (databaseUrl) {
   report("Live database check", false, "DATABASE_URL is missing");
 }
 
-if (env.SMTP_USER || env.SMTP_PASSWORD) {
-  // Logs in to the SMTP server without sending a message.
-  try {
-    const port = Number(env.SMTP_PORT ?? 465);
-    await createTransport({
-      host: env.SMTP_HOST ?? "smtp.gmail.com",
-      port,
-      secure: port === 465,
-      auth: {
-        user: env.SMTP_USER,
-        pass: (env.SMTP_PASSWORD ?? "").replace(/\s+/g, ""),
-      },
-    }).verify();
-    checks.verifiedSender = true;
-  } catch {
-    console.error("SMTP login failed. Check SMTP_USER and the App Password.");
-  }
-  report("Gmail SMTP sign-in", checks.verifiedSender, env.SMTP_USER);
-} else {
-  const senderAddress =
-    env.EMAIL_FROM?.match(/<([^<>]+)>$/)?.[1] ?? env.EMAIL_FROM;
-  const senderDomain = senderAddress?.split("@")[1]?.toLowerCase();
-
-  if (env.RESEND_API_KEY) {
-    try {
-      const { data, error } = await new Resend(
-        env.RESEND_API_KEY,
-      ).domains.list();
-
-      if (!error) {
-        checks.verifiedSender = Boolean(
-          data?.data?.some(
-            (domain) =>
-              domain.status === "verified" &&
-              domain.name.toLowerCase() === senderDomain,
-          ),
-        );
-      } else {
-        console.error("Resend domain lookup failed.");
-      }
-    } catch {
-      console.error("Resend domain lookup failed.");
-    }
-  }
-
-  report("Verified Resend sender domain", checks.verifiedSender);
+// Logs in to the SMTP server without sending a message.
+try {
+  const port = Number(env.SMTP_PORT ?? 465);
+  await createTransport({
+    host: env.SMTP_HOST ?? "smtp.gmail.com",
+    port,
+    secure: port === 465,
+    auth: {
+      user: env.SMTP_USER,
+      pass: (env.SMTP_PASSWORD ?? "").replace(/\s+/g, ""),
+    },
+  }).verify();
+  checks.verifiedSender = true;
+} catch {
+  console.error("SMTP login failed. Check SMTP_USER and SMTP_PASSWORD.");
 }
+report(
+  "Gmail SMTP sign-in",
+  checks.verifiedSender,
+  env.SMTP_USER ?? "SMTP_USER is missing",
+);
 
 const inviteReady =
   checks.appUrl &&

@@ -53,7 +53,7 @@ NDCAK Digital Tournament Management System is a focused university event platfor
 - Staff authentication: Supabase Auth with cookie-based SSR sessions.
 - Application data access: server-only Drizzle queries against Supabase PostgreSQL.
 - Public mutations: trusted Next.js server code with schema validation and anti-abuse protection.
-- Hosting: Vercel, with Supabase, Resend, and optional Cloudflare Turnstile.
+- Hosting: Vercel (free `*.vercel.app` address), with Supabase, Gmail SMTP for email, and optional Cloudflare Turnstile.
 
 ## Decisions still owned by the committee
 

@@ -10,7 +10,7 @@ Phases 0–3 are complete in code and verified against a real PostgreSQL databas
 
 - Reviewed every repository source artifact and visually reviewed all 25 PRD pages and supplied design assets.
 - Extracted the complete PRD into a searchable text artifact and established the seven-phase roadmap.
-- Built and verified the Next.js, TypeScript, Drizzle, Supabase, Resend, validation, and testing foundation.
+- Built and verified the Next.js, TypeScript, Drizzle, Supabase, email, validation, and testing foundation.
 - Applied the 16-table schema to the live Supabase PostgreSQL database with row-level security enabled and default-deny browser access.
 - Added Supabase SSR session refresh, verified-claim staff identity, application-profile authorization, and role routing.
 - Generated and integrated compact and full NDCAK logo variants with corrected proportions.
@@ -66,18 +66,18 @@ Before people can use the live workflows:
 
 ## Decision log
 
-| Date       | Decision                                                                                               | Reason                                                                                                          |
-| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Resend, Vercel.               | It matches the approved product direction and the relational/concurrency requirements.                          |
-| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                       | This is the central experience boundary in the PRD.                                                             |
-| 2026-09-19 | Use one feature-oriented monolith.                                                                     | It keeps transactional workflows cohesive without premature infrastructure.                                     |
-| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                         | The committee has not finalized them and the PRD explicitly requires configuration.                             |
-| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                          | It avoids exposing payment and registration mutations directly to anonymous clients.                            |
-| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction. | Authoritative state remains correct on provider failure while every intended delivery remains observable.       |
-| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.               | Approval email must contain an accurate calendar invitation; the application must not invent event data.        |
-| 2026-09-19 | Serve public event data from a 60-second tagged cache refreshed by submissions and reviews.            | Public pages were querying the database on every visit; capacity is still re-checked in the submit transaction. |
-| 2026-09-19 | Replace a database client idle for longer than its idle timeout before reuse.                          | Sockets that outlived a suspended machine silently hung every later query on the single pooled connection.      |
-| 2026-09-19 | Manage one tournament at a time: the newest one that is not archived.                                  | Matches how NDCAK runs one event a year and keeps admin screens simple; archiving starts the next event.        |
-| 2026-09-19 | Store department and academic-year lists in tournament settings and validate them on the server.       | The PRD requires configured lists; the client-side list alone let any value through.                            |
-| 2026-09-19 | Run integration tests only against local PostgreSQL.                                                   | Every test truncates tables; the setup refuses non-local hosts so it can never touch Supabase.                  |
-| 2026-09-19 | Host on the free `*.vercel.app` address in the Mumbai region and send email through Gmail SMTP.        | NDCAK has no domain to verify for Resend; Gmail delivers to any recipient within ~500 messages a day.           |
+| Date       | Decision                                                                                               | Reason                                                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Vercel.                       | It matches the approved product direction and the relational/concurrency requirements.                                                        |
+| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                       | This is the central experience boundary in the PRD.                                                                                           |
+| 2026-09-19 | Use one feature-oriented monolith.                                                                     | It keeps transactional workflows cohesive without premature infrastructure.                                                                   |
+| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                         | The committee has not finalized them and the PRD explicitly requires configuration.                                                           |
+| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                          | It avoids exposing payment and registration mutations directly to anonymous clients.                                                          |
+| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction. | Authoritative state remains correct on provider failure while every intended delivery remains observable.                                     |
+| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.               | Approval email must contain an accurate calendar invitation; the application must not invent event data.                                      |
+| 2026-09-19 | Serve public event data from a 60-second tagged cache refreshed by submissions and reviews.            | Public pages were querying the database on every visit; capacity is still re-checked in the submit transaction.                               |
+| 2026-09-19 | Replace a database client idle for longer than its idle timeout before reuse.                          | Sockets that outlived a suspended machine silently hung every later query on the single pooled connection.                                    |
+| 2026-09-19 | Manage one tournament at a time: the newest one that is not archived.                                  | Matches how NDCAK runs one event a year and keeps admin screens simple; archiving starts the next event.                                      |
+| 2026-09-19 | Store department and academic-year lists in tournament settings and validate them on the server.       | The PRD requires configured lists; the client-side list alone let any value through.                                                          |
+| 2026-09-19 | Run integration tests only against local PostgreSQL.                                                   | Every test truncates tables; the setup refuses non-local hosts so it can never touch Supabase.                                                |
+| 2026-09-19 | Host on the free `*.vercel.app` address in the Mumbai region and send email through Gmail SMTP.        | NDCAK has no domain to verify with a provider such as Resend; Gmail delivers to any recipient within ~500 messages a day. Resend was removed. |

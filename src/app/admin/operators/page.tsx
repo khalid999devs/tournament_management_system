@@ -55,8 +55,8 @@ export default async function OperatorsPage({
         </div>
         <p className={styles.helper}>
           An invitation grants a staff account only. Access to matches remains
-          off until you add an assignment. The invitation email is sent through
-          Resend and its delivery is visible under Notifications.
+          off until you add an assignment. The invitation email is sent from the
+          official NDCAK Gmail and its delivery is visible under Notifications.
         </p>
         {!invitationsConfigured ? (
           <div className={styles.notice} role="status">

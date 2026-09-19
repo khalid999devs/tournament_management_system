@@ -7,8 +7,6 @@ const serverEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
   SUPABASE_SECRET_KEY: z.string().min(1).optional(),
   SUPER_ADMIN_EMAIL: z.email().optional(),
-  RESEND_API_KEY: z.string().min(1).optional(),
-  EMAIL_FROM: z.string().min(1).optional(),
   EMAIL_REPLY_TO: z.email().optional(),
   SMTP_USER: z.string().min(1).optional(),
   SMTP_PASSWORD: z.string().min(1).optional(),
@@ -21,15 +19,9 @@ const supabaseEnvSchema = serverEnvSchema.pick({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: true,
 });
 
-const resendEmailSchema = z.object({
-  RESEND_API_KEY: z.string().startsWith("re_").min(20),
-  EMAIL_FROM: z.string().min(3),
-  EMAIL_REPLY_TO: z.email(),
-});
-
 // Gmail (or any SMTP host) sends as the signed-in account, so the sender is
 // always SMTP_USER; only the display name is configurable.
-const smtpEmailSchema = z.object({
+const emailEnvSchema = z.object({
   SMTP_HOST: z.string().min(1).default("smtp.gmail.com"),
   SMTP_PORT: z.coerce.number().int().positive().default(465),
   SMTP_USER: z.email(),
@@ -41,9 +33,7 @@ const smtpEmailSchema = z.object({
   EMAIL_REPLY_TO: z.email(),
 });
 
-export type EmailEnv =
-  | ({ transport: "smtp" } & z.infer<typeof smtpEmailSchema>)
-  | ({ transport: "resend" } & z.infer<typeof resendEmailSchema>);
+export type EmailEnv = z.infer<typeof emailEnvSchema>;
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
@@ -72,10 +62,7 @@ export function getSupabaseEnv() {
 }
 
 export function getEmailEnv(): EmailEnv {
-  const useSmtp = Boolean(process.env.SMTP_USER || process.env.SMTP_PASSWORD);
-  const result = useSmtp
-    ? smtpEmailSchema.safeParse(process.env)
-    : resendEmailSchema.safeParse(process.env);
+  const result = emailEnvSchema.safeParse(process.env);
 
   if (!result.success) {
     throw new Error(
@@ -83,10 +70,7 @@ export function getEmailEnv(): EmailEnv {
     );
   }
 
-  return {
-    transport: useSmtp ? "smtp" : "resend",
-    ...result.data,
-  } as EmailEnv;
+  return result.data;
 }
 
 // Links in emails and metadata must point at the deployed site. On Vercel the

@@ -1,6 +1,6 @@
-import postgres from "postgres";
-import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { createTransport } from "nodemailer";
+import postgres from "postgres";
 
 const env = process.env;
 const required = [
@@ -8,8 +8,8 @@ const required = [
   "SUPABASE_SECRET_KEY",
   "SUPER_ADMIN_EMAIL",
   "NEXT_PUBLIC_APP_URL",
-  "RESEND_API_KEY",
-  "EMAIL_FROM",
+  "SMTP_USER",
+  "SMTP_PASSWORD",
   "EMAIL_REPLY_TO",
 ];
 
@@ -77,15 +77,24 @@ actionUrl.searchParams.set("token_hash", link.data.properties.hashed_token);
 actionUrl.searchParams.set("type", invite.error ? "recovery" : "invite");
 
 const escapedUrl = actionUrl.toString().replaceAll("&", "&amp;");
-const { error } = await new Resend(env.RESEND_API_KEY).emails.send({
-  from: env.EMAIL_FROM,
-  to: [email],
+const port = Number(env.SMTP_PORT ?? 465);
+await createTransport({
+  host: env.SMTP_HOST ?? "smtp.gmail.com",
+  port,
+  secure: port === 465,
+  auth: { user: env.SMTP_USER, pass: env.SMTP_PASSWORD.replace(/\s+/g, "") },
+}).sendMail({
+  from: {
+    name: env.EMAIL_FROM_NAME ?? "NDCAK Indoor Games",
+    address: env.SMTP_USER,
+  },
+  to: email,
   replyTo: env.EMAIL_REPLY_TO,
   subject: "Set up your NDCAK Super Admin account",
   text: [
     "NDCAK staff account setup",
     "",
-    "Your Super Admin account is ready. Open the time-limited link below on the computer running the NDCAK app, then choose a strong password.",
+    "Your Super Admin account is ready. Open the time-limited link below, then choose a strong password.",
     "",
     actionUrl.toString(),
     "",
@@ -103,7 +112,7 @@ const { error } = await new Resend(env.RESEND_API_KEY).emails.send({
         <div style="padding:36px 34px 30px">
           <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#8a6934">STAFF ACCOUNT SETUP</div>
           <h1 style="margin:10px 0 18px;font-size:30px;line-height:1.2;color:#071127">Your workspace is ready.</h1>
-          <p style="font-size:16px;line-height:1.6">Your NDCAK Super Admin account has been created. Open this time-limited link on the computer running the app, then choose a strong password.</p>
+          <p style="font-size:16px;line-height:1.6">Your NDCAK Super Admin account has been created. Open this time-limited link, then choose a strong password.</p>
           <a href="${escapedUrl}" style="display:inline-block;margin:14px 0 22px;padding:15px 22px;background:#0d1b39;color:#fff;text-decoration:none;font-weight:700">Set up your account →</a>
           <p style="font-size:13px;line-height:1.6;color:#59657a">If you did not request this setup, ignore this email. Need help? Reply to ${env.EMAIL_REPLY_TO}.</p>
         </div>
@@ -111,9 +120,4 @@ const { error } = await new Resend(env.RESEND_API_KEY).emails.send({
     </div>`,
 });
 
-if (error)
-  throw new Error(`Admin setup email was not accepted: ${error.name}.`);
-
-console.log(
-  "Super Admin account and profile are ready. Setup email accepted by Resend.",
-);
+console.log("Super Admin account and profile are ready. Setup email sent.");

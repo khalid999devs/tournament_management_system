@@ -10,14 +10,14 @@ flowchart LR
     Web -->|Staff identity and session| Auth[Supabase Auth]
     DB -->|Committed change feed| Realtime[Supabase Realtime]
     Realtime -->|Authenticated updates| Staff
-    Web -->|Post-commit email request| Email[Resend]
+    Web -->|Post-commit email request| Email[Gmail SMTP]
     Cron[Vercel Cron] -->|Idempotent reminders| Web
     Public -->|Registration challenge| Turnstile[Cloudflare Turnstile]
 ```
 
 ## Trust boundaries
 
-- The browser never receives the database URL, Supabase secret/service key, Resend key, or Turnstile secret.
+- The browser never receives the database URL, Supabase secret/service key, Gmail App Password, or Turnstile secret.
 - Public and staff mutations enter through typed server actions or route handlers.
 - Server-side Zod schemas validate external input before domain services run.
 - Drizzle owns application schema, migrations, and transactional query logic.
@@ -37,7 +37,7 @@ flowchart TB
     Repositories --> Drizzle[Drizzle ORM]
     Drizzle --> Postgres[(PostgreSQL)]
     Features --> Notifications[Notification orchestration]
-    Notifications --> Resend[Resend]
+    Notifications --> Email[Gmail SMTP]
 ```
 
 Pages compose feature modules. They do not implement capacity, authorization, progression, or payment state rules.

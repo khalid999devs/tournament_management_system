@@ -36,7 +36,7 @@ Phase 3 operator invitations use the locally configured and verified server-only
 
 ## Initial Super Admin
 
-The official Auth user and active app profile were created with `pnpm db:invite-admin`. That command uses the Admin API to generate a time-limited link and sends it to `SUPER_ADMIN_EMAIL` through Resend; it does not create or disclose a password. The setup link was accepted, and the Auth user is confirmed with a password set. Reopening a used link does not replace normal staff sign-in.
+The official Auth user and active app profile were created with `pnpm db:invite-admin`. That command uses the Admin API to generate a time-limited link and sends it to `SUPER_ADMIN_EMAIL` through Gmail SMTP; it does not create or disclose a password. The setup link was accepted, and the Auth user is confirmed with a password set. Reopening a used link does not replace normal staff sign-in.
 
 If the link expires, rerun `pnpm db:invite-admin` for a fresh link. `pnpm db:bootstrap-admin` remains available for an Auth user created independently in the Dashboard. Both commands upsert the app profile; Auth-user creation happens only through the Supabase Admin API, never direct writes to `auth.users`.
 

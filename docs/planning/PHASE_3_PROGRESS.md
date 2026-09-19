@@ -2,12 +2,12 @@
 
 Status: complete except invitation delivery to a separate inbox, which waits on the Gmail App Password and a deployed URL.
 
-Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and run `pnpm readiness:check` as each external prerequisite is completed.
+See [Deployment](../operations/DEPLOYMENT.md) and run `pnpm readiness:check` as each external prerequisite is completed.
 
 ## Delivered
 
 - Super Admin operator directory, invite action, account deactivation/reactivation, and audited assignment grant/revoke actions.
-- Branded Resend invitation with a Supabase Auth invite or recovery link, delivery status, and manual retry.
+- Branded email invitation with a Supabase Auth invite or recovery link, delivery status, and manual retry.
 - Staff password setup after link verification.
 - All five additive scope types with separate `VIEW`, `SCORE_UPDATE`, `FINALIZE_MATCH`, and `ISSUE_REPORT` capabilities.
 - Server-side match workload filtering before pagination. Operator queries select match operations data only, never payments or transaction references.
@@ -20,7 +20,7 @@ Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and
 flowchart LR
     A[Super Admin invites email] --> B[Supabase generates one-time link]
     B --> C[Staff profile + email outbox + audit commit]
-    C --> D[Resend sends branded invitation]
+    C --> D[Gmail SMTP sends branded invitation]
     D --> E[Operator verifies link and sets password]
     E --> F[Operator opens workload]
     F --> G{Active assignment with VIEW?}

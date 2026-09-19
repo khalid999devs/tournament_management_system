@@ -25,7 +25,7 @@ This directory is the working product and engineering record for the NDCAK Digit
 - [`architecture/STATE_FLOWS.md`](architecture/STATE_FLOWS.md) - registration and match state machines.
 - [`architecture/AUTHORIZATION.md`](architecture/AUTHORIZATION.md) - staff roles, assignment scopes, and access resolution.
 - [`integrations/SUPABASE.md`](integrations/SUPABASE.md) - connection modes, security boundaries, and migration workflow.
-- [`integrations/EMAIL.md`](integrations/EMAIL.md) - Resend application email and Supabase Auth SMTP configuration.
+- [`integrations/EMAIL.md`](integrations/EMAIL.md) - Gmail SMTP application email and the App Password setup.
 - [`research/UI_BENCHMARKS.md`](research/UI_BENCHMARKS.md) - UI research and adopted patterns.
 - [`qa/QUALITY_BARS.md`](qa/QUALITY_BARS.md) - engineering, UX, security, and release quality gates.
 

@@ -38,7 +38,6 @@
     "react-dom": "19.2.8",
     "react-email": "^6.9.5",
     "react-hook-form": "^7.88.0",
-    "resend": "^6.28.1",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.5"
   },

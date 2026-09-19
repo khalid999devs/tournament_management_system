@@ -14,7 +14,7 @@ Phases 0-2 of the approved seven-phase roadmap are implementation-complete. Phas
 - Supabase SSR claim verification plus active staff-profile and Super Admin authorization.
 - Server-side registration search, filters, sorting, pagination, and full payment review.
 - Idempotent audited approval/rejection with transactional capacity finalization/release.
-- Resend outbox processing, delivery status, manual retry, and approval calendar invitations.
+- Email outbox processing through Gmail SMTP, delivery status, manual retry, and approval calendar invitations.
 - Branded HTML/plain-text email templates with a development-only preview at `/dev/email-preview`.
 - Operator invitations, password setup, active/revoked staff lifecycle, five assignment scopes, and filtered operator workload views.
 - Unit tests for fee, capacity, normalization, review transitions, email wording, and calendar output.
