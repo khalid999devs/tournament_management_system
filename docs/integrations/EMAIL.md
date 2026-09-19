@@ -29,6 +29,8 @@ Environment contract:
 
 Current development configuration uses `onboarding@resend.dev` as the sender and `ndcakofficial@gmail.com` as both reply-to and Super Admin email. The API key is valid, but the Resend account currently has no verified sending domain. Resend's sandbox sender is therefore suitable only for development and restricted test delivery.
 
+The official Admin setup email was sent through this sandbox sender, and Resend reports it as delivered. `pnpm db:invite-admin` can issue a fresh time-limited setup link if needed; it sends only to `SUPER_ADMIN_EMAIL` and requires a local server when `NEXT_PUBLIC_APP_URL` is localhost. Separate operator invitations still need a verified sending domain for reliable delivery to their own addresses.
+
 Before production email:
 
 1. Add an NDCAK-controlled domain in Resend and publish its DNS records.

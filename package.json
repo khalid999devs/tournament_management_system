@@ -19,6 +19,7 @@
     "db:migrate": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs migrate",
     "db:studio": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs studio",
     "db:bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-super-admin.mjs",
+    "db:invite-admin": "node --env-file=.env.local scripts/invite-super-admin.mjs",
     "phase3:check": "node --env-file=.env.local scripts/check-phase3-readiness.mjs"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 # Phase 3 - Operators and Assignments
 
-Status: implementation ready; live staff rehearsal pending external configuration.
+Status: implementation ready; Admin setup email delivered, acceptance and live staff rehearsal pending.
 
 Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and run `pnpm phase3:check` as each external prerequisite is completed.
 
@@ -37,14 +37,14 @@ flowchart LR
 - Seven email preview states return HTTP 200 in development; the route is coded to return 404 outside development.
 - Browser-reviewed the branded email at desktop and mobile sizes. All seven states pass 14 Playwright viewport checks for complete height, visible support footer, and no horizontal overflow.
 - Anonymous `/operator` and `/admin/operators` requests redirect to staff sign-in.
-- Live database reports `staff_profiles.email` and `staff_profiles_email_uidx` present; there are still zero staff profiles.
+- Live database reports `staff_profiles.email` and `staff_profiles_email_uidx` present. The official active Super Admin profile now exists.
+- The server-only Supabase key works with the Auth Admin API; Resend reports the official Admin setup email as delivered.
 
 ## Still required before Phase 3 exit
 
-1. Create the official Super Admin Auth user and run `pnpm db:bootstrap-admin`.
-2. Add `SUPABASE_SECRET_KEY` to ignored `.env.local` for server-only Auth Admin link generation.
-3. Verify an NDCAK-controlled sender domain in Resend and update `EMAIL_FROM`.
-4. Configure committee-approved tournament/game data, then invite one test operator and verify each scope against actual matches.
-5. Inspect authenticated staff pages visually after a real Super Admin and operator account exist. The email preview has already passed browser review.
+1. Accept the delivered official Admin setup link, set a password, and verify `/admin` and `/admin/operators`.
+2. Verify an NDCAK-controlled sender domain in Resend and update `EMAIL_FROM` before inviting a separate test operator.
+3. Configure committee-approved tournament/game data, then invite one test operator and verify each scope against actual matches.
+4. Inspect authenticated staff pages visually after the Admin and operator accounts can sign in. The email preview has already passed browser review.
 
 Do not mark Phase 3 complete or begin score mutation work until the live invite and scope rehearsal passes.

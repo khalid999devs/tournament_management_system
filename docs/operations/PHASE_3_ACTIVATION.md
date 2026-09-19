@@ -4,9 +4,9 @@ This is a live-configuration checklist. Do not paste passwords, database URLs, o
 
 ## Current verified state — 19 September 2026
 
-- Local public Supabase connection, database URL, Resend API key, official Admin email, and reply-to are configured.
-- `SUPABASE_SECRET_KEY` is missing; `NEXT_PUBLIC_APP_URL` still points to localhost; `EMAIL_FROM` still uses Resend's sandbox sender.
-- The live database has no official Admin Auth user or staff profile, tournament, payment method, operator, match, or participant entry.
+- Local public Supabase connection, database URL, Resend API key, official Admin email, reply-to, and server-only Supabase key are configured. The Auth Admin API accepts the key.
+- The official Admin Auth account and active `SUPER_ADMIN` profile exist. A one-time setup email was delivered to `ndcakofficial@gmail.com`; email confirmation and password setup still require the recipient to open it.
+- `NEXT_PUBLIC_APP_URL` still points to localhost; `EMAIL_FROM` still uses Resend's sandbox sender. The live database has no tournament, payment method, operator, match, or participant entry.
 - The Resend account has no sending domains.
 
 ## 1. Secure the credentials already shared
@@ -15,6 +15,8 @@ The database password and Resend API key were previously pasted into this conver
 
 ## 2. Verify an NDCAK-controlled sending domain
 
+Deferred until NDCAK has a domain. The sandbox sender successfully delivered the official Admin setup email, but it is not a substitute for a verified domain when inviting other staff or sending production mail.
+
 In [Resend Domains](https://resend.com/domains), add a domain or subdomain that NDCAK owns, for example `updates.example.org` only if NDCAK owns `example.org`. Copy Resend's exact DKIM and SPF records into that domain's DNS, wait for the dashboard to show **Verified**, and add DMARC. Do not use `gmail.com` as the sending domain. The official Gmail address can remain the reply-to inbox.
 
 Set `EMAIL_FROM` in `.env.local` to a sender on the verified domain, for example `NDCAK Indoor Games <events@updates.example.org>`. Keep `EMAIL_REPLY_TO=ndcakofficial@gmail.com` if that is the approved support inbox. The readiness check compares the sender domain with Resend's verified-domain list.
@@ -22,6 +24,8 @@ Set `EMAIL_FROM` in `.env.local` to a sender on the verified domain, for example
 Resend's [domain guide](https://resend.com/docs/add-a-domain) provides DNS-provider-specific instructions and verification troubleshooting.
 
 ## 3. Configure Supabase Auth email
+
+Deferred with domain verification. The Admin setup email used the application Resend API and does not depend on Supabase custom SMTP.
 
 In the Supabase project Dashboard, open **Authentication → SMTP Settings** and enable custom SMTP. Use the Resend settings below, with a sender address on the verified domain:
 
@@ -42,19 +46,17 @@ In **Authentication → URL Configuration**, set the Site URL to the real deploy
 
 In **Supabase → Project Settings → API Keys**, create or copy a `sb_secret_...` key. Put it only in ignored `.env.local` as `SUPABASE_SECRET_KEY=...`; it must not have a `NEXT_PUBLIC_` prefix. Restart `pnpm dev` after changing the file. For deployment, add it to the hosting provider's encrypted server-side environment settings, not to Git. See [Supabase API key guidance](https://supabase.com/docs/guides/getting-started/api-keys).
 
-## 5. Create and bootstrap the official Super Admin
+## 5. Finish the official Super Admin setup
 
-In **Supabase → Authentication → Users → Add user**, create `ndcakofficial@gmail.com` with a strong password and a confirmed email. Do this in the Dashboard; never send the password here or insert directly into `auth.users`. If the Dashboard offers an invitation instead, configure SMTP first, accept the invitation, and finish password setup before signing in.
+The official Auth user and app profile were created with the server-only Admin API, and Resend reported the setup email as delivered. The email uses a time-limited link to `/auth/confirm`, followed by `/staff/set-password`. It avoids sending or storing a password. Open it on the same computer running the app, because the current link points to `localhost:3000`.
 
-Then run from this repository:
+If the local server is not running, start it before opening the link:
 
 ```bash
-pnpm db:bootstrap-admin
-pnpm phase3:check
 pnpm dev
 ```
 
-The bootstrap script creates or reactivates the app's `SUPER_ADMIN` profile only after the Auth user exists. Sign in at `http://localhost:3000/staff/login` and verify that `/admin` and `/admin/operators` load. The [Supabase Users guide](https://supabase.com/docs/guides/auth/users) describes Dashboard invitations.
+Set a strong password, then sign in at `http://localhost:3000/staff/login` and verify that `/admin` and `/admin/operators` load. If the link expires, run `pnpm db:invite-admin` to send a fresh one to the configured official inbox. Do not share a password or one-time link in chat. `pnpm phase3:check` will report the Auth user as confirmed after the link is accepted.
 
 ## 6. Supply approved event data and rehearse an operator
 

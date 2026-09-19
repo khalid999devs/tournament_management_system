@@ -12,20 +12,19 @@ No secrets should be pasted into chat, committed, or placed in client-exposed va
 - Application schema: migrated and verified on the live project.
 - Transaction Pooler: configured on port 6543 and verified for runtime and migrations.
 - Direct PostgreSQL URL: not used because it is IPv6-only in this environment.
-- Official Super Admin Auth user: not created yet.
+- Official Super Admin Auth user and active profile: created; email confirmation and password setup are awaiting invite acceptance.
 - Resend API key: configured and valid.
 - Resend verified sending domains: none.
-- Supabase server-only secret key: not configured; needed for Phase 3 operator invitations.
+- Supabase server-only secret key: configured locally and verified against the Auth Admin API.
 
 ## Needed now to activate staff access
 
-- Create `ndcakofficial@gmail.com` in Supabase Authentication with a secure password or invitation.
-- Put the Supabase secret key in ignored `.env.local` as `SUPABASE_SECRET_KEY`; never use a public prefix or paste it into chat.
+- Accept the delivered setup email on the computer running the app, choose a strong password, and sign in at `/staff/login`.
 - Resend-verified NDCAK sending domain.
 
 A Session Pooler URL may optionally be stored as `MIGRATION_DATABASE_URL` for long-running local administration. It is not blocking the current schema because the initial Drizzle migration completed successfully through the Transaction Pooler.
 
-The initial Super Admin identity is `ndcakofficial@gmail.com`. The Phase 3 operator-invitation workflow now requires Auth Admin link generation, so a server-only secret key is needed. It is not needed for public registration or Super Admin payment review.
+The initial Super Admin identity is `ndcakofficial@gmail.com`. The Phase 3 operator-invitation workflow uses the server-only key for Auth Admin link generation; the key is not needed for public registration or Super Admin payment review.
 
 ## Needed to complete email delivery
 

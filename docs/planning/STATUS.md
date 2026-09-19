@@ -4,7 +4,7 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phase 3 - Operators and Assignments is implemented in code. Live invitation and access testing remain pending the Supabase server-only secret key, a Super Admin Auth user, and a verified Resend sender.
+Phase 3 - Operators and Assignments is implemented in code. The server-only Supabase key works and the official Super Admin account/profile are created. The setup email is delivered; acceptance, a verified Resend sender, and live operator/access rehearsal remain pending.
 
 ## Completed
 
@@ -42,17 +42,16 @@ The implementation is complete, but the live database intentionally contains no 
 
 - `tournaments`: 0
 - `payment_methods`: 0
-- `staff_profiles`: 0
+- `staff_profiles`: 1 official Super Admin
 - `registrations`: 0
 
 Before people can use the live workflows:
 
-1. Create or invite `ndcakofficial@gmail.com` in Supabase Auth, then run `pnpm db:bootstrap-admin`.
-2. Add `SUPABASE_SECRET_KEY` to ignored `.env.local` so the Super Admin can invite operators.
-3. Supply the committee-approved tournament, games, capacities, fees, registration window, event dates, venue, rules, and payment receiving accounts.
-4. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
-5. Configure Supabase Auth SMTP in the dashboard with the verified sender.
-6. Supply Vercel access, the production domain, and production environment ownership when deployment is authorized.
+1. Accept the delivered setup email on the computer running the app, set the Admin password, and sign in.
+2. Supply the committee-approved tournament, games, capacities, fees, registration window, event dates, venue, rules, and payment receiving accounts.
+3. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
+4. Configure Supabase Auth SMTP in the dashboard with the verified sender.
+5. Supply Vercel access, the production domain, and production environment ownership when deployment is authorized.
 
 ## Decision log
 
