@@ -65,7 +65,7 @@ export const scoreCompareAdapter: ScoringAdapter<Config, Score, Event> = {
   key: "SCORE_COMPARE",
   label: "Highest or lowest score wins",
   summary:
-    "One final number per competitor — points, time or distance — ranked highest-first or lowest-first.",
+    "One final number per competitor (points, time or distance), ranked highest-first or lowest-first.",
   examples: "Scrabble, Rubik's cube time trials, typing speed, quiz totals",
   defaultProgression: "AUTOMATIC_SINGLE_ELIMINATION",
   seats: { min: 2, max: 64 },

@@ -77,7 +77,7 @@ export function GameDraw({
               </label>
               <label className={styles.check}>
                 <input type="radio" name="seeding" value="MANUAL" /> Manual
-                order — list below, top seed first
+                order: list below, top seed first
               </label>
             </fieldset>
             <label className={styles.field}>

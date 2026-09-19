@@ -159,7 +159,7 @@ export function ChessPanel({
                 checked={tiebreak === null}
                 onChange={() => setTiebreak(null)}
               />
-              No tie-break — draw stands
+              No tie-break, the draw stands
             </label>
           ) : null}
         </fieldset>
@@ -299,7 +299,7 @@ export function GoalsPanel({
             onClick={() =>
               emit(
                 { type: "GOAL", seat, phase },
-                `Goal — ${seatName(entrants, seat)}`,
+                `Goal: ${seatName(entrants, seat)}`,
               )
             }
           >
@@ -442,7 +442,7 @@ export function SetsPanel({
                 onClick={() =>
                   emit(
                     { type: "POINT", seat, set: current },
-                    `Point — ${seatName(entrants, seat)}`,
+                    `Point: ${seatName(entrants, seat)}`,
                   )
                 }
               >
@@ -605,7 +605,7 @@ export function CarromPanel({
             onClick={() =>
               emit(
                 { type: "BOARD", seat, points },
-                `Board — ${seatName(entrants, seat)} +${points}`,
+                `Board: ${seatName(entrants, seat)} +${points}`,
               )
             }
           >
@@ -680,7 +680,7 @@ function TiebreakEditor({
 
   return (
     <details className={styles.disclosure} open={hasTie}>
-      <summary>Tie-break order{hasTie ? " — needed" : ""}</summary>
+      <summary>Tie-break order{hasTie ? " (needed)" : ""}</summary>
       <p className={styles.hint}>
         Players with equal totals can be reordered. Top of the list places
         higher.
@@ -836,7 +836,7 @@ export function ScoreComparePanel({
           return (
             <li key={seat}>
               <SeatLabel entrants={entrants} seat={seat} />
-              <output>{read(seat) ?? "—"}</output>
+              <output>{read(seat) ?? "Not entered"}</output>
               <input
                 aria-label={`New value for ${seatName(entrants, seat)}`}
                 inputMode="decimal"
@@ -925,11 +925,11 @@ export function PlacementPanel({
                         : null;
                       emit(
                         { type: "FINISH", seat, finish, previous: row.finish },
-                        `${seatName(entrants, seat)} finished #${finish ?? "—"}`,
+                        `${seatName(entrants, seat)} finished #${finish ?? "?"}`,
                       );
                     }}
                   >
-                    <option value="">—</option>
+                    <option value="">Not set</option>
                     {positions.map((position) => (
                       <option key={position} value={position}>
                         #{position}
@@ -945,7 +945,7 @@ export function PlacementPanel({
                     onClick={() =>
                       emit(
                         { type: "KILL", seat },
-                        `Elimination — ${seatName(entrants, seat)}`,
+                        `Elimination: ${seatName(entrants, seat)}`,
                       )
                     }
                   >

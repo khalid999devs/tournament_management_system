@@ -42,7 +42,7 @@ export function ScoringRulesForm({
         >
           {scoringAdapterList.map((item) => (
             <option key={item.key} value={item.key}>
-              {item.label} — {item.examples}
+              {item.label}: {item.examples}
             </option>
           ))}
         </select>
@@ -60,10 +60,10 @@ export function ScoringRulesForm({
           disabled={formatLocked}
         >
           <option value="AUTOMATIC_SINGLE_ELIMINATION">
-            Knockout — winners advance automatically
+            Knockout: winners advance automatically
           </option>
           <option value="MANUAL">
-            Manual — admin builds each round and picks who plays
+            Manual: admin builds each round and picks who plays
           </option>
         </select>
         {formatLocked ? (
@@ -99,7 +99,9 @@ export function ScoringRulesForm({
                 />
                 <span>
                   {field.label}
-                  {field.help ? <small> — {field.help}</small> : null}
+                  {field.help ? (
+                    <small className={styles.checkHelp}>{field.help}</small>
+                  ) : null}
                 </span>
               </label>
             );

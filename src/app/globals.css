@@ -105,7 +105,7 @@ select {
 
 .brand-copy small {
   color: var(--slate-300);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.11em;
   text-transform: uppercase;
 }
@@ -296,7 +296,7 @@ select {
 .eyebrow {
   margin: 0 0 18px;
   color: var(--gold-500);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -401,7 +401,7 @@ select {
   align-items: center;
   gap: 9px;
   color: var(--gold-500);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -466,18 +466,29 @@ select {
   list-style: none;
 }
 
+.lineup-grid > li {
+  display: flex;
+}
+
 .lineup-card {
   display: flex;
-  min-height: 250px;
+  width: 100%;
+  min-height: 260px;
   flex-direction: column;
   padding: 26px;
   border: 1px solid var(--line-light);
   background: rgba(13, 27, 57, 0.7);
-  transition: border-color 160ms ease;
+  color: inherit;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
 }
 
 .lineup-card:hover {
-  border-color: var(--line-gold);
+  border-color: var(--gold-500);
+  background: rgba(19, 35, 70, 0.85);
+  transform: translateY(-3px);
 }
 
 .lineup-card > svg {
@@ -485,29 +496,70 @@ select {
 }
 
 .lineup-card h3 {
-  margin-top: 34px;
+  margin-top: 30px;
   font-size: 28px;
 }
 
 .lineup-card p {
   margin: 8px 0 0;
   color: var(--slate-300);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .lineup-meta {
   display: flex;
-  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 6px 14px;
+  gap: 12px;
   margin-top: auto;
   padding-top: 22px;
-  color: var(--green-500);
-  font-size: 11px;
+}
+
+.lineup-meta > div {
+  display: grid;
+  gap: 3px;
+}
+
+.lineup-meta strong {
+  color: var(--gold-500);
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+}
+
+.lineup-meta span {
+  color: var(--slate-300);
+  font-size: 13px;
+}
+
+.lineup-go {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--line-gold);
+  border-radius: 50%;
+  color: var(--gold-500);
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.lineup-card:hover .lineup-go {
+  background: var(--gold-500);
+  color: var(--navy-950);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineup-card,
+  .lineup-go {
+    transition: none;
+  }
+
+  .lineup-card:hover {
+    transform: none;
+  }
 }
 
 /* How to enter */
@@ -604,7 +656,7 @@ select {
 .footer-identity p {
   max-width: 420px;
   margin: 18px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 
@@ -614,14 +666,14 @@ select {
   align-items: flex-start;
   flex-direction: column;
   gap: 10px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .footer-contact p,
 .footer-links p {
   margin: 0 0 8px;
   color: var(--gold-500);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -646,7 +698,7 @@ select {
   justify-content: space-between;
   gap: 24px;
   border-top: 1px solid var(--line-light);
-  font-size: 11px;
+  font-size: 13px;
 }
 
 /* Loading skeletons */
@@ -857,12 +909,24 @@ select {
   }
 
   .lineup-card p {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .lineup-meta {
     padding-top: 14px;
-    font-size: 10px;
+  }
+
+  .lineup-meta strong {
+    font-size: 16px;
+  }
+
+  .lineup-meta span {
+    font-size: 12px;
+  }
+
+  .lineup-go {
+    width: 32px;
+    height: 32px;
   }
 
   .closing-cta .button {

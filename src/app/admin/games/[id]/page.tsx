@@ -83,9 +83,9 @@ export default async function GameSettingsPage({
           <label className={styles.field}>
             <span>Registration</span>
             <select name="availability" defaultValue={game.availability}>
-              <option value="DRAFT">Draft — hidden from participants</option>
-              <option value="OPEN">Open — accepting registrations</option>
-              <option value="CLOSED">Closed — visible, not accepting</option>
+              <option value="DRAFT">Draft: hidden from participants</option>
+              <option value="OPEN">Open: accepting registrations</option>
+              <option value="CLOSED">Closed: visible, not accepting</option>
             </select>
           </label>
           <label className={styles.field}>

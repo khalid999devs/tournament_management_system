@@ -1,0 +1,67 @@
+.days {
+  display: grid;
+  gap: 28px;
+  min-width: 0;
+}
+
+.day h2 {
+  margin: 0 0 12px;
+  color: var(--gold-500);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.day ol {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line-light);
+  background: rgba(13, 27, 57, 0.84);
+  list-style: none;
+}
+
+.day li {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--line-light);
+}
+
+.day li:first-child {
+  border-top: 0;
+}
+
+.time {
+  color: var(--ivory-100);
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.match {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.match strong {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.match small {
+  color: var(--slate-300);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .day li {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px 16px;
+  }
+}

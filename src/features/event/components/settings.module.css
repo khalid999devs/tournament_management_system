@@ -525,3 +525,11 @@
     grid-template-columns: minmax(0, 1fr) 340px;
   }
 }
+
+.checkHelp {
+  display: block;
+  margin-top: 2px;
+  color: var(--slate-700);
+  font-size: 12px;
+  line-height: 1.5;
+}

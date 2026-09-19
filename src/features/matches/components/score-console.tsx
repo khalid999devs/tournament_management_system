@@ -146,7 +146,7 @@ export function ScoreConsole({
       <div className={styles.syncBar} role="status" aria-live="polite">
         {!sync.online ? (
           <span className={styles.syncWarn}>
-            <CloudOff size={16} aria-hidden="true" /> Offline — actions are kept
+            <CloudOff size={16} aria-hidden="true" /> Offline. Actions are kept
             on this device and sent when the connection returns.
           </span>
         ) : failed ? (
@@ -177,7 +177,7 @@ export function ScoreConsole({
       {sync.signedOut ? (
         <div className={styles.alert} role="alert">
           Your session ended. <a href="/staff/login">Sign in again</a> in
-          another tab — queued actions stay on this device and can be sent
+          another tab. Queued actions stay on this device and can be sent
           afterwards.
         </div>
       ) : null}

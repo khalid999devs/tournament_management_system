@@ -28,6 +28,24 @@ type RegistrationDetailsFormProps = {
   academicYears: string[];
 };
 
+const emptyDetails: RegistrationDetailsInput = {
+  fullName: "",
+  studentId: "",
+  email: "",
+  phone: "",
+  department: "",
+  academicYear: "",
+  selectedGameIds: [],
+};
+
+function placesText(remaining: number, open: boolean) {
+  if (!open) return { text: "Registration closed", tone: "none" };
+  if (remaining === 0) return { text: "Full", tone: "none" };
+  if (remaining <= 5)
+    return { text: `Only ${remaining} places left`, tone: "low" };
+  return { text: `${remaining} places left`, tone: "ok" };
+}
+
 export function RegistrationDetailsForm({
   games,
   maxGames,
@@ -44,35 +62,43 @@ export function RegistrationDetailsForm({
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
-    reset,
+    setValue,
   } = useForm<RegistrationDetailsInput, unknown, RegistrationDetails>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      fullName: "",
-      studentId: "",
-      email: "",
-      phone: "",
-      department: "",
-      academicYear: "",
-      selectedGameIds: [],
-    },
+    defaultValues: emptyDetails,
   });
 
+  // Restore an unfinished draft, or preselect the game picked on the
+  // landing page (/register?game=<id>). setValue keeps the inputs attached
+  // to the form; reset() would detach them from the compiler-memoized refs.
   useEffect(() => {
-    const storedDraft = window.sessionStorage.getItem(draftStorageKey);
-
-    if (!storedDraft) return;
-
-    try {
-      const parsed = schema.safeParse(JSON.parse(storedDraft));
-
-      if (parsed.success) {
-        reset(parsed.data);
+    const fill = (values: Partial<RegistrationDetailsInput>) => {
+      for (const [name, value] of Object.entries(values)) {
+        setValue(name as keyof RegistrationDetailsInput, value as never, {
+          shouldDirty: false,
+        });
       }
-    } catch {
-      window.sessionStorage.removeItem(draftStorageKey);
+    };
+
+    const storedDraft = window.sessionStorage.getItem(draftStorageKey);
+    if (storedDraft) {
+      try {
+        const parsed = schema.safeParse(JSON.parse(storedDraft));
+        if (parsed.success) {
+          fill(parsed.data);
+          return;
+        }
+      } catch {
+        window.sessionStorage.removeItem(draftStorageKey);
+      }
     }
-  }, [reset, schema]);
+
+    const requested = new URLSearchParams(window.location.search).get("game");
+    const game = games.find((item) => item.id === requested);
+    if (game && game.registrationOpen && getRemainingCapacity(game) > 0) {
+      fill({ selectedGameIds: [game.id] });
+    }
+  }, [setValue, schema, games]);
 
   const selectedGameIds = useWatch({ control, name: "selectedGameIds" }) ?? [];
   const selectedGames = games.filter((game) =>
@@ -82,6 +108,7 @@ export function RegistrationDetailsForm({
     (total, game) => total + game.feeMinor,
     0,
   );
+  const limitReached = selectedGames.length >= maxGames;
 
   function onSubmit(details: RegistrationDetails) {
     window.sessionStorage.setItem(draftStorageKey, JSON.stringify(details));
@@ -89,123 +116,192 @@ export function RegistrationDetailsForm({
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <section
-        className={styles.panel}
-        aria-labelledby="student-information-heading"
-      >
-        <div className={styles.panelHeading}>
-          <span>01</span>
-          <div>
-            <h2 id="student-information-heading">Student information</h2>
-            <p>Use details the event team can verify and contact.</p>
+    <form
+      className={`${styles.layout} ${styles.withBar}`}
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+    >
+      <div className={styles.main}>
+        <section className={styles.card} aria-labelledby="details-heading">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>1</span>
+            <div>
+              <h2 id="details-heading">Your details</h2>
+              <p>
+                We use these to confirm your place and reach you before your
+                matches.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className={styles.fieldsGrid}>
-          <Field label="Full name" error={errors.fullName?.message} wide>
-            <input autoComplete="name" {...register("fullName")} />
-          </Field>
-          <Field label="Student ID" error={errors.studentId?.message}>
-            <input autoComplete="off" {...register("studentId")} />
-          </Field>
-          <Field label="Academic year" error={errors.academicYear?.message}>
-            <select {...register("academicYear")}>
-              <option value="">Select year</option>
-              {academicYears.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Department" error={errors.department?.message} wide>
-            <select {...register("department")}>
-              <option value="">Select department</option>
-              {departments.map((department) => (
-                <option key={department} value={department}>
-                  {department}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Email" error={errors.email?.message}>
-            <input type="email" autoComplete="email" {...register("email")} />
-          </Field>
-          <Field
-            label="Phone"
-            hint="Bangladesh mobile number"
-            error={errors.phone?.message}
-          >
-            <input type="tel" autoComplete="tel" {...register("phone")} />
-          </Field>
-        </div>
-      </section>
-
-      <section
-        className={styles.panel}
-        aria-labelledby="game-selection-heading"
-      >
-        <div className={styles.panelHeading}>
-          <span>02</span>
-          <div>
-            <h2 id="game-selection-heading">Choose your games</h2>
-            <p>
-              Select up to {maxGames}. Pending reservations are already
-              reflected in availability.
-            </p>
+          <div className={styles.fields}>
+            <Field label="Full name" error={errors.fullName?.message} wide>
+              <input
+                autoComplete="name"
+                placeholder="As on your student ID"
+                {...register("fullName")}
+              />
+            </Field>
+            <Field label="Student ID" error={errors.studentId?.message}>
+              <input
+                autoComplete="off"
+                inputMode="numeric"
+                placeholder="e.g. 2107042"
+                {...register("studentId")}
+              />
+            </Field>
+            <Field label="Academic year" error={errors.academicYear?.message}>
+              <select {...register("academicYear")}>
+                <option value="">Select your year</option>
+                {academicYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Department" error={errors.department?.message} wide>
+              <select {...register("department")}>
+                <option value="">Select your department</option>
+                {departments.map((department) => (
+                  <option key={department} value={department}>
+                    {department}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Email" error={errors.email?.message}>
+              <input
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                {...register("email")}
+              />
+            </Field>
+            <Field
+              label="Phone"
+              hint="Bangladesh mobile"
+              error={errors.phone?.message}
+            >
+              <input
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder="01XXXXXXXXX"
+                {...register("phone")}
+              />
+            </Field>
           </div>
-        </div>
+        </section>
 
-        <div className={styles.gameGrid}>
-          {games.map((game) => {
-            const remaining = getRemainingCapacity(game);
-            const selected = selectedGameIds.includes(game.id);
-            const unavailable = !game.registrationOpen || remaining === 0;
+        <section className={styles.card} aria-labelledby="games-heading">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>2</span>
+            <div>
+              <h2 id="games-heading">Choose your games</h2>
+              <p>Each game is its own competition. Pick up to {maxGames}.</p>
+            </div>
+          </div>
 
-            return (
-              <label
-                className={`${styles.gameOption} ${selected ? styles.gameOptionSelected : ""} ${unavailable ? styles.gameOptionDisabled : ""}`}
-                key={game.id}
-              >
-                <input
-                  type="checkbox"
-                  value={game.id}
-                  disabled={unavailable}
-                  {...register("selectedGameIds")}
-                />
-                <span className={styles.gameCheck} aria-hidden="true">
-                  {selected && <Check size={16} strokeWidth={3} />}
-                </span>
-                <span className={styles.gameCopy}>
-                  <strong>{game.name}</strong>
-                  <small>{game.description}</small>
-                  <span className={styles.gameMeta}>
-                    <b>{formatBdt(game.feeMinor)}</b>
-                    <span>
-                      <Users size={14} aria-hidden="true" /> {remaining} left
-                    </span>
+          <p className={styles.gameCounter} aria-live="polite">
+            <b>{selectedGames.length}</b> of {maxGames} selected
+            {limitReached ? ". Unselect a game to choose a different one." : ""}
+          </p>
+
+          <div className={styles.gameGrid}>
+            {games.map((game) => {
+              const remaining = getRemainingCapacity(game);
+              const selected = selectedGameIds.includes(game.id);
+              const unavailable =
+                !game.registrationOpen ||
+                remaining === 0 ||
+                (limitReached && !selected);
+              const places = placesText(remaining, game.registrationOpen);
+
+              return (
+                <label
+                  className={`${styles.game} ${selected ? styles.gameSelected : ""} ${unavailable ? styles.gameDisabled : ""}`}
+                  key={game.id}
+                >
+                  <input
+                    type="checkbox"
+                    value={game.id}
+                    disabled={unavailable}
+                    {...register("selectedGameIds")}
+                  />
+                  <span className={styles.check} aria-hidden="true">
+                    {selected ? <Check size={15} strokeWidth={3.2} /> : null}
                   </span>
-                </span>
-              </label>
-            );
-          })}
-        </div>
-        {errors.selectedGameIds?.message && (
-          <p className={styles.selectionError} role="alert">
-            {errors.selectedGameIds.message}
+                  <span className={styles.gameName}>{game.name}</span>
+                  <span className={styles.gameFee}>
+                    {formatBdt(game.feeMinor)}
+                  </span>
+                  {game.description ? (
+                    <span className={styles.gameDescription}>
+                      {game.description}
+                    </span>
+                  ) : null}
+                  <span className={styles.gamePlaces} data-tone={places.tone}>
+                    <Users size={14} aria-hidden="true" /> {places.text}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          {errors.selectedGameIds?.message ? (
+            <p className={styles.selectionError} role="alert">
+              {errors.selectedGameIds.message}
+            </p>
+          ) : null}
+        </section>
+      </div>
+
+      <aside className={styles.summary} aria-label="Registration summary">
+        <p className={styles.summaryTitle}>Your registration</p>
+        {selectedGames.length ? (
+          <ul className={styles.summaryList}>
+            {selectedGames.map((game) => (
+              <li key={game.id}>
+                <span>{game.name}</span>
+                <b>{formatBdt(game.feeMinor)}</b>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.summaryEmpty}>
+            No games selected yet. Pick at least one to continue.
           </p>
         )}
-      </section>
-
-      <div className={styles.summaryBar}>
-        <div>
-          <span>{selectedGames.length} games selected</span>
+        <div className={styles.summaryTotal}>
+          <span>Total fee</span>
           <strong>{formatBdt(totalFeeMinor)}</strong>
-          <small>Total expected fee</small>
         </div>
-        <button type="submit" disabled={isSubmitting}>
-          Review details <ArrowRight size={18} aria-hidden="true" />
+        <button
+          className={styles.primary}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          Review registration <ArrowRight size={18} aria-hidden="true" />
+        </button>
+        <p className={styles.summaryNote}>
+          Nothing is submitted yet. You will check everything before paying.
+        </p>
+      </aside>
+
+      <div className={styles.mobileBar}>
+        <div>
+          <small>
+            {selectedGames.length}{" "}
+            {selectedGames.length === 1 ? "game" : "games"} · total
+          </small>
+          <strong>{formatBdt(totalFeeMinor)}</strong>
+        </div>
+        <button
+          className={styles.primary}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          Review <ArrowRight size={18} aria-hidden="true" />
         </button>
       </div>
     </form>
@@ -222,13 +318,20 @@ type FieldProps = {
 
 function Field({ children, error, hint, label, wide }: FieldProps) {
   return (
-    <label className={`${styles.field} ${wide ? styles.fieldWide : ""}`}>
-      <span>
+    <label
+      className={`${styles.field} ${wide ? styles.fieldWide : ""}`}
+      data-invalid={error ? "true" : undefined}
+    >
+      <span className={styles.fieldLabel}>
         {label}
-        {hint && <small>{hint}</small>}
+        {hint ? <small>{hint}</small> : null}
       </span>
       {children}
-      {error && <em role="alert">{error}</em>}
+      {error ? (
+        <em className={styles.fieldError} role="alert">
+          {error}
+        </em>
+      ) : null}
     </label>
   );
 }

@@ -108,7 +108,7 @@ export default async function NotificationsPage({
                       {row.registrationCode}
                     </Link>
                   ) : (
-                    "—"
+                    "None"
                   )}
                 </td>
                 <td>{row.retryCount}</td>
@@ -130,7 +130,7 @@ export default async function NotificationsPage({
                       </button>
                     </form>
                   ) : (
-                    "—"
+                    "Not needed"
                   )}
                 </td>
               </tr>

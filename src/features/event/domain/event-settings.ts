@@ -19,7 +19,7 @@ export type GameAvailability = "DRAFT" | "OPEN" | "CLOSED";
 // live in src/features/scoring.
 export const scoringAdapters = scoringAdapterList.map((adapter) => ({
   key: adapter.key,
-  label: `${adapter.label} — ${adapter.examples}`,
+  label: `${adapter.label}: ${adapter.examples}`,
   progression: adapter.defaultProgression,
 }));
 

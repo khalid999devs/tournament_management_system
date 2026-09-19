@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 import { calculateRegistrationQuote } from "@/features/registration/domain/quote";
@@ -33,17 +33,17 @@ export function RegistrationReview({
   );
 
   if (details === undefined) {
-    return (
-      <div className={styles.reviewState}>Loading your registration draft…</div>
-    );
+    return <div className={styles.state}>Loading your registration…</div>;
   }
 
   if (details === null) {
     return (
-      <div className={styles.reviewState}>
-        <h2>No registration draft found</h2>
-        <p>Start with your student information and game selection.</p>
-        <Link href="/register">Start registration</Link>
+      <div className={styles.state}>
+        <h2>Nothing to review yet</h2>
+        <p>Start with your details and the games you want to play.</p>
+        <Link className={styles.primary} href="/register">
+          Start registration
+        </Link>
       </div>
     );
   }
@@ -55,59 +55,80 @@ export function RegistrationReview({
   );
 
   return (
-    <div className={styles.reviewLayout}>
-      <section className={styles.panel}>
-        <div className={styles.reviewHeading}>
-          <div>
-            <p>Registration review</p>
-            <h2>Check everything before payment.</h2>
+    <div className={styles.layout}>
+      <div className={styles.main}>
+        <section className={styles.card} aria-labelledby="review-details">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>1</span>
+            <div>
+              <h2 id="review-details">Your details</h2>
+              <p>Your confirmation and match updates go to this email.</p>
+            </div>
+            <Link className={styles.cardHeaderAction} href="/register">
+              <Pencil size={14} aria-hidden="true" /> Edit
+            </Link>
           </div>
-          <ShieldCheck size={38} aria-hidden="true" />
-        </div>
+          <dl className={styles.detailsList}>
+            <ReviewItem label="Full name" value={details.fullName} />
+            <ReviewItem label="Student ID" value={details.studentId} />
+            <ReviewItem label="Department" value={details.department} />
+            <ReviewItem label="Academic year" value={details.academicYear} />
+            <ReviewItem label="Email" value={details.email} />
+            <ReviewItem label="Phone" value={details.phone} />
+          </dl>
+        </section>
 
-        <dl className={styles.reviewDetails}>
-          <ReviewItem label="Full name" value={details.fullName} />
-          <ReviewItem label="Student ID" value={details.studentId} />
-          <ReviewItem label="Email" value={details.email} />
-          <ReviewItem label="Phone" value={details.phone} />
-          <ReviewItem label="Department" value={details.department} wide />
-          <ReviewItem label="Academic year" value={details.academicYear} />
-        </dl>
-      </section>
+        <section className={styles.card} aria-labelledby="review-games">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>2</span>
+            <div>
+              <h2 id="review-games">Your games</h2>
+              <p>
+                Places are held once you submit, and confirmed after the payment
+                check.
+              </p>
+            </div>
+            <Link className={styles.cardHeaderAction} href="/register">
+              <Pencil size={14} aria-hidden="true" /> Change
+            </Link>
+          </div>
+          <ul className={styles.summaryList}>
+            {quote.lines.map((line) => (
+              <li key={line.gameId}>
+                <span>{line.name}</span>
+                <b>{formatBdt(line.feeMinor)}</b>
+              </li>
+            ))}
+          </ul>
+          <div className={styles.summaryTotal}>
+            <span>Total fee</span>
+            <strong>{formatBdt(quote.totalFeeMinor)}</strong>
+          </div>
+        </section>
+      </div>
 
-      <aside className={styles.quotePanel}>
-        <p>Selected games</p>
-        <ul>
-          {quote.lines.map((line) => (
-            <li key={line.gameId}>
-              <span>
-                <strong>{line.name}</strong>
-                <small>
-                  {line.remainingCapacity} places currently available
-                </small>
-              </span>
-              <b>{formatBdt(line.feeMinor)}</b>
-            </li>
-          ))}
-        </ul>
-        <div className={styles.quoteTotal}>
-          <span>Total expected fee</span>
+      <aside
+        className={`${styles.summary} ${styles.summaryStatic}`}
+        aria-label="Next step"
+      >
+        <p className={styles.summaryTitle}>Next: payment</p>
+        <div className={styles.summaryTotal}>
+          <span>Amount to pay</span>
           <strong>{formatBdt(quote.totalFeeMinor)}</strong>
         </div>
-        <p className={styles.pendingNote}>
-          Payment information is reviewed manually. Submission does not confirm
-          a place until the event team approves it.
+        <div className={styles.reviewActions}>
+          <Link className={styles.primary} href="/register/payment">
+            Continue to payment <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+          <Link className={styles.secondary} href="/register">
+            Edit registration
+          </Link>
+        </div>
+        <p className={styles.summaryNote}>
+          You send the fee by mobile banking and enter the transaction ID. The
+          committee checks every payment before confirming your place.
         </p>
       </aside>
-
-      <div className={styles.reviewActions}>
-        <Link href="/register">
-          <ArrowLeft size={17} aria-hidden="true" /> Edit details
-        </Link>
-        <Link className={styles.primaryAction} href="/register/payment">
-          Proceed to payment <ArrowRight size={17} aria-hidden="true" />
-        </Link>
-      </div>
     </div>
   );
 }
@@ -141,17 +162,9 @@ function parseDraft(
   }
 }
 
-function ReviewItem({
-  label,
-  value,
-  wide,
-}: {
-  label: string;
-  value: string;
-  wide?: boolean;
-}) {
+function ReviewItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className={wide ? styles.reviewItemWide : undefined}>
+    <div>
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>

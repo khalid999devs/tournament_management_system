@@ -37,6 +37,7 @@ export type PublicEvent = {
   registrationCloseAt: string | null;
   maxGamesPerParticipant: number;
   description: string | null;
+  checkInInstructions: string | null;
   departments: string[];
   academicYears: string[];
   resultsEnabled: boolean;
@@ -129,6 +130,7 @@ async function loadPublicEvent(): Promise<PublicEvent | null> {
     registrationOpenAt: tournament.registrationOpenAt?.toISOString() ?? null,
     registrationCloseAt: tournament.registrationCloseAt?.toISOString() ?? null,
     description: publicSettings.description ?? null,
+    checkInInstructions: publicSettings.checkInInstructions ?? null,
     departments: publicSettings.departments ?? defaultDepartments,
     academicYears: publicSettings.academicYears ?? defaultAcademicYears,
     resultsEnabled: publicSettings.resultsEnabled,
@@ -155,7 +157,7 @@ function withTimeout<T>(promise: Promise<T>) {
 // transaction, so a briefly stale slot count can never oversubscribe a game.
 const getCachedPublicEvent = unstable_cache(
   () => withTimeout(loadPublicEvent()),
-  ["public-event-v2"],
+  ["public-event-v3"],
   { tags: [publicEventTag], revalidate: 60 },
 );
 

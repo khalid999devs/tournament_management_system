@@ -83,6 +83,8 @@ export default async function Home() {
   const registration = describeRegistration(event);
   const lineup = event?.games.length
     ? event.games.map((game) => ({
+        id: game.id as string | null,
+        open: game.registrationOpen,
         name: game.name,
         description: game.description,
         fee: formatBdt(game.feeMinor),
@@ -91,7 +93,13 @@ export default async function Home() {
           game.capacity - game.reservedCount - game.confirmedCount,
         ),
       }))
-    : announcedLineup.map((game) => ({ ...game, fee: null, slotsLeft: null }));
+    : announcedLineup.map((game) => ({
+        ...game,
+        id: null,
+        open: false,
+        fee: null,
+        slotsLeft: null,
+      }));
   const eventName = event?.name ?? "NDCAK Indoor Games Championship";
   const dates = event?.startsAt
     ? formatDhakaDateRange(event.startsAt, event.endsAt)
@@ -197,26 +205,43 @@ export default async function Home() {
         <ul className="lineup-grid">
           {lineup.map((game) => {
             const Icon = iconFor(game.name);
+            const full = game.slotsLeft === 0;
+            const canEnter = Boolean(
+              game.id && game.open && registration.open && !full,
+            );
 
             return (
-              <li className="lineup-card" key={game.name}>
-                <Icon size={26} aria-hidden="true" />
-                <h3>{game.name}</h3>
-                <p>{game.description}</p>
-                <div className="lineup-meta">
-                  {game.fee ? (
-                    <>
-                      <span>Entry {game.fee}</span>
-                      <span>
-                        {game.slotsLeft === 0
-                          ? "Full"
-                          : `${game.slotsLeft} slots left`}
-                      </span>
-                    </>
-                  ) : (
-                    <span>Entry fee and slots announced soon</span>
-                  )}
-                </div>
+              <li key={game.name}>
+                <Link
+                  className="lineup-card"
+                  href={canEnter ? `/register?game=${game.id}` : "/register"}
+                  aria-label={`${game.name}: ${canEnter ? "register" : "registration details"}`}
+                >
+                  <Icon size={26} aria-hidden="true" />
+                  <h3>{game.name}</h3>
+                  <p>{game.description}</p>
+                  <div className="lineup-meta">
+                    <div>
+                      {game.fee ? (
+                        <>
+                          <strong>{game.fee}</strong>
+                          <span>
+                            {full
+                              ? "Full"
+                              : !game.open && game.id
+                                ? "Registration closed"
+                                : `${game.slotsLeft} places left`}
+                          </span>
+                        </>
+                      ) : (
+                        <span>Fee and places announced soon</span>
+                      )}
+                    </div>
+                    <span className="lineup-go" aria-hidden="true">
+                      <ArrowRight size={18} />
+                    </span>
+                  </div>
+                </Link>
               </li>
             );
           })}

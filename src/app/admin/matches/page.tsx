@@ -149,7 +149,7 @@ export default async function MatchesPage({
                   </span>
                 </td>
                 <td>
-                  <span>{row.displayScore ?? "—"}</span>
+                  <span>{row.displayScore ?? "No score yet"}</span>
                   <small>Updated {formatDhakaDateTime(row.updatedAt)}</small>
                 </td>
                 <td>

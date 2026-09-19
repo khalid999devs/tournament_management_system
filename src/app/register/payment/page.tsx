@@ -1,13 +1,12 @@
-import { Check, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PublicHeader } from "@/components/brand/public-header";
 import { RegistrationPayment } from "@/features/registration/components/registration-payment";
+import { RegistrationShell } from "@/features/registration/components/registration-shell";
 import styles from "@/features/registration/components/registration.module.css";
 import { getRegistrationCheckout } from "@/features/tournaments/server/get-registration-tournament";
 
 export const metadata: Metadata = {
-  title: "Payment information",
+  title: "Payment",
 };
 
 export const revalidate = 60;
@@ -16,54 +15,26 @@ export default async function RegistrationPaymentPage() {
   const checkout = await getRegistrationCheckout();
 
   return (
-    <main className={styles.page}>
-      <div className={styles.headerShell}>
-        <PublicHeader />
-      </div>
-      <section className={`${styles.intro} page-width`}>
-        <Link href="/register/review">
-          <ChevronLeft size={16} aria-hidden="true" /> Back to review
-        </Link>
-        <div>
-          <p>Participant registration</p>
-          <h1>Submit payment information.</h1>
-          <span>
-            The configured receiving account and exact expected amount will
-            appear here before final submission.
-          </span>
+    <RegistrationShell
+      step={3}
+      back={{ href: "/register/review", label: "Back to review" }}
+      title="Pay and submit."
+      lead="Send the total by mobile banking, then enter the transaction ID from your receipt. Your place is held as soon as you submit."
+    >
+      {checkout ? (
+        <RegistrationPayment checkout={checkout} />
+      ) : (
+        <div className={styles.state}>
+          <h2>Registration is closed</h2>
+          <p>
+            Registration is not open at the moment, so no payment can be
+            submitted.
+          </p>
+          <Link className={styles.primary} href="/">
+            Back to the championship
+          </Link>
         </div>
-        <ol className={styles.steps} aria-label="Registration progress">
-          <li className={styles.complete}>
-            <b>
-              <Check size={14} aria-label="Completed" />
-            </b>
-            Details
-          </li>
-          <li className={styles.complete}>
-            <b>
-              <Check size={14} aria-label="Completed" />
-            </b>
-            Review
-          </li>
-          <li className={styles.active} aria-current="step">
-            <b>3</b> Payment
-          </li>
-        </ol>
-      </section>
-      <div className="page-width">
-        {checkout ? (
-          <RegistrationPayment checkout={checkout} />
-        ) : (
-          <div className={styles.reviewState}>
-            <h2>Registration is not open</h2>
-            <p>
-              Payment and final submission become available when the approved
-              event configuration is published.
-            </p>
-            <Link href="/register/review">Return to review</Link>
-          </div>
-        )}
-      </div>
-    </main>
+      )}
+    </RegistrationShell>
   );
 }

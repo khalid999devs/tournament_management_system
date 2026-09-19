@@ -22,6 +22,7 @@ export type PublicMatch = {
   status: string;
   displayScore: string | null;
   scheduledAt: string | null;
+  station: string | null;
   entrants: {
     name: string;
     department: string;
@@ -98,6 +99,7 @@ async function loadPublicResults() {
           status: matches.status,
           displayScore: matches.displayScore,
           scheduledAt: matches.scheduledAt,
+          station: matches.station,
           nextMatchId: matches.nextMatchId,
         })
         .from(matches)
@@ -156,6 +158,7 @@ async function loadPublicResults() {
           status: match.status,
           displayScore: final(match.status) ? match.displayScore : null,
           scheduledAt: match.scheduledAt?.toISOString() ?? null,
+          station: match.station,
           entrants: entrantRows
             .filter((entrant) => entrant.matchId === match.id)
             .map((entrant) => ({
@@ -205,7 +208,7 @@ async function loadPublicResults() {
 
 export const getPublicResults = unstable_cache(
   loadPublicResults,
-  ["public-results-v1"],
+  ["public-results-v2"],
   {
     tags: [publicResultsTag],
     revalidate: 60,

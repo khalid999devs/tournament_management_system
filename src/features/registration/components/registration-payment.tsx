@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Copy, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, Copy, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -40,6 +40,7 @@ export function RegistrationPayment({
   const [provider, setProvider] = useState(
     checkout.paymentMethods[0]?.provider ?? "",
   );
+  const [copied, setCopied] = useState(false);
   const idempotencyKey =
     useSyncExternalStore(
       subscribeToDraft,
@@ -67,15 +68,17 @@ export function RegistrationPayment({
   }, [router, state]);
 
   if (details === undefined) {
-    return <div className={styles.reviewState}>Loading payment details…</div>;
+    return <div className={styles.state}>Loading payment details…</div>;
   }
 
   if (!details) {
     return (
-      <div className={styles.reviewState}>
-        <h2>No registration draft found</h2>
-        <p>Complete your details and game selection before payment.</p>
-        <Link href="/register">Start registration</Link>
+      <div className={styles.state}>
+        <h2>Nothing to pay for yet</h2>
+        <p>Fill in your details and choose your games first.</p>
+        <Link className={styles.primary} href="/register">
+          Start registration
+        </Link>
       </div>
     );
   }
@@ -91,108 +94,188 @@ export function RegistrationPayment({
 
   if (!selectedMethod) {
     return (
-      <div className={styles.reviewState}>
+      <div className={styles.state}>
         <h2>Payment is not available yet</h2>
-        <p>The committee has not published an approved receiving account.</p>
-        <Link href="/register/review">Return to review</Link>
+        <p>
+          Payment details have not been published. Please check back shortly.
+        </p>
+        <Link className={styles.primary} href="/register/review">
+          Back to review
+        </Link>
       </div>
     );
   }
 
+  async function copyAccount(account: string) {
+    try {
+      await navigator.clipboard.writeText(account);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
   return (
-    <form className={styles.paymentForm} action={formAction}>
+    <form className={styles.layout} action={formAction}>
       <input type="hidden" name="tournamentId" value={checkout.id} />
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="details" value={JSON.stringify(details)} />
 
-      <section className={styles.amountPanel} aria-labelledby="amount-heading">
-        <div>
-          <p id="amount-heading">Amount to send</p>
+      <div className={styles.main}>
+        <section className={styles.card} aria-labelledby="method-heading">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>1</span>
+            <div>
+              <h2 id="method-heading">Choose how you pay</h2>
+              <p>Use any of these mobile banking services.</p>
+            </div>
+          </div>
+          <fieldset className={styles.methods}>
+            <legend className="visually-hidden">Payment method</legend>
+            {checkout.paymentMethods.map((method) => {
+              const selected = provider === method.provider;
+              return (
+                <label
+                  className={`${styles.method} ${selected ? styles.methodSelected : ""}`}
+                  key={method.provider}
+                >
+                  <input
+                    type="radio"
+                    name="paymentProvider"
+                    value={method.provider}
+                    checked={selected}
+                    onChange={() => {
+                      setProvider(method.provider);
+                      setCopied(false);
+                    }}
+                  />
+                  {selected ? (
+                    <Check size={17} strokeWidth={3} aria-hidden="true" />
+                  ) : null}
+                  {method.displayName}
+                </label>
+              );
+            })}
+          </fieldset>
+        </section>
+
+        <section className={styles.card} aria-labelledby="send-heading">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>2</span>
+            <div>
+              <h2 id="send-heading">Send the exact amount</h2>
+              <p>
+                Send the total in one payment to this{" "}
+                {selectedMethod.displayName} number.
+              </p>
+            </div>
+          </div>
+          <div className={styles.amount}>
+            <span>
+              Total for {quote.lines.length}{" "}
+              {quote.lines.length === 1 ? "game" : "games"}
+            </span>
+            <strong>{formatBdt(quote.totalFeeMinor)}</strong>
+          </div>
+          <div className={styles.account}>
+            <div>
+              <small>{selectedMethod.displayName} number</small>
+              <strong>{selectedMethod.receivingAccount}</strong>
+            </div>
+            <button
+              type="button"
+              className={styles.copyButton}
+              onClick={() => void copyAccount(selectedMethod.receivingAccount)}
+            >
+              {copied ? (
+                <Check size={16} aria-hidden="true" />
+              ) : (
+                <Copy size={16} aria-hidden="true" />
+              )}
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </div>
+          {selectedMethod.instructions ? (
+            <p className={styles.instructions}>{selectedMethod.instructions}</p>
+          ) : null}
+        </section>
+
+        <section className={styles.card} aria-labelledby="reference-heading">
+          <div className={styles.cardHeader}>
+            <span className={styles.cardNumber}>3</span>
+            <div>
+              <h2 id="reference-heading">Enter your transaction ID</h2>
+              <p>
+                You will find it in the confirmation SMS or in your app&apos;s
+                transaction history.
+              </p>
+            </div>
+          </div>
+          <label className={styles.field}>
+            <span className={styles.fieldLabel}>Transaction ID</span>
+            <input
+              name="transactionId"
+              minLength={4}
+              maxLength={160}
+              required
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              placeholder="e.g. 9FX4K2LQ7A"
+            />
+          </label>
+
+          {state.status === "error" ? (
+            <p className={styles.submitError} role="alert">
+              {state.message}
+            </p>
+          ) : null}
+
+          <p className={styles.notice}>
+            <ShieldCheck size={18} aria-hidden="true" />
+            Your place is held once you submit and confirmed by email after the
+            committee checks your payment.
+          </p>
+          <button
+            className={`${styles.primary} ${styles.submitButton}`}
+            type="submit"
+            disabled={pending || !idempotencyKey}
+          >
+            {pending ? "Submitting…" : "Submit registration"}
+            {!pending ? <ArrowRight size={18} aria-hidden="true" /> : null}
+          </button>
+        </section>
+      </div>
+
+      <aside
+        className={`${styles.summary} ${styles.summaryStatic}`}
+        aria-label="Registration summary"
+      >
+        <p className={styles.summaryTitle}>Your registration</p>
+        <ul className={styles.summaryList}>
+          {quote.lines.map((line) => (
+            <li key={line.gameId}>
+              <span>{line.name}</span>
+              <b>{formatBdt(line.feeMinor)}</b>
+            </li>
+          ))}
+        </ul>
+        <div className={styles.summaryTotal}>
+          <span>Total fee</span>
           <strong>{formatBdt(quote.totalFeeMinor)}</strong>
         </div>
-        <span>
-          For <b>{quote.lines.length}</b>{" "}
-          {quote.lines.length === 1 ? "game" : "games"}
-        </span>
-      </section>
-
-      <fieldset className={styles.paymentMethods}>
-        <legend>Select payment method</legend>
-        <div>
-          {checkout.paymentMethods.map((method) => (
-            <label
-              className={
-                provider === method.provider ? styles.paymentMethodSelected : ""
-              }
-              key={method.provider}
-            >
-              <input
-                type="radio"
-                name="paymentProvider"
-                value={method.provider}
-                checked={provider === method.provider}
-                onChange={() => setProvider(method.provider)}
-              />
-              <span>{method.displayName}</span>
-              {provider === method.provider ? (
-                <CheckCircle2 size={19} aria-label="Selected" />
-              ) : null}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <section className={styles.paymentInstruction}>
-        <p>Send to {selectedMethod.displayName}</p>
-        <div>
-          <strong>{selectedMethod.receivingAccount}</strong>
-          <button
-            type="button"
-            aria-label="Copy receiving account"
-            onClick={() =>
-              navigator.clipboard.writeText(selectedMethod.receivingAccount)
-            }
-          >
-            <Copy size={17} aria-hidden="true" />
-          </button>
-        </div>
-        {selectedMethod.instructions ? (
-          <span>{selectedMethod.instructions}</span>
-        ) : null}
-      </section>
-
-      <label className={styles.transactionField}>
-        <span>Transaction ID</span>
-        <input
-          name="transactionId"
-          minLength={4}
-          maxLength={160}
-          required
-          autoComplete="off"
-          placeholder={`${selectedMethod.displayName} transaction ID`}
-        />
-        <small>Copy the exact reference from your payment receipt.</small>
-      </label>
-
-      {state.status === "error" ? (
-        <div className={styles.submissionError} role="alert">
-          {state.message}
-        </div>
-      ) : null}
-
-      <div className={styles.finalSubmission}>
-        <div>
-          <ShieldCheck size={22} aria-hidden="true" />
-          <span>
-            Submission creates a pending request. Your place is confirmed only
-            after manual review.
-          </span>
-        </div>
-        <button type="submit" disabled={pending || !idempotencyKey}>
-          {pending ? "Submitting…" : "Submit for review"}
-          {!pending ? <ArrowRight size={18} aria-hidden="true" /> : null}
-        </button>
-      </div>
+        <dl className={styles.detailsList}>
+          <div>
+            <dt>Player</dt>
+            <dd>{details.fullName}</dd>
+          </div>
+          <div>
+            <dt>Student ID</dt>
+            <dd>{details.studentId}</dd>
+          </div>
+        </dl>
+      </aside>
     </form>
   );
 }

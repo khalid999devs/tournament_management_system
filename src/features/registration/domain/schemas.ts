@@ -5,12 +5,23 @@ const bangladeshPhonePattern = /^\+8801[3-9]\d{8}$/;
 
 export function createRegistrationDetailsSchema(maxGames: number) {
   return z.object({
-    fullName: z.string().trim().min(2).max(160),
+    fullName: z
+      .string()
+      .trim()
+      .min(2, "Enter your full name.")
+      .max(160, "Use at most 160 characters."),
     studentId: z
       .string()
       .transform(normalizeStudentId)
-      .pipe(z.string().min(3).max(64)),
-    email: z.email().max(254),
+      .pipe(
+        z
+          .string()
+          .min(3, "Enter your student ID.")
+          .max(64, "Check your student ID."),
+      ),
+    email: z
+      .email("Enter a valid email address.")
+      .max(254, "Use a shorter email address."),
     phone: z
       .string()
       .transform(normalizeBangladeshPhone)
@@ -22,8 +33,12 @@ export function createRegistrationDetailsSchema(maxGames: number) {
             "Enter a valid Bangladesh mobile number.",
           ),
       ),
-    department: z.string().trim().min(1).max(120),
-    academicYear: z.string().trim().min(1).max(40),
+    department: z.string().trim().min(1, "Choose your department.").max(120),
+    academicYear: z
+      .string()
+      .trim()
+      .min(1, "Choose your academic year.")
+      .max(40),
     selectedGameIds: z
       .array(z.string().min(1))
       .min(1, "Select at least one game.")
