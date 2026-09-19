@@ -125,6 +125,7 @@ export async function getTournamentGameDetail(id: string) {
       registrationOpen: tournamentGames.registrationOpen,
       scoringAdapter: tournamentGames.scoringAdapter,
       progressionMode: tournamentGames.progressionMode,
+      config: tournamentGames.config,
       rules: tournamentGames.rules,
       sortOrder: tournamentGames.sortOrder,
     })

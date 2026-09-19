@@ -5,6 +5,7 @@ import {
   CalendarCog,
   Gamepad2,
   LayoutDashboard,
+  Swords,
   UserCheck,
   UsersRound,
 } from "lucide-react";
@@ -15,6 +16,7 @@ const items = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/event", label: "Event", icon: CalendarCog },
   { href: "/admin/games", label: "Games", icon: Gamepad2 },
+  { href: "/admin/matches", label: "Matches", icon: Swords },
   { href: "/admin/registrations", label: "Registrations", icon: UserCheck },
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/operators", label: "Operators", icon: UsersRound },

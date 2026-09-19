@@ -6,12 +6,15 @@ import { z } from "zod";
 import adminStyles from "@/features/admin/components/admin.module.css";
 import styles from "@/features/event/components/settings.module.css";
 import { StatusMessages } from "@/features/event/components/status-messages";
-import { scoringAdapters } from "@/features/event/domain/event-settings";
 import {
   archiveTournamentGameAction,
   updateTournamentGameAction,
 } from "@/features/event/server/actions";
 import { getTournamentGameDetail } from "@/features/event/server/event-queries";
+import { GameDraw } from "@/features/matches/components/game-draw";
+import { getGameBracket } from "@/features/matches/server/admin-match-queries";
+import { ScoringRulesForm } from "@/features/scoring/components/scoring-rules-form";
+import { parseScoringConfig } from "@/features/scoring/adapters";
 
 export const metadata: Metadata = { title: "Game settings" };
 
@@ -25,8 +28,9 @@ export default async function GameSettingsPage({
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
 
-  const [game, status] = await Promise.all([
+  const [game, bracket, status] = await Promise.all([
     getTournamentGameDetail(id),
+    getGameBracket(id),
     searchParams,
   ]);
   if (!game || game.status === "ARCHIVED") notFound();
@@ -65,7 +69,7 @@ export default async function GameSettingsPage({
       <section className={styles.panel} aria-labelledby="settings-title">
         <div className={styles.panelHeading}>
           <div>
-            <p>Registration and scoring</p>
+            <p>Registration</p>
             <h2 id="settings-title">Game settings</h2>
             <span>
               Fee changes apply to new registrations only; submitted
@@ -125,25 +129,6 @@ export default async function GameSettingsPage({
                 : "Maximum number of players."}
             </small>
           </label>
-          <label className={styles.field}>
-            <span>Scoring</span>
-            <select name="scoringAdapter" defaultValue={game.scoringAdapter}>
-              {scoringAdapters.map((adapter) => (
-                <option key={adapter.key} value={adapter.key}>
-                  {adapter.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className={styles.field}>
-            <span>Progression</span>
-            <select name="progressionMode" defaultValue={game.progressionMode}>
-              <option value="AUTOMATIC_SINGLE_ELIMINATION">
-                Automatic single elimination
-              </option>
-              <option value="MANUAL">Manual — admin picks who advances</option>
-            </select>
-          </label>
           <label className={`${styles.field} ${styles.wide}`}>
             <span>Short description</span>
             <input
@@ -171,6 +156,45 @@ export default async function GameSettingsPage({
           </div>
         </form>
       </section>
+
+      <section
+        id="scoring"
+        className={styles.panel}
+        aria-labelledby="scoring-title"
+      >
+        <div className={styles.panelHeading}>
+          <div>
+            <p>Rules of play</p>
+            <h2 id="scoring-title">Scoring rules</h2>
+            <span>
+              {bracket.lock.started
+                ? "Locked: matches in this game have started, so every result is judged by the same rules."
+                : "How operators enter scores and how the winner is decided. These lock when the first match starts."}
+            </span>
+          </div>
+        </div>
+        <ScoringRulesForm
+          tournamentGameId={game.id}
+          adapterKey={game.scoringAdapter}
+          progressionMode={game.progressionMode}
+          config={
+            parseScoringConfig(game.scoringAdapter, game.config) as Record<
+              string,
+              unknown
+            >
+          }
+          lock={bracket.lock}
+        />
+      </section>
+
+      <GameDraw
+        game={{
+          id: game.id,
+          progressionMode: game.progressionMode,
+          registrationOpen: game.availability === "OPEN",
+        }}
+        bracket={bracket}
+      />
 
       <section className={styles.panel} aria-labelledby="remove-title">
         <div className={styles.panelHeading}>

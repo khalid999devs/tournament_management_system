@@ -25,8 +25,6 @@ const gameConfig = {
   description: null,
   feeTaka: 50,
   capacity: 8,
-  scoringAdapter: "CHESS_OUTCOME" as const,
-  progressionMode: "AUTOMATIC_SINGLE_ELIMINATION" as const,
   availability: "OPEN" as const,
   rules: null,
   sortOrder: 0,

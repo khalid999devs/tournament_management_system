@@ -20,6 +20,7 @@ export type RoundMetadata = Record<string, unknown>;
 export type MatchResultData = Record<string, unknown>;
 export type MatchEntryResultData = Record<string, unknown>;
 export type MatchUpdatePayload = Record<string, unknown>;
+export type MatchScoreData = unknown;
 
 export const rounds = pgTable(
   "rounds",
@@ -63,6 +64,8 @@ export const matches = pgTable(
     venue: varchar("venue", { length: 180 }),
     station: varchar("station", { length: 80 }),
     displayScore: varchar("display_score", { length: 160 }),
+    // Live score derived from match_updates by the game's scoring adapter.
+    scoreData: jsonb("score_json").$type<MatchScoreData>(),
     resultData: jsonb("result_json").$type<MatchResultData>(),
     version: integer("version").notNull().default(1),
     nextMatchId: uuid("next_match_id"),
@@ -138,6 +141,9 @@ export const matchEntries = pgTable(
   ],
 ).enableRLS();
 
+// Append-only log of every accepted change to a match. match_version is the
+// per-match sequence number; client_event_id makes retried submissions
+// idempotent; device_time is when the operator acted, kept for review only.
 export const matchUpdates = pgTable(
   "match_updates",
   {
@@ -151,11 +157,22 @@ export const matchUpdates = pgTable(
     updateType: varchar("update_type", { length: 80 }).notNull(),
     matchVersion: integer("match_version").notNull(),
     payload: jsonb("payload_json").$type<MatchUpdatePayload>().notNull(),
+    clientEventId: uuid("client_event_id").notNull(),
+    deviceTime: timestamp("device_time", { withTimezone: true }),
+    voidsUpdateId: uuid("voids_update_id"),
+    // clock_timestamp() so updates committed in one transaction keep
+    // distinct, real times.
     createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
+      .default(sql`clock_timestamp()`)
       .notNull(),
   },
   (table) => [
+    uniqueIndex("match_updates_match_version_uidx").on(
+      table.matchId,
+      table.matchVersion,
+    ),
+    uniqueIndex("match_updates_client_event_uidx").on(table.clientEventId),
+    uniqueIndex("match_updates_voids_update_uidx").on(table.voidsUpdateId),
     index("match_updates_match_created_idx").on(
       table.matchId,
       table.createdAt,
@@ -170,5 +187,10 @@ export const matchUpdates = pgTable(
       "match_updates_version_positive_check",
       sql`${table.matchVersion} > 0`,
     ),
+    foreignKey({
+      columns: [table.voidsUpdateId],
+      foreignColumns: [table.id],
+      name: "match_updates_voids_update_id_fk",
+    }),
   ],
 ).enableRLS();

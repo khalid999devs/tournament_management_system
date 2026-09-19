@@ -8,6 +8,17 @@ const messages: Record<string, string> = {
   game_added: "Game added as a draft. Review its settings, then open it.",
   game_saved: "Game settings saved.",
   game_removed: "Game removed from this event.",
+  scoring_saved: "Scoring rules saved.",
+  bracket_generated: "Draw made. Matches are ready for operators.",
+  bracket_reset: "Draw removed. You can make a new one.",
+  round_added: "Round added. Add its matches below.",
+  match_added: "Match created.",
+  match_deleted: "Match deleted.",
+  match_reopened: "Result reopened. Correct the score and confirm it again.",
+  match_postponed: "Match postponed.",
+  match_resumed: "Match resumed.",
+  match_cancelled: "Match cancelled.",
+  schedule_saved: "Time and place saved.",
 };
 
 const errors: Record<string, string> = {
@@ -32,6 +43,39 @@ const errors: Record<string, string> = {
     "Capacity cannot be lower than the places already reserved or confirmed.",
   game_has_entries:
     "Games with registrations cannot be removed. Close registration for it instead.",
+  invalid_scoring_rules:
+    "Check the scoring settings: a value is missing or out of range.",
+  scoring_locked:
+    "Scoring rules are locked because matches in this game have started. Every result must use the same rules.",
+  bracket_exists:
+    "A draw already exists for this game. Reset the draw first (only possible before any match starts).",
+  registration_open: "Close registration for this game before making the draw.",
+  pending_reviews:
+    "Some registrations for this game are still awaiting payment review. Approve or reject them first so no one is left out.",
+  too_few_players: "At least two confirmed players are needed for a draw.",
+  seeding_mismatch:
+    "The seeding list must contain every confirmed player's registration code exactly once.",
+  not_knockout:
+    "This game uses manual progression. Add rounds and matches instead.",
+  not_manual: "This game uses an automatic knockout draw.",
+  invalid_round: "Give the round a name of 2–120 characters.",
+  round_not_found: "That round no longer exists.",
+  wrong_player_count: "Pick a number of players this game's scoring allows.",
+  player_not_confirmed: "Only confirmed players can be placed in a match.",
+  matches_started: "Matches have already started, so this cannot be undone.",
+  has_assignments:
+    "Operators are assigned to these rounds or matches. Revoke those assignments first.",
+  no_bracket: "There is no draw to reset.",
+  confirm_reset: "Type RESET to confirm removing the draw.",
+  tournament_closed: "The tournament is closed.",
+  match_not_found: "That match no longer exists.",
+  invalid_schedule: "Enter a valid start time.",
+  reason_required: "Enter a reason of at least 5 characters.",
+  downstream_result_dependency:
+    "The next match has already started. Reopen that match first.",
+  match_closed: "That action is not possible in the match's current state.",
+  unauthorized_scope: "You do not have access to this match.",
+  not_found: "That match no longer exists.",
   save_failed: "The change could not be saved. Try again.",
 };
 

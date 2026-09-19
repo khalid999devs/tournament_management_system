@@ -782,3 +782,16 @@
     flex-direction: column;
   }
 }
+
+.statusBadge[data-status="IN_PROGRESS"] {
+  color: var(--green-600);
+}
+
+.statusBadge[data-status="COMPLETED"],
+.statusBadge[data-status="WALKOVER"] {
+  color: var(--navy-800);
+}
+
+.statusBadge[data-status="POSTPONED"] {
+  color: #85520c;
+}

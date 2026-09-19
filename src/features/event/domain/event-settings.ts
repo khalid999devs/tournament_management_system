@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  scoringAdapterKeys,
+  scoringAdapterList,
+  type ScoringAdapterKey,
+} from "@/features/scoring/adapters";
 
 export type TournamentStatus =
   | "DRAFT"
@@ -10,42 +15,15 @@ export type TournamentStatus =
 
 export type GameAvailability = "DRAFT" | "OPEN" | "CLOSED";
 
-// Adapter keys are stored on each tournament game. Phase 4 implements the
-// score-entry UI and validation behind each key.
-export const scoringAdapters = [
-  {
-    key: "CHESS_OUTCOME",
-    label: "Chess — win / draw / loss",
-    progression: "AUTOMATIC_SINGLE_ELIMINATION",
-  },
-  {
-    key: "GOALS",
-    label: "Football — goals, extra time, penalties",
-    progression: "AUTOMATIC_SINGLE_ELIMINATION",
-  },
-  {
-    key: "SETS",
-    label: "Table tennis — best-of sets",
-    progression: "AUTOMATIC_SINGLE_ELIMINATION",
-  },
-  {
-    key: "CARROM_POINTS",
-    label: "Carrom — boards and points",
-    progression: "AUTOMATIC_SINGLE_ELIMINATION",
-  },
-  {
-    key: "MULTIPLAYER_POINTS",
-    label: "Multi-player points and placements (e.g. 29 Cards)",
-    progression: "MANUAL",
-  },
-] as const;
+// Adapter keys are stored on each tournament game; the adapters themselves
+// live in src/features/scoring.
+export const scoringAdapters = scoringAdapterList.map((adapter) => ({
+  key: adapter.key,
+  label: `${adapter.label} — ${adapter.examples}`,
+  progression: adapter.defaultProgression,
+}));
 
-export type ScoringAdapterKey = (typeof scoringAdapters)[number]["key"];
-
-const scoringAdapterKeys = scoringAdapters.map((adapter) => adapter.key) as [
-  ScoringAdapterKey,
-  ...ScoringAdapterKey[],
-];
+export type { ScoringAdapterKey };
 
 export const defaultDepartments = [
   "Architecture",
@@ -179,14 +157,17 @@ export const tournamentGameSchema = z.object({
   description: optionalText(300),
   feeTaka: z.coerce.number().int().min(0).max(100000),
   capacity: z.coerce.number().int().min(1).max(10000),
-  scoringAdapter: z.enum(scoringAdapterKeys),
-  progressionMode: z.enum(["AUTOMATIC_SINGLE_ELIMINATION", "MANUAL"]),
   availability: z.enum(["DRAFT", "OPEN", "CLOSED"]),
   rules: optionalText(8000),
   sortOrder: z.coerce.number().int().min(0).max(999),
 });
 
 export type TournamentGameInput = z.infer<typeof tournamentGameSchema>;
+
+export const scoringRulesSchema = z.object({
+  scoringAdapter: z.enum(scoringAdapterKeys),
+  progressionMode: z.enum(["AUTOMATIC_SINGLE_ELIMINATION", "MANUAL"]),
+});
 
 export const newTournamentGameSchema = z.object({
   name: z.string().trim().min(2).max(120),

@@ -10,6 +10,7 @@ import {
   paymentMethodSchema,
   tournamentGameSchema,
 } from "@/features/event/domain/event-settings";
+import { refreshPublicResults } from "@/features/matches/server/public-results";
 import { refreshPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
 import {
   addTournamentGame,
@@ -28,6 +29,7 @@ const text = (formData: FormData, key: string) =>
 
 function afterEventChange() {
   refreshPublicEvent();
+  refreshPublicResults();
   revalidatePath("/admin", "layout");
 }
 
@@ -203,8 +205,6 @@ export async function updateTournamentGameAction(formData: FormData) {
     description: text(formData, "description"),
     feeTaka: text(formData, "feeTaka"),
     capacity: text(formData, "capacity"),
-    scoringAdapter: text(formData, "scoringAdapter"),
-    progressionMode: text(formData, "progressionMode"),
     availability: text(formData, "availability"),
     rules: text(formData, "rules"),
     sortOrder: text(formData, "sortOrder") || "0",

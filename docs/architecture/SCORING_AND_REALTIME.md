@@ -2,6 +2,8 @@
 
 Design for live score entry by several operators at once, with no lost, duplicated or silently overwritten updates, on the **free** Supabase and Vercel plans.
 
+**Status:** Phase 4 (everything except the Realtime section) is implemented and verified; see `docs/planning/PHASE_4_COMPLETION.md`. Phase 5 adds Realtime.
+
 ## Constraints
 
 Checked against the provider docs in September 2026.
@@ -21,7 +23,7 @@ An event day is expected to have about 20 operators, 2–5 admins, a few hundred
 ## Principles
 
 1. **PostgreSQL decides.** Every score change is a server command that runs in one short transaction. Realtime and client state are only views of it.
-2. **Every change is an event.** Each accepted command appends one row to `match_updates` with a per-match sequence number. The current score on `matches` is derived from those events and updated in the same transaction.
+2. **Every change is an event.** Each accepted command appends one row to `match_updates`; its `match_version` is the per-match sequence number. The current score on `matches` is derived from those events and updated in the same transaction.
 3. **Nothing is applied twice.** Each command carries a client-generated `clientEventId` (UUID) with a unique index. A retry after a timeout returns the original result instead of applying the change again.
 4. **Nothing is silently overwritten.** Commands that _set_ state carry the `expectedVersion` the operator saw. A stale version is rejected with the current state, never merged blindly.
 5. **Order and timing are preserved.** The server records its own commit time and sequence. The operator device's time is stored alongside, for display and review only, never for ordering.
@@ -48,7 +50,7 @@ BEGIN
   if command needs expectedVersion and matches.version <> $expectedVersion
      return STALE_MATCH_VERSION + current state             -- no write
   validate payload with the scoring adapter
-  insert match_updates (seq = version + 1, server_time = clock_timestamp(), device_time, client_event_id, payload)
+  insert match_updates (match_version = version + 1, created_at = clock_timestamp(), device_time, client_event_id, payload)
   update matches set score/result, version = version + 1
   on finalize: write match_entries placements, lock + fill next match slot, audit_logs row
 COMMIT
@@ -56,11 +58,12 @@ COMMIT
 
 Locks are always taken in one order (current match, then the next-round match), so concurrent finalizations cannot deadlock. Each transaction touches one or two match rows, so contention exists only between operators on the same match, and the row lock queues them for milliseconds.
 
-## Schema changes (Phase 4 migration)
+## Schema changes (Phase 4 migration, applied)
 
-- `match_updates`: add `seq integer`, `client_event_id uuid unique`, `device_time timestamptz`, `voids_update_id uuid`, and a unique index on `(match_id, seq)`. `created_at` switches to `clock_timestamp()` so events in one transaction still get distinct times.
-- `matches`: add `score_json jsonb` for the live derived score; `result_json` keeps the final canonical result.
-- Scoring adapters (`CHESS_OUTCOME`, `GOALS`, `SETS`, `CARROM_POINTS`, `MULTIPLAYER_POINTS`) live in `src/features/scoring/adapters/`. Each exports a Zod event schema, a pure `apply(score, event)` reducer and a `finalize(score)` that returns the canonical result from the PRD. The same code runs in the browser for instant feedback and on the server for authority.
+- `match_updates`: `client_event_id uuid` (unique), `device_time timestamptz`, `voids_update_id uuid` (unique, so an event can be undone once), and a unique index on `(match_id, match_version)`. `created_at` uses `clock_timestamp()` so updates in one transaction still get distinct times.
+- `matches`: `score_json jsonb` holds the live score; `result_json` keeps the final canonical result.
+- Scoring adapters live in `src/features/scoring/adapters/`: `CHESS_OUTCOME`, `GOALS`, `SETS`, `CARROM_POINTS`, `MULTIPLAYER_POINTS`, `SCORE_COMPARE` and `PLACEMENT_POINTS`. Each exports a settings schema, an event schema, a pure `applyEvent(score, event)` reducer and a `finalize(score)` that returns the PRD result. Settings are stored per game in `tournament_games.config_json`. The same code runs in the browser for instant feedback and on the server for authority. A new kind of game needs one new adapter file.
+- Undoing an event appends a `SCORE_VOIDED` row and rebuilds the score from the log; if the rebuild would be impossible, the undo is refused and the operator types the corrected score instead.
 
 ## Operator device behaviour on weak networks
 
@@ -68,7 +71,8 @@ Locks are always taken in one order (current match, then the next-round match), 
 - The UI shows every action as _sending_, _saved_ or _needs attention_. Nothing is shown as saved until the server confirms.
 - Failed sends retry with backoff using the same `clientEventId`, so a retry after a lost response cannot double-count.
 - A `STALE_MATCH_VERSION` response shows the other operator's change and asks the operator to confirm again. Delta events never hit this path.
-- Score entry works without realtime. Realtime only speeds up seeing other operators' changes.
+- Score entry works without realtime. Realtime only speeds up seeing other operators' changes. Until Phase 5, open score screens poll every 6 seconds; the server answers "unchanged" from one indexed lookup.
+- Only one browser tab per operator and match sends the queue (Web Locks), so tabs never race each other.
 
 ## Realtime (Phase 5)
 
@@ -84,11 +88,15 @@ Locks are always taken in one order (current match, then the next-round match), 
 - **Daily Vercel cron** (`/api/cron/daily`, protected by `CRON_SECRET`): sends event reminders, sweeps stuck notifications, and runs one cheap query that keeps the Supabase project from pausing.
 - **Supabase `pg_cron`** (free) is the fallback if something must run more often than daily. It stays in the database and needs no paid Vercel plan.
 
-## Verification before the event
+## Verification
 
-- **Integration tests on local PostgreSQL:** 10 parallel operators sending deltas to one match must produce exactly 10 events with sequence 1–10. Racing `setScore`/`finalizeMatch` calls must yield one success and one `STALE_MATCH_VERSION`. A retried `clientEventId` must be applied once. Two finalizations feeding the same next match must both land without deadlock.
-- **Load rehearsal:** a script simulating 20 operators × 5 matches at 2 events/s for 10 minutes against a local production build, recording p95 latency and checking database consistency afterwards.
-- **Chaos checks:** kill the network mid-submit, restart the server mid-transaction, and drop realtime. The final state must still match the event log.
+Done in Phase 4 (details in `PHASE_4_COMPLETION.md`):
+
+- **Integration tests on local PostgreSQL:** ten parallel deltas produce ten events with versions 2–11; three racing retries of one `clientEventId` apply once; a finalize racing a typed score yields one success and one `STALE_MATCH_VERSION`; sibling semi-finals finishing together both land in the final without deadlock; reopen withdraws the advanced winner and is refused once the next match starts.
+- **Load rehearsal:** 20 operators × 5 matches, about 42 requests per second for 60 seconds, 10% duplicate resends. All requests succeeded, p95 20 ms, and the database matched every accepted event exactly.
+- **Crash test:** the server was killed and restarted mid-load; retries with the same ids landed every event exactly once.
+
+Still to do in Phase 6: repeat the rehearsal against the deployed site and the Supabase pooler, and drop Realtime during scoring.
 
 ## Open risk: Vercel Hobby commercial-use rule
 

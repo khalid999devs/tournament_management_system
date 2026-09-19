@@ -104,8 +104,6 @@ export async function seedOpenEvent(
         description: null,
         feeTaka: 50,
         capacity,
-        scoringAdapter: "CHESS_OUTCOME",
-        progressionMode: "AUTOMATIC_SINGLE_ELIMINATION",
         availability: "OPEN",
         rules: null,
         sortOrder: 0,

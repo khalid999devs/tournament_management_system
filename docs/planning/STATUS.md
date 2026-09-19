@@ -4,7 +4,7 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phases 0–3 are complete in code and verified against a real PostgreSQL database. The next build phase is Phase 4 - Matches and Scoring, designed in `docs/architecture/SCORING_AND_REALTIME.md`. The live tournament holds clearly marked demo configuration (five games; bKash, Nagad and Rocket) and stays in Draft; deployment waits until all phases are complete. Going live still needs the committee's event data (entered in `/admin/event` and `/admin/games`), a Gmail App Password for email, and a Vercel deployment; none of these blocks Phase 4 development.
+Phases 0–4 are complete in code and verified against PostgreSQL, in a browser, and under load. The next build phase is Phase 5 - Realtime, Analytics, and Communication, designed in `docs/architecture/SCORING_AND_REALTIME.md`. Phase 4 evidence is in `PHASE_4_COMPLETION.md`. The live tournament holds clearly marked demo configuration (five games; bKash, Nagad and Rocket) and stays in Draft; deployment waits until all phases are complete.
 
 ## Completed
 
@@ -41,28 +41,17 @@ Phases 0–3 are complete in code and verified against a real PostgreSQL databas
 - Added a 27-test PostgreSQL integration suite (`pnpm test:integration`, see `docs/qa/INTEGRATION_TESTS.md`) covering last-place concurrency, idempotent retries, duplicate rules, approve/reject consistency and double-clicks, all five operator scopes, capability limits, revocation, and the event-settings rules.
 - Reviewed every admin and operator page with signed-in sessions at 1440px and 390px; raised staff text to 11–14px, compacted the mobile admin header, added active navigation, and turned the operator match list into cards on phones. No page scrolls sideways at 390px.
 - Rehearsed the full flow in a browser against a local database with real Supabase Auth sessions: create the event, configure it, add and open games, open registration, register as a student, approve as admin, and view a game-scoped operator workspace that shows only its matches.
+- Phase 4: seven configurable scoring types, knockout draws with byes, manual rounds, an append-only score log with idempotent commands and version checks, an offline-safe operator score screen, admin match monitor and corrections, and public confirmed results. See `PHASE_4_COMPLETION.md`.
 
 ## Phase boundary
 
-Phase 1 and Phase 2 exit evidence is recorded in `PHASE_2_COMPLETION.md`. Phase 3 exit evidence is recorded in `PHASE_3_PROGRESS.md`: all five scopes, combinations, capability limits and revocation pass against PostgreSQL, and a signed-in operator sees only assigned matches. The one Phase 3 item that remains is delivering an invitation email to a separate inbox, which needs a verified sending domain.
+Phase 1 and 2 evidence is in `PHASE_2_COMPLETION.md`, Phase 3 in `PHASE_3_PROGRESS.md`, and Phase 4 in `PHASE_4_COMPLETION.md`.
 
-## Operational activation still required
+## Before launch
 
-The implementation is complete, but the live database intentionally contains no invented event configuration:
-
-- `tournaments`: 0
-- `payment_methods`: 0
-- `staff_profiles`: 1 official Super Admin
-- `registrations`: 0
-
-A test operator Auth user, `ndcakofficial+operator-test@gmail.com`, exists in Supabase Auth for local rehearsals. It has no profile in the live database, so it cannot open any staff page there.
-
-Before people can use the live workflows:
-
-1. Sign in with the official Admin account, open `/admin/event`, and enter the committee-approved details, games, fees, capacities, rules and payment accounts. The readiness checklist shows what is missing.
-2. Open registration from `/admin/event` once the checklist passes.
-3. Create a Google App Password for `ndcakofficial@gmail.com` and set `SMTP_USER`/`SMTP_PASSWORD` locally and in Vercel (`docs/integrations/EMAIL.md`). `pnpm readiness:check` confirms the Gmail login.
-4. Deploy to Vercel with the right account and set the Supabase Site URL to the `*.vercel.app` address (`docs/operations/DEPLOYMENT.md`).
+- Replace the demo event data in `/admin/event` and `/admin/games` with the committee's details, then open registration.
+- Rotate the Gmail App Password that appeared in a screenshot; `pnpm readiness:check` confirms the new one.
+- Decide hosting against Vercel Hobby's non-commercial rule (see `SCORING_AND_REALTIME.md`), then deploy and set the Supabase Site URL (`docs/operations/DEPLOYMENT.md`).
 
 ## Decision log
 
@@ -81,3 +70,6 @@ Before people can use the live workflows:
 | 2026-09-19 | Store department and academic-year lists in tournament settings and validate them on the server.       | The PRD requires configured lists; the client-side list alone let any value through.                                                          |
 | 2026-09-19 | Run integration tests only against local PostgreSQL.                                                   | Every test truncates tables; the setup refuses non-local hosts so it can never touch Supabase.                                                |
 | 2026-09-19 | Host on the free `*.vercel.app` address in the Mumbai region and send email through Gmail SMTP.        | NDCAK has no domain to verify with a provider such as Resend; Gmail delivers to any recipient within ~500 messages a day. Resend was removed. |
+| 2026-09-19 | Store every score change as an append-only update with a per-match sequence and a client event id.     | Retries after lost responses apply once, simultaneous operators never overwrite each other, and the log keeps server and device times.        |
+| 2026-09-19 | Make scoring types configurable per game and freeze the settings once play starts.                     | New games need settings, not code, and every result in a game is judged by the same rules.                                                    |
+| 2026-09-19 | Poll every 6 seconds on open score screens until Phase 5 realtime.                                     | Keeps screens current on the free plans; realtime will replace polling, and scoring never depends on either.                                  |

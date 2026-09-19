@@ -1,11 +1,13 @@
 import "server-only";
 
 import { and, count, eq, sql } from "drizzle-orm";
-import { getDatabase } from "@/db";
+import { getDatabase, type Database } from "@/db";
 import {
   auditLogs,
   games,
+  matches,
   paymentMethods,
+  rounds,
   registrationGameEntries,
   tournamentGames,
   tournaments,
@@ -14,14 +16,15 @@ import {
   evaluateReadiness,
   isReadyToOpen,
   nextStatuses,
-  scoringAdapters,
   slugify,
   toGameAvailability,
   toGameStatus,
   type EventDetailsInput,
+  type ScoringAdapterKey,
   type TournamentGameInput,
   type TournamentStatus,
 } from "@/features/event/domain/event-settings";
+import { getScoringAdapter } from "@/features/scoring/adapters";
 import { findCurrentTournamentId } from "./event-queries";
 
 export class EventSettingsError extends Error {
@@ -212,7 +215,7 @@ export async function addTournamentGame(input: {
   actorId: string;
   tournamentId: string;
   name: string;
-  scoringAdapter: TournamentGameInput["scoringAdapter"];
+  scoringAdapter: ScoringAdapterKey;
   feeTaka: number;
   capacity: number;
 }) {
@@ -239,9 +242,7 @@ export async function addTournamentGame(input: {
           .values({ name: input.name, slug: slugify(input.name) || "game" })
           .returning({ id: games.id });
 
-    const adapter = scoringAdapters.find(
-      (item) => item.key === input.scoringAdapter,
-    );
+    const adapter = getScoringAdapter(input.scoringAdapter);
     const [{ value: position }] = await tx
       .select({ value: count() })
       .from(tournamentGames)
@@ -251,7 +252,9 @@ export async function addTournamentGame(input: {
       feeMinor: input.feeTaka * 100,
       capacity: input.capacity,
       scoringAdapter: input.scoringAdapter,
-      progressionMode: adapter?.progression ?? "MANUAL",
+      progressionMode: adapter.defaultProgression,
+      // Store the adapter's defaults so the rules are explicit from the start.
+      config: adapter.configSchema.parse({}) as Record<string, unknown>,
       sortOrder: (position + 1) * 10,
     };
     // An archived game has no registration history, so adding it again
@@ -326,11 +329,14 @@ export async function updateTournamentGame(input: {
     }
 
     const status = toGameStatus(config.availability);
+    // Players added after the draw would be missing from the bracket.
+    if (status.registrationOpen && !before.tournamentGame.registrationOpen) {
+      const lock = await getScoringLock(tx, input.tournamentGameId);
+      if (lock.hasRounds) throw new EventSettingsError("bracket_exists");
+    }
     const after = {
       feeMinor: config.feeTaka * 100,
       capacity: config.capacity,
-      scoringAdapter: config.scoringAdapter,
-      progressionMode: config.progressionMode,
       rules: config.rules,
       sortOrder: config.sortOrder,
       ...status,
@@ -353,8 +359,6 @@ export async function updateTournamentGame(input: {
       before: {
         feeMinor: before.tournamentGame.feeMinor,
         capacity: before.tournamentGame.capacity,
-        scoringAdapter: before.tournamentGame.scoringAdapter,
-        progressionMode: before.tournamentGame.progressionMode,
         status: before.tournamentGame.status,
         registrationOpen: before.tournamentGame.registrationOpen,
         sortOrder: before.tournamentGame.sortOrder,
@@ -362,6 +366,95 @@ export async function updateTournamentGame(input: {
         rules: before.tournamentGame.rules,
       },
       after: { ...after, description: config.description },
+    });
+  });
+}
+
+type Executor = Pick<Database, "select">;
+
+// Scoring rules freeze once play begins, so every result in a game is judged
+// by the same rules. Format and progression freeze earlier, when the draw or
+// first round exists, because matches were built for them.
+export async function getScoringLock(db: Executor, tournamentGameId: string) {
+  const [row] = await db
+    .select({
+      rounds: sql<number>`count(distinct ${rounds.id})::int`,
+      started: sql<number>`count(${matches.id}) filter (where ${matches.startedAt} is not null)::int`,
+    })
+    .from(rounds)
+    .leftJoin(matches, eq(matches.roundId, rounds.id))
+    .where(eq(rounds.tournamentGameId, tournamentGameId));
+
+  return {
+    hasRounds: (row?.rounds ?? 0) > 0,
+    started: (row?.started ?? 0) > 0,
+  };
+}
+
+export async function updateScoringRules(input: {
+  actorId: string;
+  tournamentGameId: string;
+  scoringAdapter: ScoringAdapterKey;
+  progressionMode: "AUTOMATIC_SINGLE_ELIMINATION" | "MANUAL";
+  config: unknown;
+}) {
+  const adapter = getScoringAdapter(input.scoringAdapter);
+  const parsed = adapter.configSchema.safeParse(input.config);
+  if (!parsed.success) throw new EventSettingsError("invalid_scoring_rules");
+
+  return getDatabase().transaction(async (tx) => {
+    const [game] = await tx
+      .select({
+        status: tournamentGames.status,
+        scoringAdapter: tournamentGames.scoringAdapter,
+        progressionMode: tournamentGames.progressionMode,
+        config: tournamentGames.config,
+      })
+      .from(tournamentGames)
+      .where(eq(tournamentGames.id, input.tournamentGameId))
+      .limit(1)
+      .for("update");
+
+    if (!game || game.status === "ARCHIVED") {
+      throw new EventSettingsError("game_not_found");
+    }
+
+    const lock = await getScoringLock(tx, input.tournamentGameId);
+    if (lock.started) throw new EventSettingsError("scoring_locked");
+    if (
+      lock.hasRounds &&
+      (game.scoringAdapter !== input.scoringAdapter ||
+        game.progressionMode !== input.progressionMode)
+    ) {
+      throw new EventSettingsError("bracket_exists");
+    }
+
+    const config = parsed.data as Record<string, unknown>;
+    await tx
+      .update(tournamentGames)
+      .set({
+        scoringAdapter: input.scoringAdapter,
+        progressionMode: input.progressionMode,
+        config,
+        updatedAt: new Date(),
+      })
+      .where(eq(tournamentGames.id, input.tournamentGameId));
+
+    await tx.insert(auditLogs).values({
+      actorStaffId: input.actorId,
+      action: "SCORING_RULES_UPDATED",
+      entityType: "tournament_game",
+      entityId: input.tournamentGameId,
+      before: {
+        scoringAdapter: game.scoringAdapter,
+        progressionMode: game.progressionMode,
+        config: game.config,
+      },
+      after: {
+        scoringAdapter: input.scoringAdapter,
+        progressionMode: input.progressionMode,
+        config,
+      },
     });
   });
 }

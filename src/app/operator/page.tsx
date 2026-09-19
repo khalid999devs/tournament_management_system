@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { signOut } from "@/app/staff/actions";
 import { requireOperatorPage } from "@/features/auth/server/staff-session";
+import { describeStatus } from "@/features/matches/domain/commands";
 import { getOperatorWorkload } from "@/features/operators/server/workload";
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/operators/components/workspace.module.css";
@@ -17,11 +18,19 @@ export const dynamic = "force-dynamic";
 export default async function OperatorPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; status?: string; q?: string }>;
 }) {
   const staff = await requireOperatorPage();
-  const { page } = await searchParams;
-  const workload = await getOperatorWorkload(staff.id, page);
+  const params = await searchParams;
+  const workload = await getOperatorWorkload(staff.id, params);
+  const pageHref = (page: number) => {
+    const query = new URLSearchParams({
+      page: String(page),
+      status: workload.filter,
+    });
+    if (workload.search) query.set("q", workload.search);
+    return `/operator?${query.toString()}`;
+  };
 
   return (
     <main className={styles.page}>
@@ -48,8 +57,8 @@ export default async function OperatorPage({
           <p>Assigned tournament work</p>
           <h1>Your matches</h1>
           <span>
-            Welcome, {staff.displayName}. Only matches within your active
-            assignments appear here.
+            Welcome, {staff.displayName}. Live matches come first. Only matches
+            within your active assignments appear here.
           </span>
         </div>
 
@@ -61,12 +70,41 @@ export default async function OperatorPage({
           </span>
         </div>
 
+        <form className={styles.filters} action="/operator" role="search">
+          <label className="visually-hidden" htmlFor="match-search">
+            Search matches
+          </label>
+          <input
+            id="match-search"
+            name="q"
+            defaultValue={workload.search}
+            placeholder="Match code, player name or registration code"
+          />
+          <label className="visually-hidden" htmlFor="match-status">
+            Status
+          </label>
+          <select
+            id="match-status"
+            name="status"
+            defaultValue={workload.filter}
+          >
+            <option value="open">To play</option>
+            <option value="done">Finished</option>
+            <option value="all">All</option>
+          </select>
+          <button type="submit">Show</button>
+        </form>
+
         {workload.rows.length === 0 ? (
           <div className={styles.empty}>
-            <h2>No matches assigned yet</h2>
+            <h2>
+              {workload.search || workload.filter !== "open"
+                ? "No matching matches"
+                : "No matches to play"}
+            </h2>
             <p>
               Your administrator can assign a tournament, game, round, match, or
-              participant entry. New matches will appear here when scheduled.
+              participant entry. New matches appear here when the draw is made.
             </p>
           </div>
         ) : (
@@ -75,10 +113,12 @@ export default async function OperatorPage({
               <thead>
                 <tr>
                   <th>Match</th>
-                  <th>Game and round</th>
+                  <th>Players</th>
                   <th>Schedule</th>
-                  <th>Location</th>
                   <th>Status</th>
+                  <th>
+                    <span className="visually-hidden">Action</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -86,26 +126,40 @@ export default async function OperatorPage({
                   <tr key={match.id}>
                     <td>
                       <strong>{match.code}</strong>
-                      <small>{match.tournamentName}</small>
+                      <small>
+                        {match.gameName} · {match.roundName}
+                      </small>
                     </td>
-                    <td data-label="Game and round">
-                      <span>
-                        <strong>{match.gameName}</strong>
-                        <small>{match.roundName}</small>
-                      </span>
+                    <td data-label="Players">
+                      {match.entrants.length
+                        ? match.entrants.join(" vs ")
+                        : "Waiting for earlier results"}
                     </td>
                     <td data-label="Schedule">
                       {match.scheduledAt
                         ? formatDhakaDateTime(match.scheduledAt)
                         : "Not scheduled"}
-                    </td>
-                    <td data-label="Location">
-                      {[match.venue, match.station]
-                        .filter(Boolean)
-                        .join(" · ") || "To be announced"}
+                      {match.station || match.venue ? (
+                        <small>
+                          {[match.station, match.venue]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </small>
+                      ) : null}
                     </td>
                     <td data-label="Status">
-                      {match.status.replaceAll("_", " ")}
+                      {describeStatus(match.status)}
+                      {match.displayScore ? (
+                        <small>{match.displayScore}</small>
+                      ) : null}
+                    </td>
+                    <td>
+                      <Link
+                        className={styles.openLink}
+                        href={`/operator/matches/${match.id}`}
+                      >
+                        Open score entry
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -121,12 +175,10 @@ export default async function OperatorPage({
             </span>
             <div>
               {workload.page > 1 ? (
-                <Link href={`/operator?page=${workload.page - 1}`}>
-                  Previous
-                </Link>
+                <Link href={pageHref(workload.page - 1)}>Previous</Link>
               ) : null}
               {workload.page < workload.pageCount ? (
-                <Link href={`/operator?page=${workload.page + 1}`}>Next</Link>
+                <Link href={pageHref(workload.page + 1)}>Next</Link>
               ) : null}
             </div>
           </nav>
