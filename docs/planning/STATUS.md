@@ -4,7 +4,7 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phases 0–3 are complete in code and verified against a real PostgreSQL database. The next build phase is Phase 4 - Matches and Scoring. Going live still needs the committee's event data (entered in `/admin/event` and `/admin/games`), a Gmail App Password for email, and a Vercel deployment; none of these blocks Phase 4 development.
+Phases 0–3 are complete in code and verified against a real PostgreSQL database. The next build phase is Phase 4 - Matches and Scoring, designed in `docs/architecture/SCORING_AND_REALTIME.md`. The live tournament holds clearly marked demo configuration (five games; bKash, Nagad and Rocket) and stays in Draft; deployment waits until all phases are complete. Going live still needs the committee's event data (entered in `/admin/event` and `/admin/games`), a Gmail App Password for email, and a Vercel deployment; none of these blocks Phase 4 development.
 
 ## Completed
 

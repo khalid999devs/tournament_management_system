@@ -24,6 +24,9 @@ This directory is the working product and engineering record for the NDCAK Digit
 - [`architecture/DATA_MODEL.md`](architecture/DATA_MODEL.md) - relational model, invariants, and indexes.
 - [`architecture/STATE_FLOWS.md`](architecture/STATE_FLOWS.md) - registration and match state machines.
 - [`architecture/AUTHORIZATION.md`](architecture/AUTHORIZATION.md) - staff roles, assignment scopes, and access resolution.
+- [`architecture/SCORING_AND_REALTIME.md`](architecture/SCORING_AND_REALTIME.md) - Phase 4–5 design for concurrent score entry, event log, realtime and free-plan limits.
+- [`operations/DEPLOYMENT.md`](operations/DEPLOYMENT.md) - Vercel hosting, environment variables and first deployment.
+- [`qa/INTEGRATION_TESTS.md`](qa/INTEGRATION_TESTS.md) - running the PostgreSQL integration suite.
 - [`integrations/SUPABASE.md`](integrations/SUPABASE.md) - connection modes, security boundaries, and migration workflow.
 - [`integrations/EMAIL.md`](integrations/EMAIL.md) - Gmail SMTP application email and the App Password setup.
 - [`research/UI_BENCHMARKS.md`](research/UI_BENCHMARKS.md) - UI research and adopted patterns.
