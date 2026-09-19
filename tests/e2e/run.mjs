@@ -24,6 +24,8 @@ const manifestPath = path.join(outDir, "run.json");
 const keptPath = path.join(outDir, "kept.json");
 const mailDir = path.join(outDir, "mail");
 const port = 3100;
+const port_app = 3100;
+const port_smtp = 2526;
 const baseUrl = `http://localhost:${port}`;
 
 const args = process.argv.slice(2);
@@ -154,6 +156,25 @@ function runStep(command, commandArgs, env) {
   }
 }
 
+// A previous run (or a kept setup whose notes were deleted) can still hold the
+// ports; without this the tests would quietly use the old server.
+function freePorts() {
+  for (const port of [port_app, port_smtp]) {
+    try {
+      const pids = execFileSync("lsof", ["-ti", `tcp:${port}`], {
+        stdio: "pipe",
+      })
+        .toString()
+        .split("\n")
+        .filter(Boolean);
+      for (const pid of pids) process.kill(Number(pid), "SIGTERM");
+      if (pids.length) console.log(`Freed port ${port}.`);
+    } catch {
+      // nothing listening
+    }
+  }
+}
+
 function stopKept() {
   if (!fs.existsSync(keptPath)) return;
   for (const pid of JSON.parse(fs.readFileSync(keptPath, "utf8")).pids) {
@@ -167,6 +188,7 @@ function stopKept() {
 
 async function prepare() {
   stopKept();
+  freePorts();
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(mailDir, { recursive: true });
 
