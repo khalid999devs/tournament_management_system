@@ -16,20 +16,22 @@ export function PublicPageShell({
   title,
 }: PublicPageShellProps) {
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <div className={styles.header}>
         <PublicHeader />
       </div>
-      <section className={styles.hero}>
-        <div className="page-width">
-          <p>{eyebrow}</p>
-          <h1>{title}</h1>
-          <span>{intro}</span>
-        </div>
-      </section>
-      <div className={`${styles.content} page-width`}>{children}</div>
+      <main id="main-content">
+        <section className={styles.hero}>
+          <div className="page-width">
+            <p>{eyebrow}</p>
+            <h1>{title}</h1>
+            <span>{intro}</span>
+          </div>
+        </section>
+        <div className={`${styles.content} page-width`}>{children}</div>
+      </main>
       <PublicFooter />
-    </main>
+    </div>
   );
 }
 

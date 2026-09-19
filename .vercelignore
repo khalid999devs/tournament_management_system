@@ -1,0 +1,13 @@
+# Deploys from this computer upload only what the build needs. Backups and
+# test output hold personal data or sessions and must never be uploaded.
+.env*
+!.env.example
+backups
+test-results
+playwright-report
+coverage
+tmp
+tests
+docs
+scripts
+.vercel

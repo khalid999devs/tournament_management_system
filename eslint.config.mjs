@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Test output, including Playwright's generated report.
+    "test-results/**",
+    "playwright-report/**",
+    // Local scratch space, ignored by git and deploys.
+    "tmp/**",
   ]),
 ]);
 

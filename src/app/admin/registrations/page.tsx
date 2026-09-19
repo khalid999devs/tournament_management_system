@@ -38,8 +38,8 @@ export default async function RegistrationsPage({
           <p>Admin verification</p>
           <h1>Registrations</h1>
           <span>
-            {data.total} submissions. Filters, sort, and page are stored in the
-            URL.
+            {data.total} {data.total === 1 ? "registration" : "registrations"}{" "}
+            found. Open one to check the payment and record a decision.
           </span>
         </div>
         <div className={styles.headerTools}>
@@ -102,8 +102,8 @@ export default async function RegistrationsPage({
         >
           <option value="">All methods</option>
           {data.options.providers.map((provider) => (
-            <option key={provider} value={provider}>
-              {provider}
+            <option key={provider.value} value={provider.value}>
+              {provider.label}
             </option>
           ))}
         </FilterSelect>
@@ -128,7 +128,12 @@ export default async function RegistrationsPage({
         </div>
       </form>
 
-      <div className={styles.tableShell}>
+      <div
+        className={styles.tableShell}
+        role="region"
+        aria-label="Registrations"
+        tabIndex={0}
+      >
         <table>
           <thead>
             <tr>
@@ -147,24 +152,24 @@ export default async function RegistrationsPage({
                   <strong>{row.code}</strong>
                   <small>{formatDhakaDateTime(row.submittedAt)}</small>
                 </td>
-                <td>
+                <td data-label="Participant">
                   <strong>{row.participantName}</strong>
                   <small>
                     {row.studentId} · {row.department}
                   </small>
                 </td>
-                <td>
+                <td data-label="Games">
                   <span>{row.gameNames}</span>
                   <small>{formatBdt(row.totalFeeMinor)}</small>
                 </td>
-                <td>
+                <td data-label="Payment">
                   <strong>{row.paymentProvider}</strong>
                   <small>{row.transactionId}</small>
                 </td>
-                <td>
+                <td data-label="Status">
                   <StatusBadge status={row.status} />
                 </td>
-                <td>
+                <td className={styles.linkCell}>
                   <Link
                     className={styles.rowLink}
                     href={`/admin/registrations/${row.id}`}

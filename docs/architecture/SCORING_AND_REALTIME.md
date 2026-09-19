@@ -2,7 +2,7 @@
 
 Design for live score entry by several operators at once, with no lost, duplicated or silently overwritten updates, on the **free** Supabase and Vercel plans.
 
-**Status:** implemented and verified. Phase 4 built the scoring and concurrency model (`docs/planning/PHASE_4_COMPLETION.md`); Phase 5 added realtime and the daily job (`docs/planning/PHASE_5_COMPLETION.md`).
+**Status:** implemented and verified, and rehearsed on the deployed site in Phase 6 (`docs/planning/PHASE_6_COMPLETION.md`). Phase 4 built the scoring and concurrency model (`docs/planning/PHASE_4_COMPLETION.md`); Phase 5 added realtime and the daily job (`docs/planning/PHASE_5_COMPLETION.md`).
 
 ## Constraints
 
@@ -86,6 +86,25 @@ Built simpler than first planned: the server sends a signal after each change co
 - **Fallback:** polling stays underneath. Score screens check every 20 s while the live connection is up and every 6 s while it is down; list pages refresh every 30 s while it is down. Scoring never depends on Realtime.
 - **Budget:** each change sends at most three messages (the match, the next match and the tournament). With about 25 staff screens open, a busy event day stays far below 100 messages per second and 2 million per month.
 - **Public pages:** no sockets. Results and brackets are cached reads refreshed on demand (`revalidateTag`) when a match finalizes, as the PRD requires.
+
+## One query at a time per connection
+
+The app talks to PostgreSQL through Supabase's transaction pooler. postgres.js
+sends further queries on a connection that is already busy (pipelining), and
+through that pooler such a query can stall until the connection is dropped.
+The Phase 6 rehearsal hit it on an admin page that runs seven queries at once:
+the page hung for 89 seconds and then failed. Under event-day load, where one
+server instance serves several requests over three connections, the same stall
+could hit score entry.
+
+`src/db/index.ts` therefore sets `max_pipeline: 0`: a connection carries one
+query at a time and anything else waits for a free connection. postgres.js
+claims a connection for `sql.begin` in the same code path that pipelines, so
+with pipelining off every transaction failed with `UNSAFE_TRANSACTION`;
+`patches/postgres@3.4.9.patch` makes that claim unconditional. Measured on the
+live pooler afterwards: seven parallel queries in about 0.5 s, and eight
+transactions with eight plain queries at once in 0.9 s, with no stalls in
+repeated runs.
 
 ## Background work without frequent cron
 

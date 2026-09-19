@@ -166,13 +166,15 @@
 
 .metricGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 24px;
 }
 
 .metric {
   display: grid;
+  align-content: start;
+  gap: 6px;
   min-height: 172px;
   padding: 22px;
   border: 1px solid rgba(22, 38, 74, 0.12);
@@ -185,10 +187,12 @@
 }
 
 .metric strong {
-  align-self: end;
+  margin-top: 18px;
   font-family: var(--font-barlow-condensed), sans-serif;
   font-size: 48px;
   font-weight: 600;
+  line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .metric span {
@@ -259,7 +263,7 @@
 .filters,
 .notificationFilters {
   display: grid;
-  grid-template-columns: minmax(260px, 2fr) repeat(3, minmax(130px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 22px;
   padding: 20px;
@@ -309,7 +313,7 @@
   position: absolute;
   top: 13px;
   left: 12px;
-  color: var(--slate-500);
+  color: var(--slate-700);
 }
 
 .searchField input {
@@ -325,7 +329,8 @@
 .filterActions button,
 .filterActions a {
   display: inline-flex;
-  min-height: 42px;
+  min-height: 44px;
+  white-space: nowrap;
   align-items: center;
   justify-content: center;
   gap: 7px;
@@ -345,11 +350,15 @@
   color: var(--navy-900);
 }
 
-.notificationFilters {
-  grid-template-columns: minmax(280px, 2fr) repeat(2, minmax(140px, 1fr)) auto;
+@media (min-width: 1101px) {
+  .filters .searchField,
+  .notificationFilters .searchField {
+    grid-column: span 2;
+  }
 }
 
 .tableShell {
+  position: relative;
   overflow-x: auto;
   border: 1px solid rgba(22, 38, 74, 0.13);
   background: white;
@@ -516,6 +525,10 @@
   gap: 16px;
 }
 
+.detailCard {
+  container-type: inline-size;
+}
+
 .detailCard,
 .reviewActionsPanel,
 .closedDecision {
@@ -565,6 +578,21 @@
 
 .detailWide {
   grid-column: 1 / -1;
+}
+
+/* In a narrow card each label sits above its value, so emails and
+   transaction IDs keep their full width instead of breaking mid-word. */
+@container (max-width: 440px) {
+  .detailCard dl > div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .detailCard dd {
+    max-width: none;
+    font-size: 14px;
+    text-align: left;
+  }
 }
 
 .entryList {
@@ -728,6 +756,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
 }
 
@@ -863,7 +892,7 @@
   font-weight: 850;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 960px) {
   .sidebar {
     position: sticky;
     top: 0;
@@ -892,6 +921,14 @@
     padding: 0 16px 10px;
     overflow-x: auto;
     scrollbar-width: none;
+    /* Faded edges show there is more to scroll. */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 18px,
+      black calc(100% - 28px),
+      transparent
+    );
   }
 
   .sidebar nav a {
@@ -920,6 +957,22 @@
   .adminMain {
     margin-left: 0;
   }
+}
+
+@media (max-width: 1100px) {
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pageHeader,
+  .detailHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .headerTools {
+    justify-content: flex-start;
+  }
 
   .filters,
   .notificationFilters {
@@ -942,7 +995,7 @@
   }
 
   .metricGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .metric {
@@ -952,7 +1005,8 @@
   }
 
   .metric strong {
-    font-size: 36px;
+    margin-top: 10px;
+    font-size: clamp(26px, 8vw, 36px);
   }
 
   .detailGrid,
@@ -994,4 +1048,78 @@
 
 .statusBadge[data-status="POSTPONED"] {
   color: #85520c;
+}
+
+.nowrapCell {
+  white-space: nowrap;
+}
+
+/* Phones and tablets: each row becomes a card with labelled fields,
+   so nothing hides off to the side. */
+@media (max-width: 1100px) {
+  .tableShell {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .tableShell table {
+    min-width: 0;
+  }
+
+  .tableShell thead {
+    display: none;
+  }
+
+  .tableShell table,
+  .tableShell tbody {
+    display: block;
+  }
+
+  .tableShell tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    gap: 14px 18px;
+    margin-bottom: 10px;
+    padding: 16px;
+    border: 1px solid rgba(22, 38, 74, 0.13);
+    background: white;
+  }
+
+  .tableShell td {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 3px;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+
+  .tableShell td:first-child {
+    grid-column: 1 / -1;
+    padding-right: 48px;
+  }
+
+  .tableShell td[data-label]::before {
+    content: attr(data-label);
+    color: var(--slate-700);
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .tableShell td small {
+    max-width: none;
+    overflow: visible;
+    overflow-wrap: anywhere;
+  }
+
+  .tableShell .linkCell {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
 }

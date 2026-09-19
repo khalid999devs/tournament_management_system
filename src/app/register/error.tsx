@@ -11,11 +11,11 @@ export default function RegistrationError({
   retry: () => void;
 }) {
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <div className={styles.headerShell}>
         <PublicHeader />
       </div>
-      <div className="page-width">
+      <main id="main-content" className="page-width">
         <div className={styles.reviewState} role="alert">
           <h2>Registration is taking longer than usual</h2>
           <p>
@@ -28,7 +28,7 @@ export default function RegistrationError({
           </button>
           <Link href="/">Return to event home</Link>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

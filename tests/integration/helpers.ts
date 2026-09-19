@@ -19,7 +19,7 @@ export async function resetDatabase() {
       audit_logs, notifications, issue_reports, match_updates, match_entries, operator_assignments,
       matches, rounds, payments, registration_game_entries, registrations,
       participants, payment_methods, tournament_games, games, tournaments,
-      staff_profiles
+      staff_profiles, rate_limit_hits
     restart identity cascade
   `);
 }

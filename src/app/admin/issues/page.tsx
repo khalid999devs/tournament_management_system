@@ -74,7 +74,12 @@ export default async function IssuesPage({
           resolveReturnTo={here(data.page)}
         />
       ) : (
-        <div className={styles.tableShell}>
+        <div
+          className={styles.tableShell}
+          role="region"
+          aria-label="Problem reports"
+          tabIndex={0}
+        >
           <div className={styles.emptyState}>
             <h2>
               {data.status === "OPEN" ? "No open reports" : "No reports here"}

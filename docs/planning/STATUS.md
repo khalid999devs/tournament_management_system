@@ -4,7 +4,13 @@ Last updated: 20 September 2026
 
 ## Current phase
 
-Phases 0–5 are complete in code and verified against PostgreSQL, in a browser, and on the live Supabase project. The next phase is Phase 6 - Hardening and Launch. Phase 5 evidence is in `PHASE_5_COMPLETION.md`. The live tournament holds realistic demo configuration (five games; bKash, Nagad and Rocket numbers still marked as demo) and has registration open, but nothing is deployed yet.
+All seven phases (0 to 6) are complete. The platform is deployed at
+https://ndcak-indoor-games.vercel.app and was rehearsed there end to end;
+evidence is in `PHASE_6_COMPLETION.md`. The live tournament still holds demo
+configuration (five games, demo dates and venue) and registration is open, but
+the payment numbers are deliberate placeholders so nobody can pay before the
+committee publishes the real ones. What remains is the committee's own data
+and the pre-event rehearsal with real phones.
 
 ## Completed
 
@@ -43,40 +49,44 @@ Phases 0–5 are complete in code and verified against PostgreSQL, in a browser,
 - Rehearsed the full flow in a browser against a local database with real Supabase Auth sessions: create the event, configure it, add and open games, open registration, register as a student, approve as admin, and view a game-scoped operator workspace that shows only its matches.
 - Redesigned the registration flow: two-column layout with a sticky summary on desktop, a fixed total bar on phones, clearer game cards with places left, friendly validation messages, copy-to-clipboard payment numbers, and a round trip from review back to editing. Landing-page game cards open registration with that game preselected. Schedule lists fixtures by day once the draw is published. Fixed a bug where restored drafts ignored typing.
 - Phase 4: seven configurable scoring types, knockout draws with byes, manual rounds, an append-only score log with idempotent commands and version checks, an offline-safe operator score screen, admin match monitor and corrections, and public confirmed results. See `PHASE_4_COMPLETION.md`.
+- Phase 6: deployed to Vercel with the daily job running, attempt limits and security headers, WCAG 2.1 AA and five-width checks on every page, a 39-test browser suite, backups with a verified restore, emergency admin access, an event-day runbook, and a full rehearsal on the live site that found and fixed two real problems. See `PHASE_6_COMPLETION.md`.
 - Phase 5: live updates on every staff screen through private Supabase Realtime channels, with polling underneath; an admin dashboard counted from the database; problem reports from operators with admin resolution; five filtered CSV exports; a configurable reminder email with a daily job that also retries email and keeps Supabase awake. See `PHASE_5_COMPLETION.md`.
 
 ## Phase boundary
 
 Phase 1 and 2 evidence is in `PHASE_2_COMPLETION.md`, Phase 3 in `PHASE_3_PROGRESS.md`, Phase 4 in `PHASE_4_COMPLETION.md`, and Phase 5 in `PHASE_5_COMPLETION.md`.
 
-## Before launch
+## Before launch (owner actions)
 
-- Replace the demo event data in `/admin/event` and `/admin/games` with the committee's details, then open registration.
+- Replace the demo event data in `/admin/event` and `/admin/games` with the committee's details, including the real bKash, Nagad and Rocket numbers, then reopen registration.
 - Rotate the Gmail App Password that appeared in a screenshot; `pnpm readiness:check` confirms the new one.
-- Decide hosting against Vercel Hobby's non-commercial rule (see `SCORING_AND_REALTIME.md`), then deploy and set the Supabase Site URL (`docs/operations/DEPLOYMENT.md`).
-- Set `CRON_SECRET` in Vercel so the daily reminder and email retries run; `pnpm readiness:check` confirms it.
+- Confirm Vercel Hobby's non-commercial rule covers this event, or move to another free host (see `SCORING_AND_REALTIME.md`).
+- Rehearse on the deployed site with real phones on the venue network, as `docs/operations/EVENT_DAY_RUNBOOK.md` describes.
 
 ## Decision log
 
-| Date       | Decision                                                                                               | Reason                                                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Vercel.                       | It matches the approved product direction and the relational/concurrency requirements.                                                        |
-| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                       | This is the central experience boundary in the PRD.                                                                                           |
-| 2026-09-19 | Use one feature-oriented monolith.                                                                     | It keeps transactional workflows cohesive without premature infrastructure.                                                                   |
-| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                         | The committee has not finalized them and the PRD explicitly requires configuration.                                                           |
-| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                          | It avoids exposing payment and registration mutations directly to anonymous clients.                                                          |
-| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction. | Authoritative state remains correct on provider failure while every intended delivery remains observable.                                     |
-| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.               | Approval email must contain an accurate calendar invitation; the application must not invent event data.                                      |
-| 2026-09-19 | Serve public event data from a 60-second tagged cache refreshed by submissions and reviews.            | Public pages were querying the database on every visit; capacity is still re-checked in the submit transaction.                               |
-| 2026-09-19 | Replace a database client idle for longer than its idle timeout before reuse.                          | Sockets that outlived a suspended machine silently hung every later query on the single pooled connection.                                    |
-| 2026-09-19 | Manage one tournament at a time: the newest one that is not archived.                                  | Matches how NDCAK runs one event a year and keeps admin screens simple; archiving starts the next event.                                      |
-| 2026-09-19 | Store department and academic-year lists in tournament settings and validate them on the server.       | The PRD requires configured lists; the client-side list alone let any value through.                                                          |
-| 2026-09-19 | Run integration tests only against local PostgreSQL.                                                   | Every test truncates tables; the setup refuses non-local hosts so it can never touch Supabase.                                                |
-| 2026-09-19 | Host on the free `*.vercel.app` address in the Mumbai region and send email through Gmail SMTP.        | NDCAK has no domain to verify with a provider such as Resend; Gmail delivers to any recipient within ~500 messages a day. Resend was removed. |
-| 2026-09-19 | Store every score change as an append-only update with a per-match sequence and a client event id.     | Retries after lost responses apply once, simultaneous operators never overwrite each other, and the log keeps server and device times.        |
-| 2026-09-19 | Make scoring types configurable per game and freeze the settings once play starts.                     | New games need settings, not code, and every result in a game is judged by the same rules.                                                    |
-| 2026-09-19 | Poll every 6 seconds on open score screens until Phase 5 realtime.                                     | Keeps screens current on the free plans; realtime will replace polling, and scoring never depends on either.                                  |
-| 2026-09-20 | Send live-update signals from the server after each commit instead of database triggers.               | Simpler, testable on plain PostgreSQL, and nothing in the database depends on Realtime; screens still poll underneath.                        |
-| 2026-09-20 | One Realtime access rule: active staff may listen, and no browser may send.                            | Signals carry only ids and a version, so finer per-match rules would add complexity without protecting any data.                              |
-| 2026-09-20 | One reminder per registration per event day, queued by a daily job or an admin's "send now".           | Unique keys make every run safe to repeat, and Vercel Hobby allows one scheduled run a day.                                                   |
-| 2026-09-20 | Record every CSV export in the audit log.                                                              | Exports contain participant contact details.                                                                                                  |
+| Date       | Decision                                                                                                  | Reason                                                                                                                                        |
+| ---------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Vercel.                          | It matches the approved product direction and the relational/concurrency requirements.                                                        |
+| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                          | This is the central experience boundary in the PRD.                                                                                           |
+| 2026-09-19 | Use one feature-oriented monolith.                                                                        | It keeps transactional workflows cohesive without premature infrastructure.                                                                   |
+| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                            | The committee has not finalized them and the PRD explicitly requires configuration.                                                           |
+| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                             | It avoids exposing payment and registration mutations directly to anonymous clients.                                                          |
+| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction.    | Authoritative state remains correct on provider failure while every intended delivery remains observable.                                     |
+| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.                  | Approval email must contain an accurate calendar invitation; the application must not invent event data.                                      |
+| 2026-09-19 | Serve public event data from a 60-second tagged cache refreshed by submissions and reviews.               | Public pages were querying the database on every visit; capacity is still re-checked in the submit transaction.                               |
+| 2026-09-19 | Replace a database client idle for longer than its idle timeout before reuse.                             | Sockets that outlived a suspended machine silently hung every later query on the single pooled connection.                                    |
+| 2026-09-19 | Manage one tournament at a time: the newest one that is not archived.                                     | Matches how NDCAK runs one event a year and keeps admin screens simple; archiving starts the next event.                                      |
+| 2026-09-19 | Store department and academic-year lists in tournament settings and validate them on the server.          | The PRD requires configured lists; the client-side list alone let any value through.                                                          |
+| 2026-09-19 | Run integration tests only against local PostgreSQL.                                                      | Every test truncates tables; the setup refuses non-local hosts so it can never touch Supabase.                                                |
+| 2026-09-19 | Host on the free `*.vercel.app` address in the Mumbai region and send email through Gmail SMTP.           | NDCAK has no domain to verify with a provider such as Resend; Gmail delivers to any recipient within ~500 messages a day. Resend was removed. |
+| 2026-09-19 | Store every score change as an append-only update with a per-match sequence and a client event id.        | Retries after lost responses apply once, simultaneous operators never overwrite each other, and the log keeps server and device times.        |
+| 2026-09-19 | Make scoring types configurable per game and freeze the settings once play starts.                        | New games need settings, not code, and every result in a game is judged by the same rules.                                                    |
+| 2026-09-19 | Poll every 6 seconds on open score screens until Phase 5 realtime.                                        | Keeps screens current on the free plans; realtime will replace polling, and scoring never depends on either.                                  |
+| 2026-09-20 | Send live-update signals from the server after each commit instead of database triggers.                  | Simpler, testable on plain PostgreSQL, and nothing in the database depends on Realtime; screens still poll underneath.                        |
+| 2026-09-20 | One Realtime access rule: active staff may listen, and no browser may send.                               | Signals carry only ids and a version, so finer per-match rules would add complexity without protecting any data.                              |
+| 2026-09-20 | One reminder per registration per event day, queued by a daily job or an admin's "send now".              | Unique keys make every run safe to repeat, and Vercel Hobby allows one scheduled run a day.                                                   |
+| 2026-09-20 | Record every CSV export in the audit log.                                                                 | Exports contain participant contact details.                                                                                                  |
+| 2026-09-20 | Send one query at a time per database connection, with a patch to postgres.js so transactions still work. | Pipelined queries can stall through Supabase's transaction pooler; an admin page hung for 89 seconds during the rehearsal.                    |
+| 2026-09-20 | Keep the live payment numbers as placeholders until the committee publishes the real ones.                | The site is reachable, and a demo number could take real money from a student.                                                                |
+| 2026-09-20 | Limit attempts in PostgreSQL rather than adding an anti-bot service.                                      | It needs no extra account or key, works across serverless instances, and the PRD allows rate limiting in place of Turnstile.                  |

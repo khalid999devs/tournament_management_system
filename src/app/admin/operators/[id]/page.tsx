@@ -16,6 +16,13 @@ import styles from "@/features/operators/components/operators.module.css";
 export const metadata: Metadata = { title: "Operator access" };
 export const dynamic = "force-dynamic";
 
+const capabilityLabels: Record<string, string> = {
+  VIEW: "View",
+  SCORE_UPDATE: "Update scores",
+  FINALIZE_MATCH: "Finalize matches",
+  ISSUE_REPORT: "Report problems",
+};
+
 export default async function OperatorDetailPage({
   params,
   searchParams,
@@ -168,7 +175,11 @@ export default async function OperatorDetailPage({
                       {assignment.scopeType.replaceAll("_", " ")}
                     </span>
                     <strong>{labels.get(targetId) ?? targetId}</strong>
-                    <small>{assignment.capabilities.join(" · ")}</small>
+                    <small>
+                      {assignment.capabilities
+                        .map((capability) => capabilityLabels[capability])
+                        .join(" · ")}
+                    </small>
                   </div>
                   {assignment.active ? (
                     <form action={revokeAssignmentAction}>
@@ -310,7 +321,7 @@ function GrantForm({
         </label>
       </fieldset>
       <button type="submit" disabled={options.length === 0}>
-        Grant {title.toLowerCase()} scope
+        Grant access
       </button>
     </form>
   );

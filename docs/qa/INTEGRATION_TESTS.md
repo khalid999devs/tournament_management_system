@@ -18,4 +18,5 @@ TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:55432/ndcak_integration pnpm t
 
 Docker works too: `docker run --rm -p 55432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres:18`.
 
-`pnpm test` runs only the fast unit suite and never needs a database.
+`pnpm test` runs only the fast unit suite and never needs a database. The
+browser suite is separate: see `docs/qa/END_TO_END_TESTS.md`.

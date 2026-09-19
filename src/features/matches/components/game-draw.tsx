@@ -126,7 +126,12 @@ export function GameDraw({
       ) : null}
 
       {hasRounds ? (
-        <div className={knockout ? draw.bracket : draw.roundList}>
+        <div
+          className={knockout ? draw.bracket : draw.roundList}
+          role="region"
+          aria-label="Draw"
+          tabIndex={0}
+        >
           {bracket.rounds.map((round) => (
             <div key={round.id} className={draw.round}>
               <h3>
@@ -166,7 +171,7 @@ export function GameDraw({
                       {match.displayScore ??
                         (match.scheduledAt
                           ? formatDhakaDateTime(match.scheduledAt)
-                          : (match.station ?? "Not scheduled"))}
+                          : (match.station ?? "Time not set"))}
                     </footer>
                   </Link>
                   {!knockout &&

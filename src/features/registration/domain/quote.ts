@@ -80,3 +80,23 @@ export function calculateRegistrationQuote(
     totalFeeMinor: lines.reduce((total, line) => total + line.feeMinor, 0),
   };
 }
+
+// For screens that must not crash when availability changes under them, for
+// example when another student takes the last place while this one pays.
+export function tryRegistrationQuote(
+  games: RegistrationGameOption[],
+  selectedGameIds: string[],
+  maxGames: number,
+): { ok: true; quote: RegistrationQuote } | { ok: false; message: string } {
+  try {
+    return {
+      ok: true,
+      quote: calculateRegistrationQuote(games, selectedGameIds, maxGames),
+    };
+  } catch (error) {
+    if (error instanceof RegistrationDomainError) {
+      return { ok: false, message: error.message };
+    }
+    throw error;
+  }
+}

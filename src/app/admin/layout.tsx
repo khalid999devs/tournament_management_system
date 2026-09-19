@@ -47,7 +47,9 @@ export default async function AdminLayout({
           </form>
         </div>
       </aside>
-      <div className={styles.adminMain}>{children}</div>
+      <main id="main-content" className={styles.adminMain}>
+        {children}
+      </main>
     </div>
   );
 }

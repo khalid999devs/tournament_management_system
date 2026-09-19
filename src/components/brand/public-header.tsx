@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -73,7 +73,8 @@ export function PublicHeader() {
         {/* Already in the registration flow: the page has its own actions. */}
         {pathname.startsWith("/register") ? null : (
           <Link className="nav-cta" href="/register">
-            Register <span aria-hidden="true">→</span>
+            Register{" "}
+            <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
           </Link>
         )}
         <button

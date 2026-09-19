@@ -2,11 +2,15 @@ import { createTransport } from "nodemailer";
 import postgres from "postgres";
 
 const env = process.env;
+// The live address, for the checks that only make sense against it:
+//   pnpm readiness:check -- --url https://ndcak-indoor-games.vercel.app
+const urlFlag = process.argv.indexOf("--url");
+const siteUrl =
+  (urlFlag >= 0 ? process.argv[urlFlag + 1] : undefined) ??
+  env.NEXT_PUBLIC_APP_URL;
 const checks = {
-  appUrl: Boolean(
-    env.NEXT_PUBLIC_APP_URL &&
-    !env.NEXT_PUBLIC_APP_URL.startsWith("http://localhost"),
-  ),
+  appUrl: Boolean(siteUrl && !siteUrl.startsWith("http://localhost")),
+  site: null,
   secretKey: Boolean(env.SUPABASE_SECRET_KEY),
   cronSecret: Boolean(env.CRON_SECRET && env.CRON_SECRET.length >= 16),
   liveUpdates: false,
@@ -39,9 +43,29 @@ report(
   "Invitation URL",
   checks.appUrl,
   checks.appUrl
-    ? env.NEXT_PUBLIC_APP_URL
-    : "set NEXT_PUBLIC_APP_URL to the https://….vercel.app address; localhost links only work on this computer",
+    ? siteUrl
+    : "pass --url https://….vercel.app (or set NEXT_PUBLIC_APP_URL); localhost links only work on this computer",
 );
+
+if (checks.appUrl) {
+  try {
+    const response = await fetch(new URL("/api/health", siteUrl), {
+      cache: "no-store",
+    });
+    const body = await response.json();
+    checks.site = response.ok && body.ok === true;
+    report(
+      "Live site",
+      checks.site,
+      checks.site
+        ? `${siteUrl} is up and reaching its database`
+        : "the site did not answer",
+    );
+  } catch {
+    checks.site = false;
+    report("Live site", false, "the site could not be reached");
+  }
+}
 
 const databaseUrl = env.MIGRATION_DATABASE_URL ?? env.DATABASE_URL;
 

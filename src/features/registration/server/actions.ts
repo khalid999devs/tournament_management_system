@@ -6,6 +6,7 @@ import { processNotification } from "@/features/notifications/server/process-not
 import { RegistrationDomainError } from "@/features/registration/domain/errors";
 import { registrationSubmissionSchema } from "@/features/registration/domain/schemas";
 import { refreshPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
+import { allowAttempt, clientAddress, rateLimits } from "@/lib/rate-limit";
 import { signalTournamentChange } from "@/lib/realtime/signal";
 import { submitRegistration } from "./submit-registration";
 
@@ -19,6 +20,20 @@ export async function submitRegistrationAction(
   _previousState: SubmitRegistrationState,
   formData: FormData,
 ): Promise<SubmitRegistrationState> {
+  if (
+    !(await allowAttempt(
+      "register",
+      await clientAddress(),
+      rateLimits.registration,
+    ))
+  ) {
+    return {
+      status: "error",
+      message:
+        "Too many registrations have come from your network in the last few minutes. Wait 10 minutes, then submit again. Your details are saved.",
+    };
+  }
+
   try {
     const detailsValue = formData.get("details");
     const details =

@@ -1,4 +1,4 @@
-import { CheckCircle2, CircleAlert, CircleDashed } from "lucide-react";
+import { CheckCircle2, CircleAlert, CircleDashed, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import adminStyles from "@/features/admin/components/admin.module.css";
@@ -404,6 +404,7 @@ function EventSetup({ setup }: { setup: Setup }) {
           >
             <summary>
               <strong>Add a payment method</strong>
+              <Plus size={18} aria-hidden="true" />
             </summary>
             <PaymentMethodForm tournamentId={tournament.id} method={null} />
           </details>

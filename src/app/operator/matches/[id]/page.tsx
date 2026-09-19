@@ -28,8 +28,8 @@ export default async function OperatorMatchPage({
   if (!state) notFound();
 
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
+    <div className={styles.page}>
+      <header className={`${styles.header} ${styles.headerScore}`}>
         <Link href="/operator" className={styles.brand}>
           <Image
             src="/brand/ndcak-mark.webp"
@@ -44,9 +44,9 @@ export default async function OperatorMatchPage({
           <ArrowLeft size={16} aria-hidden="true" /> My matches
         </Link>
       </header>
-      <div className={styles.scoreContent}>
+      <main id="main-content" className={styles.scoreContent}>
         <ScoreConsole initial={state} actorId={staff.id} />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

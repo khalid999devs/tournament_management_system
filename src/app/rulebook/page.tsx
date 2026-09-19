@@ -19,7 +19,7 @@ const generalRules = [
   },
   {
     title: "Fair play",
-    copy: "Participants must follow organizer and operator instructions, respect opponents, and avoid conduct that undermines a fair result.",
+    copy: "Participants must follow organiser and operator instructions, respect opponents, and avoid conduct that undermines a fair result.",
   },
   {
     title: "Reporting",
@@ -27,7 +27,7 @@ const generalRules = [
   },
   {
     title: "Results and disputes",
-    copy: "Only authorized staff enter official results. Any correction or dispute is reviewed by the organizing committee and recorded in the system.",
+    copy: "Only authorised staff enter official results. Any correction or dispute is reviewed by the organising committee and recorded in the system.",
   },
 ];
 

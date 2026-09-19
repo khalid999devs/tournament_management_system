@@ -18,12 +18,21 @@ import { getDatabase } from "@/db";
 import {
   games,
   participants,
+  paymentMethods,
   payments,
   registrationGameEntries,
   registrations,
   tournamentGames,
   tournaments,
 } from "@/db/schema";
+
+// The name admins configured ("bKash"), not the stored key ("BKASH").
+const providerName = sql<string>`coalesce((
+  select ${paymentMethods.displayName} from ${paymentMethods}
+  where ${paymentMethods.tournamentId} = ${registrations.tournamentId}
+    and ${paymentMethods.provider} = ${payments.provider}
+  limit 1
+), ${payments.provider})`;
 
 export const registrationFilterSchema = z.object({
   q: z.string().trim().max(100).catch(""),
@@ -68,7 +77,7 @@ export async function getAdminRegistrationPage(input: unknown) {
       participantName: participants.fullName,
       studentId: participants.normalizedStudentId,
       department: participants.department,
-      paymentProvider: payments.provider,
+      paymentProvider: providerName,
       paymentStatus: payments.status,
       transactionId: payments.transactionIdRaw,
       tournamentName: tournaments.name,
@@ -104,9 +113,12 @@ export async function getAdminRegistrationPage(input: unknown) {
       .from(participants)
       .orderBy(participants.department),
     db
-      .selectDistinct({ value: payments.provider })
-      .from(payments)
-      .orderBy(payments.provider),
+      .selectDistinct({
+        value: paymentMethods.provider,
+        label: paymentMethods.displayName,
+      })
+      .from(paymentMethods)
+      .orderBy(paymentMethods.displayName),
   ]);
 
   return {
@@ -118,7 +130,7 @@ export async function getAdminRegistrationPage(input: unknown) {
     options: {
       games: filterGames,
       departments: departments.map((item) => item.value),
-      providers: providers.map((item) => item.value),
+      providers,
     },
   };
 }
@@ -142,7 +154,7 @@ export async function getAdminRegistrationDetail(id: string) {
       department: participants.department,
       academicYear: participants.academicYear,
       tournamentName: tournaments.name,
-      paymentProvider: payments.provider,
+      paymentProvider: providerName,
       receivingAccount: payments.receivingAccountSnapshot,
       expectedAmountMinor: payments.expectedAmountMinor,
       transactionId: payments.transactionIdRaw,

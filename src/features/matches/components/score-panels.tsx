@@ -426,12 +426,6 @@ export function SetsPanel({
         </p>
       ) : (
         <>
-          <p className={styles.setHeading}>
-            Set {current}:{" "}
-            <strong>
-              {running[0]}–{running[1]}
-            </strong>
-          </p>
           <div className={styles.bigButtons}>
             {[first, second].map((seat) => (
               <button
@@ -641,6 +635,7 @@ function TiebreakEditor({
   entrants,
   disabled,
   emit,
+  active = true,
 }: {
   seats: number[];
   value: (seat: number) => number | null;
@@ -649,6 +644,7 @@ function TiebreakEditor({
   entrants: MatchEntrant[];
   disabled: boolean;
   emit: PanelProps["emit"];
+  active?: boolean;
 }) {
   const known = seats.filter((seat) => value(seat) !== null);
   const values = known.map((seat) => value(seat));
@@ -662,8 +658,16 @@ function TiebreakEditor({
   });
   const [draft, setDraft] = useState<number[] | null>(null);
   const list = draft ?? ranked;
+  const canMove = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    return (
+      target >= 0 &&
+      target < list.length &&
+      value(list[index]) === value(list[target])
+    );
+  };
 
-  if (!hasTie && !order) return null;
+  if (!active || (!hasTie && !order)) return null;
 
   const move = (index: number, direction: -1 | 1) => {
     const next = [...list];
@@ -694,14 +698,16 @@ function TiebreakEditor({
             <span>
               <button
                 type="button"
-                aria-label="Move up"
+                aria-label={`Move ${seatName(entrants, seat)} up`}
+                disabled={!canMove(index, -1)}
                 onClick={() => move(index, -1)}
               >
                 ↑
               </button>
               <button
                 type="button"
-                aria-label="Move down"
+                aria-label={`Move ${seatName(entrants, seat)} down`}
+                disabled={!canMove(index, 1)}
                 onClick={() => move(index, 1)}
               >
                 ↓
@@ -768,7 +774,6 @@ export function MultiplayerPanel({
                   aria-label={`Points this hand for ${seatName(entrants, seat)}`}
                   inputMode="numeric"
                   value={deltas[String(seat)] ?? ""}
-                  placeholder="0"
                   onChange={(event) =>
                     setDeltas({ ...deltas, [String(seat)]: event.target.value })
                   }
@@ -805,6 +810,7 @@ export function MultiplayerPanel({
         entrants={entrants}
         disabled={disabled}
         emit={emit}
+        active={score.hands > 0}
       />
     </div>
   );

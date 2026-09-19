@@ -3,10 +3,10 @@ import styles from "@/features/operators/components/workspace.module.css";
 
 export default function OperatorLoading() {
   return (
-    <main className={styles.page}>
-      <div className={styles.content}>
+    <div className={styles.page}>
+      <main id="main-content" className={styles.content}>
         <PageSkeleton label="Loading your workload" />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -79,7 +79,12 @@ export default async function GamesPage({
                 <p>Add the first game below.</p>
               </div>
             ) : (
-              <div className={styles.table}>
+              <div
+                className={styles.table}
+                role="region"
+                aria-label="Games"
+                tabIndex={0}
+              >
                 <table>
                   <thead>
                     <tr>
@@ -106,14 +111,21 @@ export default async function GamesPage({
                               {game.description ?? "No description"}
                             </small>
                           </td>
-                          <td>{formatBdt(game.feeMinor)}</td>
-                          <td>
+                          <td data-label="Entry fee">
+                            {formatBdt(game.feeMinor)}
+                          </td>
+                          <td data-label="Places taken">
                             <strong>
                               {taken} / {game.capacity}
                             </strong>
                             <small>
-                              {game.confirmedCount} confirmed ·{" "}
-                              {game.reservedCount} pending
+                              <span className={styles.nowrap}>
+                                {game.confirmedCount} confirmed
+                              </span>{" "}
+                              ·{" "}
+                              <span className={styles.nowrap}>
+                                {game.reservedCount} pending
+                              </span>
                             </small>
                             <div className={styles.meter} aria-hidden="true">
                               <span
@@ -123,12 +135,17 @@ export default async function GamesPage({
                               />
                             </div>
                           </td>
-                          <td>
-                            {scoringAdapters.find(
-                              (adapter) => adapter.key === game.scoringAdapter,
-                            )?.label ?? game.scoringAdapter}
+                          <td data-label="Scoring">
+                            {
+                              (
+                                scoringAdapters.find(
+                                  (adapter) =>
+                                    adapter.key === game.scoringAdapter,
+                                )?.label ?? game.scoringAdapter
+                              ).split(":")[0]
+                            }
                           </td>
-                          <td>
+                          <td data-label="Status">
                             <span
                               className={styles.pill}
                               data-tone={availability.tone}
@@ -136,7 +153,7 @@ export default async function GamesPage({
                               {availability.label}
                             </span>
                           </td>
-                          <td>
+                          <td className={styles.linkCell}>
                             <Link
                               href={`/admin/games/${game.id}`}
                               aria-label={`Edit ${game.name}`}

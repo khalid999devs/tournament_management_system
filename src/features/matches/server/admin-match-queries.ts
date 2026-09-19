@@ -4,7 +4,6 @@ import {
   and,
   asc,
   count,
-  desc,
   eq,
   exists,
   ilike,
@@ -191,9 +190,13 @@ export async function getAdminMatchPage(
     .innerJoin(tournamentGames, eq(rounds.tournamentGameId, tournamentGames.id))
     .innerJoin(games, eq(tournamentGames.gameId, games.id))
     .where(where)
+    // Live matches first, then in draw order: game, round, match code.
     .orderBy(
       sql`case ${matches.status} when 'IN_PROGRESS' then 0 when 'POSTPONED' then 1 when 'SCHEDULED' then 2 else 3 end`,
-      desc(matches.updatedAt),
+      asc(tournamentGames.sortOrder),
+      asc(games.name),
+      asc(rounds.sequence),
+      asc(matches.code),
       matches.id,
     )
     .limit(pageSize)

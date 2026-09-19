@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 clamp(20px, 5vw, 64px);
+  padding: 0 max(20px, calc((100% - 1200px) / 2));
   background: var(--navy-950);
   color: var(--ivory-100);
 }
@@ -41,7 +41,9 @@
 
 .header button {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 44px;
+  flex: none;
+  white-space: nowrap;
   align-items: center;
   gap: 7px;
   padding: 0 11px;
@@ -129,6 +131,7 @@
 }
 
 .tableShell {
+  position: relative;
   overflow-x: auto;
 }
 
@@ -190,55 +193,113 @@
   background: white;
 }
 
-@media (max-width: 700px) {
+.players > span {
+  display: inline;
+}
+
+@media (max-width: 1099px) {
+  .tableShell {
+    border: 0;
+    background: transparent;
+  }
+
   .tableShell thead {
     display: none;
   }
 
-  .tableShell table,
-  .tableShell tbody,
-  .tableShell tr,
-  .tableShell td {
+  .tableShell table {
     display: block;
   }
 
+  .tableShell tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+    gap: 12px;
+  }
+
+  /* Each match is a card: code on top, labelled details in a grid, and a
+     full-width button at the bottom. */
   .tableShell tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 14px 16px;
     padding: 16px 18px;
-    border-top: 1px solid #e3e6e8;
-  }
-
-  .tableShell tr:first-child {
-    border-top: 0;
+    border: 1px solid #d9dde0;
+    background: white;
   }
 
   .tableShell td {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 6px 0;
-    border-top: 0;
+    display: grid;
+    align-content: start;
+    gap: 3px;
+    padding: 0;
+    border: 0;
     white-space: normal;
-    text-align: right;
   }
 
-  .tableShell td:first-child {
-    display: block;
-    margin-bottom: 6px;
-    text-align: left;
+  .tableShell td:first-child,
+  .tableShell td[data-label="Players"],
+  .tableShell td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .tableShell td:last-child {
+    align-self: end;
   }
 
   .tableShell td[data-label]::before {
     content: attr(data-label);
     color: var(--slate-700);
-    font-size: 12px;
-    font-weight: 700;
-    text-align: left;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tableShell td small {
+    margin-top: 0;
+  }
+
+  .players > span {
+    display: block;
+  }
+
+  .versus {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .openLink {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .filters input {
+    flex-basis: 100%;
+  }
+
+  .filters select {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 379px) {
+  .brand small {
+    display: none;
   }
 }
 
 .headerLink {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 44px;
+  flex: none;
+  white-space: nowrap;
   align-items: center;
   gap: 7px;
   padding: 0 11px;
@@ -255,7 +316,8 @@
 
 .openLink {
   display: inline-flex;
-  min-height: 40px;
+  min-height: 44px;
+  justify-content: center;
   align-items: center;
   padding: 0 14px;
   background: var(--green-600);
@@ -273,7 +335,7 @@
 
 .filters input,
 .filters select {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid #cbd1d5;
   background: white;
@@ -287,7 +349,7 @@
 }
 
 .filters button {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 16px;
   border: 0;
   background: var(--navy-900);
@@ -337,4 +399,58 @@
     align-items: flex-start;
     flex-direction: column;
   }
+}
+
+.errorState {
+  max-width: 560px;
+  margin: 40px auto;
+  padding: 28px 24px;
+  border: 1px solid rgba(22, 38, 74, 0.16);
+  background: white;
+}
+
+.errorState h1 {
+  margin: 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.errorState p {
+  margin: 10px 0 0;
+  color: var(--slate-700);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.errorState > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.errorState button,
+.errorState a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding-inline: 18px;
+  border: 1px solid rgba(22, 38, 74, 0.2);
+  background: white;
+  color: var(--navy-900);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.errorState button {
+  border-color: var(--navy-900);
+  background: var(--navy-900);
+  color: white;
+}
+
+.headerScore {
+  padding-inline: max(16px, calc((100% - 760px) / 2));
 }

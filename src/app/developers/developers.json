@@ -1,0 +1,29 @@
+{
+  "intro": "Built for the Notre Dame College Association of KUET by students of the association, in order of contribution.",
+  "people": [
+    {
+      "name": "Khalid Ahammed Uzzal",
+      "role": "Full stack software engineer",
+      "designation": "Organizing Secretary, NDCAK",
+      "department": "Computer Science and Engineering",
+      "session": "CSE 22",
+      "roll": "2207035",
+      "lead": true,
+      "summary": "Designed and built the platform end to end, from registration to live scoring.",
+      "contributions": [
+        "Architecture and database",
+        "Registration and fees",
+        "Payment verification",
+        "Live scoring and brackets",
+        "Real-time updates and email",
+        "Deployment and operations"
+      ],
+      "links": {
+        "website": "https://khalidahammed.com",
+        "github": "https://github.com/khalid999devs",
+        "linkedin": "https://www.linkedin.com/in/khalid-ahammed",
+        "email": "khalidahammeduzzal@gmail.com"
+      }
+    }
+  ]
+}

@@ -3,13 +3,14 @@
 import { ArrowRight, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
-import { calculateRegistrationQuote } from "@/features/registration/domain/quote";
+import { tryRegistrationQuote } from "@/features/registration/domain/quote";
 import {
   createRegistrationDetailsSchema,
   type RegistrationDetails,
 } from "@/features/registration/domain/schemas";
 import type { RegistrationGameOption } from "@/features/registration/domain/types";
 import { formatBdt } from "@/lib/money";
+import { GamesChanged } from "./games-changed";
 import { draftStorageKey } from "./registration-details-form";
 import styles from "./registration.module.css";
 
@@ -48,11 +49,9 @@ export function RegistrationReview({
     );
   }
 
-  const quote = calculateRegistrationQuote(
-    games,
-    details.selectedGameIds,
-    maxGames,
-  );
+  const priced = tryRegistrationQuote(games, details.selectedGameIds, maxGames);
+  if (!priced.ok) return <GamesChanged message={priced.message} />;
+  const { quote } = priced;
 
   return (
     <div className={styles.layout}>

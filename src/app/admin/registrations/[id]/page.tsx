@@ -19,6 +19,20 @@ type RegistrationDetailPageProps = {
   searchParams: Promise<{ message?: string; error?: string }>;
 };
 
+const paymentStatusLabels: Record<string, string> = {
+  SUBMITTED: "Awaiting check",
+  VERIFIED: "Verified",
+  REJECTED: "Rejected",
+  REFUNDED: "Refunded",
+};
+
+const entryStatusLabels: Record<string, string> = {
+  PENDING: "Pending review",
+  CONFIRMED: "Confirmed",
+  REJECTED: "Rejected",
+  CANCELLED: "Cancelled",
+};
+
 export default async function RegistrationDetailPage({
   params,
   searchParams,
@@ -83,7 +97,10 @@ export default async function RegistrationDetailPage({
               value={formatBdt(registration.expectedAmountMinor)}
             />
             <Detail label="Transaction ID" value={registration.transactionId} />
-            <Detail label="Payment status" value={registration.paymentStatus} />
+            <Detail
+              label="Payment status"
+              value={paymentStatusLabels[registration.paymentStatus]}
+            />
           </dl>
         </section>
 
@@ -94,7 +111,7 @@ export default async function RegistrationDetailPage({
               <li key={entry.id}>
                 <span>
                   <strong>{entry.gameName}</strong>
-                  <small>{entry.status}</small>
+                  <small>{entryStatusLabels[entry.status]}</small>
                 </span>
                 <b>{formatBdt(entry.feeMinor)}</b>
               </li>
@@ -133,7 +150,7 @@ export default async function RegistrationDetailPage({
               value={registration.id}
             />
             <label>
-              Participant-safe rejection reason
+              Reason shown to the participant
               <textarea name="reason" minLength={3} maxLength={1000} required />
             </label>
             <button type="submit">

@@ -4,13 +4,13 @@ import styles from "@/features/registration/components/registration.module.css";
 
 export default function RegistrationLoading() {
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <div className={styles.headerShell}>
         <PublicHeader />
       </div>
-      <div className="page-width">
+      <main id="main-content" className="page-width">
         <PageSkeleton label="Loading registration" />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

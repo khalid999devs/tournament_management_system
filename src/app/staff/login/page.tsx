@@ -20,8 +20,10 @@ function getErrorMessage(error: string) {
       return "This setup link is invalid, expired, or already used. If you set your password, sign in below. Otherwise, request a fresh link from the event team.";
     case "access_denied":
       return "This account has no active staff access. Contact the Super Admin.";
+    case "too_many_attempts":
+      return "Too many sign-in attempts. Wait 15 minutes, then try again.";
     default:
-      return "That email or password was not recognized. Check your details and try again.";
+      return "That email or password was not recognised. Check your details and try again.";
   }
 }
 
@@ -31,7 +33,7 @@ export default async function StaffLoginPage({
   const { error } = await searchParams;
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" className={styles.page}>
       <section className={styles.identity} aria-label="NDCAK staff workspace">
         <Link
           className={styles.brand}
@@ -51,12 +53,12 @@ export default async function StaffLoginPage({
           <p>Staff workspace</p>
           <h1>Run the event with clarity.</h1>
           <span>
-            Secure access for authorized administrators and score operators.
+            Secure access for authorised administrators and score operators.
             Participant registration never requires an account.
           </span>
         </div>
 
-        <small>Authorized NDCAK event staff only</small>
+        <small>Authorised NDCAK event staff only</small>
       </section>
 
       <section className={styles.formShell}>

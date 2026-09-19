@@ -89,7 +89,12 @@ export default async function AdminDashboardPage() {
               Manage games
             </Link>
           </div>
-          <div className={settingsStyles.table}>
+          <div
+            className={settingsStyles.table}
+            role="region"
+            aria-label="Places by game"
+            tabIndex={0}
+          >
             <table>
               <thead>
                 <tr>
@@ -118,9 +123,9 @@ export default async function AdminDashboardPage() {
                           />
                         </div>
                       </td>
-                      <td>{game.confirmedCount}</td>
-                      <td>{game.reservedCount}</td>
-                      <td>
+                      <td data-label="Confirmed">{game.confirmedCount}</td>
+                      <td data-label="Pending">{game.reservedCount}</td>
+                      <td data-label="Places left">
                         {Math.max(0, game.capacity - taken)} of {game.capacity}
                       </td>
                     </tr>
@@ -263,8 +268,9 @@ function Overview({ dashboard }: { dashboard: Dashboard }) {
         {staff.operators} {staff.operators === 1 ? "operator" : "operators"} on
         duty with {staff.assignments} active{" "}
         {staff.assignments === 1 ? "assignment" : "assignments"} ·{" "}
-        {staff.scoringNow} staff entered scores in the last{" "}
-        {staff.windowMinutes} minutes ·{" "}
+        {staff.scoringNow}{" "}
+        {staff.scoringNow === 1 ? "staff member" : "staff members"} entered
+        scores in the last {staff.windowMinutes} minutes ·{" "}
         <Link href="/admin/matches">Match monitor</Link>
       </p>
 
@@ -309,7 +315,12 @@ function Overview({ dashboard }: { dashboard: Dashboard }) {
                     {describeUpdateType(update.type)}
                     <small>
                       {update.gameName} · {update.actorName}
-                      {update.displayScore ? ` · ${update.displayScore}` : ""}
+                      {/* The match's score is current, so it is shown only
+                          where it describes this update: the final result. */}
+                      {update.displayScore &&
+                      ["FINALIZED", "WALKOVER"].includes(update.type)
+                        ? ` · ${update.displayScore}`
+                        : ""}
                     </small>
                   </span>
                 </li>

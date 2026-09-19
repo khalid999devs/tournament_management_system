@@ -22,7 +22,10 @@ function statusText(status: string, scheduledAt: string | null) {
   if (status === "POSTPONED") return "Postponed";
   if (status === "CANCELLED") return "Cancelled";
   if (status === "WALKOVER") return "Walkover";
-  return scheduledAt ? formatDhakaDateTime(scheduledAt) : "To be scheduled";
+  if (status === "COMPLETED") return "Final";
+  return scheduledAt
+    ? formatDhakaDateTime(scheduledAt)
+    : "Time to be announced";
 }
 
 export default async function ResultsPage() {
@@ -33,7 +36,7 @@ export default async function ResultsPage() {
       <PublicPageShell
         eyebrow="Official results"
         title="Follow the championship."
-        intro="Confirmed results and brackets appear here once the organizers publish them. Live scores stay with the match officials until a result is confirmed."
+        intro="Confirmed results and brackets appear here once the organisers publish them. Live scores stay with the match officials until a result is confirmed."
       >
         <section className={styles.empty}>
           <div>
@@ -92,50 +95,60 @@ export default async function ResultsPage() {
                 ))}
               </ol>
             ) : null}
-            <div className={results.rounds}>
+            <div
+              className={results.rounds}
+              role="region"
+              aria-label={`${game.name} bracket`}
+              tabIndex={0}
+            >
               {game.rounds.map((round) => (
                 <div key={round.sequence} className={results.round}>
                   <h3>{round.name}</h3>
-                  {round.matches.map((match) => (
-                    <article key={match.code} className={results.match}>
-                      <header>
-                        <span>{match.code}</span>
-                        <span
-                          className={
-                            match.status === "IN_PROGRESS"
-                              ? results.live
-                              : undefined
-                          }
-                        >
-                          {statusText(match.status, match.scheduledAt)}
-                        </span>
-                      </header>
-                      <ul>
-                        {match.entrants.length === 0 ? (
-                          <li>To be decided</li>
-                        ) : null}
-                        {match.entrants.map((entrant) => (
-                          <li
-                            key={entrant.name}
-                            data-winner={entrant.winner || undefined}
+                  <div className={results.roundMatches}>
+                    {round.matches.map((match) => (
+                      <article key={match.code} className={results.match}>
+                        <header>
+                          <span>{match.code}</span>
+                          <span
+                            className={
+                              match.status === "IN_PROGRESS"
+                                ? results.live
+                                : undefined
+                            }
                           >
-                            <span>
-                              {match.entrants.length > 2 && entrant.placement
-                                ? `${ordinal(entrant.placement)} · `
-                                : ""}
-                              {entrant.name}
-                            </span>
-                            <small>{entrant.department}</small>
-                          </li>
-                        ))}
-                      </ul>
-                      {match.displayScore ? (
-                        <span className={results.score}>
-                          {match.displayScore}
-                        </span>
-                      ) : null}
-                    </article>
-                  ))}
+                            {statusText(match.status, match.scheduledAt)}
+                          </span>
+                        </header>
+                        <ul>
+                          {match.entrants.length === 0 ? (
+                            <li>To be decided</li>
+                          ) : null}
+                          {match.entrants.map((entrant) => (
+                            <li
+                              key={entrant.name}
+                              data-winner={entrant.winner || undefined}
+                            >
+                              <span>
+                                {match.entrants.length > 2 && entrant.placement
+                                  ? `${ordinal(entrant.placement)} · `
+                                  : ""}
+                                {entrant.name}
+                              </span>
+                              <small>{entrant.department}</small>
+                            </li>
+                          ))}
+                          {match.entrants.length === 1 ? (
+                            <li>To be decided</li>
+                          ) : null}
+                        </ul>
+                        {match.displayScore ? (
+                          <span className={results.score}>
+                            {match.displayScore}
+                          </span>
+                        ) : null}
+                      </article>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

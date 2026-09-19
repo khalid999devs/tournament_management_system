@@ -24,7 +24,7 @@
 - Every external input is validated server-side.
 - Every operator query/mutation applies effective scope.
 - Logs exclude raw secrets and unnecessary participant/payment data.
-- Public submission uses rate limiting and anti-bot controls before launch.
+- Public submission and staff sign-in are limited by attempt counters in the database (Phase 6).
 
 ## UX and accessibility
 

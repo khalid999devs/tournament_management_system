@@ -13,27 +13,35 @@ No secrets should be pasted into chat, committed, or placed in client-exposed va
 - Transaction Pooler: configured on port 6543 and verified for runtime and migrations.
 - Direct PostgreSQL URL: not used because it is IPv6-only in this environment.
 - Official Super Admin Auth user and active profile: confirmed with password set; normal staff sign-in remains to be reviewed.
-- Gmail SMTP App Password: not yet configured.
+- Gmail SMTP App Password: configured and delivering (registration and approval email verified from the deployed site).
 - Supabase server-only secret key: configured locally and verified against the Auth Admin API.
 
 ## Needed now to activate staff access
 
-- Sign in at `/staff/login` with the password set during setup and review the protected Admin pages.
-- A Google App Password for `ndcakofficial@gmail.com` (`SMTP_PASSWORD`).
+- Rotate the Google App Password for `ndcakofficial@gmail.com` that appeared
+  in a screenshot, put it in `.env.local`, then run
+  `pnpm vercel:env SMTP_PASSWORD` and redeploy.
 
 A Session Pooler URL may optionally be stored as `MIGRATION_DATABASE_URL` for long-running local administration. It is not blocking the current schema because the initial Drizzle migration completed successfully through the Transaction Pooler.
 
 The initial Super Admin identity is `ndcakofficial@gmail.com`. The Phase 3 operator-invitation workflow uses the server-only key for Auth Admin link generation; the key is not needed for public registration or Super Admin payment review.
 
-## Needed to complete production deployment
+## Production deployment
 
-- Vercel CLI signed in with the account that should own the project.
-- The site uses the free `*.vercel.app` address; no custom domain is needed.
+- Deployed at https://ndcak-indoor-games.vercel.app (Vercel project
+  `ndcak-indoor-games`). Settings are copied from `.env.local` with
+  `pnpm vercel:env`; `CRON_SECRET` is set and the daily job runs at 09:00
+  Dhaka time.
+- Supabase Authentication needs no URL configuration: invitation and password
+  links point at this app's `/auth/confirm`.
+- Connecting the GitHub repository for automatic deploys needs a GitHub login
+  connection on the Vercel account, which it does not have yet. Deploys run
+  from the CLI.
 
-## Needed if anti-bot protection is enabled
+## Not needed for now
 
-- Cloudflare Turnstile site key.
-- Cloudflare Turnstile secret key.
+Cloudflare Turnstile keys. Registration and staff sign-in are limited by
+attempt counters in the database instead, which need no extra account.
 
 ## Requested only after committee confirmation
 

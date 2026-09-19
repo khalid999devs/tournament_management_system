@@ -140,7 +140,12 @@ export default async function MatchesPage({
         </div>
       </form>
 
-      <div className={styles.tableShell}>
+      <div
+        className={styles.tableShell}
+        role="region"
+        aria-label="Matches"
+        tabIndex={0}
+      >
         <table>
           <thead>
             <tr>
@@ -161,31 +166,32 @@ export default async function MatchesPage({
                     {row.gameName} · {row.roundName}
                   </small>
                 </td>
-                <td>
+                <td data-label="Players">
                   <span>
                     {row.entrants.length
                       ? row.entrants.map((entrant) => entrant.name).join(" vs ")
                       : "Waiting for earlier results"}
+                    {row.entrants.length === 1 ? " vs to be decided" : ""}
                   </span>
                 </td>
-                <td>
+                <td data-label="Score" className={styles.nowrapCell}>
                   <span>{row.displayScore ?? "No score yet"}</span>
                   <small>Updated {formatDhakaDateTime(row.updatedAt)}</small>
                 </td>
-                <td>
+                <td data-label="Schedule" className={styles.nowrapCell}>
                   <span>
                     {row.scheduledAt
                       ? formatDhakaDateTime(row.scheduledAt)
-                      : "Not scheduled"}
+                      : "Time not set"}
                   </span>
                   {row.station ? <small>{row.station}</small> : null}
                 </td>
-                <td>
+                <td data-label="Status">
                   <span className={styles.statusBadge} data-status={row.status}>
                     {describeStatus(row.status)}
                   </span>
                 </td>
-                <td>
+                <td className={styles.linkCell}>
                   <Link
                     className={styles.rowLink}
                     href={`/admin/matches/${row.id}`}

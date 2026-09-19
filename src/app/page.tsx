@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { PublicFooter } from "@/components/brand/public-footer";
 import { PublicHeader } from "@/components/brand/public-header";
+import { Ticker } from "@/components/brand/ticker";
 import {
   getPublicEvent,
   isAcceptingRegistrations,
@@ -21,6 +22,9 @@ import {
 } from "@/features/tournaments/server/get-registration-tournament";
 import { formatDhakaDate, formatDhakaDateRange } from "@/lib/dates";
 import { formatBdt } from "@/lib/money";
+
+// Keeps "19 October 2026" or "Mobile Football" together on one line.
+const keepTogether = (text: string) => text.replace(/ /g, "\u00a0");
 
 export const revalidate = 60;
 
@@ -63,7 +67,7 @@ function describeRegistration(event: PublicEvent | null) {
   ) {
     return {
       open: false,
-      label: `Registration opens ${formatDhakaDate(event.registrationOpenAt)}`,
+      label: `Registration opens ${keepTogether(formatDhakaDate(event.registrationOpenAt))}`,
     };
   }
   if (!isAcceptingRegistrations(event)) {
@@ -73,7 +77,7 @@ function describeRegistration(event: PublicEvent | null) {
   return {
     open: true,
     label: event.registrationCloseAt
-      ? `Registration open until ${formatDhakaDate(event.registrationCloseAt)}`
+      ? `Registration open until ${keepTogether(formatDhakaDate(event.registrationCloseAt))}`
       : "Registration is open",
   };
 }
@@ -113,193 +117,192 @@ export default async function Home() {
   ];
 
   return (
-    <main>
-      <section className="hero-shell">
+    <>
+      <div className="home-header">
         <PublicHeader />
+      </div>
+      <main id="main-content">
+        <section className="hero-shell">
+          <Ticker items={tickerItems} />
 
-        <div className="ticker" aria-label="Event highlights">
-          <div className="ticker-track">
-            {[0, 1].map((copy) => (
-              <ul key={copy} aria-hidden={copy === 1 ? true : undefined}>
-                {tickerItems.map((item, index) => (
-                  <li key={`${item}-${index}`}>{item}</li>
-                ))}
-              </ul>
-            ))}
-          </div>
-        </div>
-
-        <div className="hero-grid page-width">
-          <div className="hero-copy">
-            <p className="eyebrow">
-              Notre Dame College Association of KUET presents
-            </p>
-            <h1>
-              Indoor Games
-              <span>Championship.</span>
-            </h1>
-            <p className="hero-intro">
-              {event?.description ??
-                `${lineup.length} games. One championship. From the chessboard to the carrom board, take on the best players at KUET and play for the title.`}
-            </p>
-            <div className="hero-actions">
-              <Link className="button button-primary" href="/register">
-                {registration.open ? "Register now" : "Registration details"}
-                <ArrowRight size={18} aria-hidden="true" />
-              </Link>
-              <Link className="button button-quiet" href="/rulebook">
-                Read the rulebook
-              </Link>
-            </div>
-          </div>
-
-          <dl className="event-facts" aria-label="Event essentials">
-            <div>
-              <dt>
-                <CalendarDays size={18} aria-hidden="true" /> Dates
-              </dt>
-              <dd>{dates}</dd>
-            </div>
-            <div>
-              <dt>
-                <MapPin size={18} aria-hidden="true" /> Venue
-              </dt>
-              <dd>{venue}</dd>
-            </div>
-            <div>
-              <dt>
-                <Ticket size={18} aria-hidden="true" /> Entry
-              </dt>
-              <dd>
-                <span
-                  className={
-                    registration.open ? "status-dot live" : "status-dot"
-                  }
-                  aria-hidden="true"
-                />
-                {registration.label}
-              </dd>
-            </div>
-            <div>
-              <dt>
-                <Trophy size={18} aria-hidden="true" /> Games
-              </dt>
-              <dd>{lineup.map((game) => game.name).join(" · ")}</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-
-      <section className="lineup-section page-width" aria-labelledby="lineup">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">The lineup</p>
-            <h2 id="lineup">Pick your games.</h2>
-          </div>
-          <p>
-            Enter one game or several in a single registration. Each game is its
-            own competition, so you can chase more than one title.
-          </p>
-        </div>
-
-        <ul className="lineup-grid">
-          {lineup.map((game) => {
-            const Icon = iconFor(game.name);
-            const full = game.slotsLeft === 0;
-            const canEnter = Boolean(
-              game.id && game.open && registration.open && !full,
-            );
-
-            return (
-              <li key={game.name}>
-                <Link
-                  className="lineup-card"
-                  href={canEnter ? `/register?game=${game.id}` : "/register"}
-                  aria-label={`${game.name}: ${canEnter ? "register" : "registration details"}`}
-                >
-                  <Icon size={26} aria-hidden="true" />
-                  <h3>{game.name}</h3>
-                  <p>{game.description}</p>
-                  <div className="lineup-meta">
-                    <div>
-                      {game.fee ? (
-                        <>
-                          <strong>{game.fee}</strong>
-                          <span>
-                            {full
-                              ? "Full"
-                              : !game.open && game.id
-                                ? "Registration closed"
-                                : `${game.slotsLeft} places left`}
-                          </span>
-                        </>
-                      ) : (
-                        <span>Fee and places announced soon</span>
-                      )}
-                    </div>
-                    <span className="lineup-go" aria-hidden="true">
-                      <ArrowRight size={18} />
-                    </span>
-                  </div>
+          <div className="hero-grid page-width">
+            <div className="hero-copy">
+              <p className="eyebrow">
+                Notre Dame College Association of KUET presents
+              </p>
+              <h1>
+                Indoor Games
+                <span>Championship.</span>
+              </h1>
+              <p className="hero-intro">
+                {event?.description ??
+                  `${lineup.length} games. One championship. From the chessboard to the carrom board, take on the best players at KUET and play for the title.`}
+              </p>
+              <div className="hero-actions">
+                <Link className="button button-primary" href="/register">
+                  {registration.open ? "Register now" : "Registration details"}
+                  <ArrowRight size={18} aria-hidden="true" />
                 </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+                <Link className="button button-quiet" href="/rulebook">
+                  Read the rulebook
+                </Link>
+              </div>
+            </div>
 
-      <section className="entry-section" aria-labelledby="how-to-enter">
-        <div className="page-width entry-grid">
-          <div>
-            <p className="eyebrow">How to enter</p>
-            <h2 id="how-to-enter">Three steps to the draw.</h2>
+            <dl className="event-facts" aria-label="Event essentials">
+              <div>
+                <dt>
+                  <CalendarDays size={18} aria-hidden="true" /> Dates
+                </dt>
+                <dd>{dates}</dd>
+              </div>
+              <div>
+                <dt>
+                  <MapPin size={18} aria-hidden="true" /> Venue
+                </dt>
+                <dd>{venue}</dd>
+              </div>
+              <div>
+                <dt>
+                  <Ticket size={18} aria-hidden="true" /> Entry
+                </dt>
+                <dd>
+                  <span
+                    className={
+                      registration.open ? "status-dot live" : "status-dot"
+                    }
+                    aria-hidden="true"
+                  />
+                  {registration.label}
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <Trophy size={18} aria-hidden="true" /> Games
+                </dt>
+                <dd>
+                  {lineup.map((game) => keepTogether(game.name)).join(" · ")}
+                </dd>
+              </div>
+            </dl>
           </div>
-          <ol>
-            <li>
-              <span>01</span>
-              <div>
-                <strong>Choose your games</strong>
-                <p>
-                  Fill in your details and select every game you want to play.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span>02</span>
-              <div>
-                <strong>Pay the entry fee</strong>
-                <p>
-                  Send the total by mobile banking and submit your transaction
-                  ID.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span>03</span>
-              <div>
-                <strong>Get confirmed</strong>
-                <p>
-                  Once the committee verifies your payment, your confirmation
-                  and calendar invite arrive by email.
-                </p>
-              </div>
-            </li>
-          </ol>
-        </div>
-      </section>
+        </section>
 
-      <section className="closing-cta page-width">
-        <div>
-          <p className="eyebrow">{registration.label}</p>
-          <h2>Your seat at the table is waiting.</h2>
-        </div>
-        <Link className="button button-primary" href="/register">
-          {registration.open ? "Claim your spot" : "See registration details"}
-          <ArrowRight size={18} aria-hidden="true" />
-        </Link>
-      </section>
+        <section className="lineup-section page-width" aria-labelledby="lineup">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">The lineup</p>
+              <h2 id="lineup">Pick your games.</h2>
+            </div>
+            <p>
+              Enter one game or several in a single registration. Each game is
+              its own competition, so you can chase more than one title.
+            </p>
+          </div>
+
+          <ul className="lineup-grid">
+            {lineup.map((game) => {
+              const Icon = iconFor(game.name);
+              const full = game.slotsLeft === 0;
+              const canEnter = Boolean(
+                game.id && game.open && registration.open && !full,
+              );
+
+              return (
+                <li key={game.name}>
+                  <Link
+                    className={
+                      canEnter ? "lineup-card" : "lineup-card is-closed"
+                    }
+                    href={canEnter ? `/register?game=${game.id}` : "/register"}
+                    aria-label={`${game.name}: ${canEnter ? "register" : "registration details"}`}
+                  >
+                    <Icon size={26} aria-hidden="true" />
+                    <h3>{game.name}</h3>
+                    <p>{game.description}</p>
+                    <div className="lineup-meta">
+                      <div>
+                        {game.fee ? (
+                          <>
+                            <strong>{game.fee}</strong>
+                            <span>
+                              {full
+                                ? "Full"
+                                : !game.open && game.id
+                                  ? "Closed"
+                                  : `${game.slotsLeft} places left`}
+                            </span>
+                          </>
+                        ) : (
+                          <span>Fee and places announced soon</span>
+                        )}
+                      </div>
+                      {canEnter ? (
+                        <span className="lineup-go" aria-hidden="true">
+                          <ArrowRight size={18} />
+                        </span>
+                      ) : null}
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <section className="entry-section" aria-labelledby="how-to-enter">
+          <div className="page-width entry-grid">
+            <div>
+              <p className="eyebrow">How to enter</p>
+              <h2 id="how-to-enter">Three steps to the draw.</h2>
+            </div>
+            <ol>
+              <li>
+                <span>01</span>
+                <div>
+                  <strong>Choose your games</strong>
+                  <p>
+                    Fill in your details and select every game you want to play.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>02</span>
+                <div>
+                  <strong>Pay the entry fee</strong>
+                  <p>
+                    Send the total by mobile banking and submit your transaction
+                    ID.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>03</span>
+                <div>
+                  <strong>Get confirmed</strong>
+                  <p>
+                    Once the committee verifies your payment, your confirmation
+                    and calendar invite arrive by email.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <section className="closing-cta page-width">
+          <div>
+            <p className="eyebrow">{registration.label}</p>
+            <h2>Your seat at the table is waiting.</h2>
+          </div>
+          <Link className="button button-primary" href="/register">
+            {registration.open ? "Claim your spot" : "See registration details"}
+            <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+        </section>
+      </main>
 
       <PublicFooter />
-    </main>
+    </>
   );
 }

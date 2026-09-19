@@ -2,6 +2,7 @@ import "server-only";
 
 import { sql } from "drizzle-orm";
 import { getDatabase } from "@/db";
+import { pruneRateLimits } from "@/lib/rate-limit";
 import {
   queueEventReminders,
   recoverStuckNotifications,
@@ -18,6 +19,7 @@ export async function runDailyJobs(now = new Date()) {
   // Any query counts as activity, which keeps a free Supabase project from
   // pausing between events.
   await getDatabase().execute(sql`select 1`);
+  await pruneRateLimits();
   const recovered = await recoverStuckNotifications(now);
   const reminders = await queueEventReminders({ now });
   const delivery = await sendQueuedNotifications({

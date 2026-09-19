@@ -143,7 +143,7 @@ export function ScoreConsole({
       <header className={styles.matchHeader}>
         <div>
           <p>
-            {state.gameName} · {state.roundName}
+            <span>{state.gameName} ·</span> <span>{state.roundName}</span>
           </p>
           <h1>{state.code}</h1>
           <span>
@@ -173,9 +173,11 @@ export function ScoreConsole({
             Saving {outbox.length} {outbox.length === 1 ? "action" : "actions"}…
           </span>
         ) : (
-          <span className={styles.syncOk}>
-            <CheckCircle2 size={16} aria-hidden="true" /> All saved · version{" "}
-            {state.version}
+          <span
+            className={styles.syncOk}
+            title={`Match version ${state.version}`}
+          >
+            <CheckCircle2 size={16} aria-hidden="true" /> All saved
           </span>
         )}
         <span className={styles.syncTools}>
@@ -289,6 +291,29 @@ export function ScoreConsole({
         </div>
       ) : null}
 
+      {live &&
+      state.status === "SCHEDULED" &&
+      ready &&
+      state.permissions.score ? (
+        <div className={styles.startBar}>
+          <p>
+            <strong>Not started yet</strong>
+            <span>
+              Start the match when play begins. Recording the first score starts
+              it too.
+            </span>
+          </p>
+          <button
+            type="button"
+            className={styles.primary}
+            disabled={!idle || !sync.leader}
+            onClick={() => sync.enqueue({ type: "START" }, "Start match")}
+          >
+            Start match
+          </button>
+        </div>
+      ) : null}
+
       {live ? (
         <section className={styles.card} aria-label="Score entry">
           {state.entrants.length === 0 ? (
@@ -317,26 +342,17 @@ export function ScoreConsole({
               busy={!idle}
             />
           )}
-          {live &&
-          state.status === "SCHEDULED" &&
-          ready &&
-          state.permissions.score ? (
-            <button
-              type="button"
-              className={styles.secondary}
-              disabled={!idle || !sync.leader}
-              onClick={() => sync.enqueue({ type: "START" }, "Start match")}
-            >
-              Mark as started
-            </button>
-          ) : null}
         </section>
       ) : null}
 
       {live && state.adapterKey !== "CHESS_OUTCOME" && ready ? (
         <section className={styles.card} aria-labelledby="finalize-title">
           <h2 id="finalize-title">Confirm the result</h2>
-          {preview ? (
+          {state.status === "SCHEDULED" && idle ? (
+            <p className={styles.hint}>
+              Nothing to confirm yet. Record the score as the match is played.
+            </p>
+          ) : preview ? (
             <p className={styles.preview}>
               <strong>{preview.displayScore}</strong>
               {preview.winnerSeats.length
@@ -346,7 +362,8 @@ export function ScoreConsole({
           ) : (
             <p className={styles.hint}>{previewProblem}</p>
           )}
-          {!state.permissions.finalize ? (
+          {state.status === "SCHEDULED" && idle ? null : !state.permissions
+              .finalize ? (
             <p className={styles.hint}>
               Your assignment does not include confirming results.
             </p>
@@ -385,7 +402,7 @@ export function ScoreConsole({
               Finalize result
             </button>
           )}
-          <p className={styles.hint}>
+          <p className={`${styles.hint} ${styles.afterNote}`}>
             After confirming, only an admin can reopen the result.
           </p>
         </section>
@@ -515,11 +532,12 @@ export function ScoreConsole({
       <section className={styles.card} aria-labelledby="log-title">
         <h2 id="log-title">Match log</h2>
         <p className={styles.hint}>
-          Server time decides the order; the device time shows when the button
-          was pressed.
+          Every action in the order it was saved, with who made it.
         </p>
         {state.log.length === 0 ? (
-          <p className={styles.hint}>Nothing recorded yet.</p>
+          <p className={styles.logEmpty}>
+            Nothing recorded yet. Actions appear here as they are saved.
+          </p>
         ) : (
           <ol className={styles.log}>
             {state.log.map((item) => {

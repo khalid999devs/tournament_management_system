@@ -26,7 +26,12 @@ export default async function ReportsPage() {
       </header>
 
       {!options ? (
-        <div className={styles.tableShell}>
+        <div
+          className={styles.tableShell}
+          role="region"
+          aria-label="Report contents"
+          tabIndex={0}
+        >
           <div className={styles.emptyState}>
             <h2>Nothing to export yet</h2>
             <p>Create the tournament in Event settings first.</p>

@@ -1,6 +1,9 @@
 # Deployment on Vercel
 
-The platform runs on Vercel's free `*.vercel.app` address. No custom domain is needed: links in emails and page metadata use the Vercel production address automatically, and email goes out through Gmail SMTP.
+Live at **https://ndcak-indoor-games.vercel.app** (Vercel project
+`ndcak-indoor-games`, scope `ndcakofficial-7292`). No custom domain is needed:
+links in emails and page metadata use the Vercel production address
+automatically, and email goes out through Gmail SMTP.
 
 ## Settings
 
@@ -40,13 +43,58 @@ Staff screens listen on private Supabase Realtime channels. Migration `0003_live
 
 Preview deployments should not use the production database. Until a separate Supabase project exists for previews, deploy production only.
 
-## First deployment
+## Deploying a change
 
-1. `vercel login` with the account that should own the project.
-2. `vercel link` in the repository root and create the project.
-3. Add the variables above with `vercel env add <NAME> production`.
-4. `vercel deploy --prod`.
-5. In Supabase → Authentication → URL Configuration, set **Site URL** to the `https://….vercel.app` address and add `https://….vercel.app/**` to **Redirect URLs**. Keep `http://localhost:3000/**` for local work.
-6. Sign in at `/staff/login`, invite a test operator to a second inbox, and confirm the email arrives and its link opens on another device.
+```bash
+pnpm typecheck && pnpm lint && pnpm test && vercel deploy --prod
+```
 
-Connecting the GitHub repository in the Vercel dashboard makes every push to `main` deploy automatically.
+The production address always points at the newest deployment. An older one
+can be promoted from the Vercel dashboard's Deployments list.
+
+## Settings and secrets
+
+`pnpm vercel:env` copies the production values from `.env.local` to Vercel
+through the CLI's standard input, so no secret is ever printed or passed on a
+command line. `pnpm vercel:env SMTP_PASSWORD` pushes a single one, for example
+after rotating the Gmail App Password; redeploy afterwards so the new value is
+used.
+
+`NEXT_PUBLIC_APP_URL` is deliberately not set on Vercel, and
+`ENABLE_EXPERIMENTAL_COREPACK=1` is set so the build uses the pnpm version in
+`package.json`.
+
+## The postgres.js patch
+
+`patches/postgres@3.4.9.patch` makes `sql.begin` claim its connection even
+when query pipelining is off, which the app needs (see
+`docs/architecture/SCORING_AND_REALTIME.md`). pnpm applies it during install.
+
+After changing anything in `patches/`, deploy once with `vercel deploy --prod
+--force`: a cached build can otherwise reuse the previous `node_modules` and
+silently drop the patch, which breaks every write.
+
+## Watching it
+
+- `https://ndcak-indoor-games.vercel.app/api/health` answers `{"ok":true}`
+  when the site can reach the database, and 503 when it cannot. It suits a
+  free uptime checker.
+- `vercel logs <deployment-url>` streams runtime logs, including the daily
+  job's summary.
+- The admin dashboard shows email that is waiting or has failed.
+
+## First deployment elsewhere
+
+1. `vercel login`, then `vercel link` in the repository root.
+2. `pnpm vercel:env` to copy the settings, and add `CRON_SECRET` if it is not
+   in `.env.local` yet.
+3. `vercel deploy --prod`.
+4. Sign in at `/staff/login`, invite a test operator to a second inbox, and
+   confirm the email arrives and its link opens on another device.
+
+Supabase Authentication needs no URL configuration: invitation and password
+links are built by this app and point at `/auth/confirm`.
+
+Connecting the GitHub repository in the Vercel dashboard makes every push to
+`main` deploy automatically. It needs a GitHub login connection on the Vercel
+account, which this account does not have yet; deploys run from the CLI.

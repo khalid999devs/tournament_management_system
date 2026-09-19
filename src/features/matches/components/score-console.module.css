@@ -11,6 +11,10 @@
   gap: 12px;
 }
 
+.matchHeader p span {
+  white-space: nowrap;
+}
+
 .matchHeader p {
   margin: 0 0 4px;
   color: var(--green-600);
@@ -88,8 +92,8 @@
 
 .syncBar button {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   flex: none;
   place-items: center;
   border: 1px solid rgba(22, 38, 74, 0.18);
@@ -255,9 +259,39 @@
   text-transform: uppercase;
 }
 
-.summary {
+.summary,
+.disclosure summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   cursor: pointer;
   font-weight: 800;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker,
+.disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary::after,
+.disclosure summary::after {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  margin-right: 4px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  content: "";
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 140ms ease;
+}
+
+details[open] > .summary::after,
+.disclosure[open] > summary::after {
+  transform: rotate(-135deg) translate(-2px, -1px);
 }
 
 .panelBody {
@@ -270,6 +304,10 @@
   color: var(--slate-700);
   font-size: 13px;
   line-height: 1.55;
+}
+
+.card h2 + .hint {
+  margin-bottom: 12px;
 }
 
 .problem {
@@ -287,6 +325,7 @@
 
 .scoreSide {
   display: grid;
+  grid-template-rows: 1fr auto;
   justify-items: center;
   gap: 6px;
   padding: 14px 8px;
@@ -296,6 +335,7 @@
 }
 
 .scoreSide output {
+  align-self: end;
   font-family: var(--font-barlow-condensed), sans-serif;
   font-size: clamp(56px, 16vw, 88px);
   font-weight: 600;
@@ -324,8 +364,9 @@
 }
 
 .seatLabel small {
-  color: var(--slate-500);
+  color: var(--slate-700);
   font-size: 11px;
+  white-space: nowrap;
 }
 
 .scoreSide .seatLabel small {
@@ -356,11 +397,10 @@
 
 .bigButton small {
   max-width: 100%;
-  overflow: hidden;
   font-size: 13px;
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .bigButton:active:not(:disabled) {
@@ -372,8 +412,10 @@
 .secondary:disabled,
 .danger:disabled,
 .choice:disabled {
+  border-color: #d5d9e0;
+  background: #e8eaee;
+  color: #5a6477;
   cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .primary,
@@ -430,16 +472,17 @@
 }
 
 .segmented {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
   gap: 6px;
 }
 
 .segment,
 .segmentActive {
-  flex: 1 1 auto;
-  min-height: 40px;
-  padding: 0 12px;
+  min-height: 44px;
+  padding: 4px 8px;
+  line-height: 1.2;
   border: 1px solid rgba(22, 38, 74, 0.2);
   background: white;
   color: var(--navy-900);
@@ -495,7 +538,7 @@
 
 .radio {
   display: flex;
-  min-height: 40px;
+  min-height: 44px;
   align-items: center;
   gap: 10px;
   font-size: 15px;
@@ -514,10 +557,8 @@
 }
 
 .disclosure summary {
-  cursor: pointer;
   color: var(--navy-800);
   font-size: 14px;
-  font-weight: 800;
 }
 
 .disclosure[open] > * + * {
@@ -558,11 +599,6 @@
 
 .setList .setCurrent {
   outline: 2px solid var(--green-600);
-}
-
-.setHeading {
-  margin: 0;
-  font-size: 16px;
 }
 
 .boardForm {
@@ -678,12 +714,24 @@
   background: #f4f5f9;
 }
 
+.rankList li > span:last-child {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+}
+
 .rankList button {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(22, 38, 74, 0.2);
   background: white;
   cursor: pointer;
+  font-size: 18px;
+}
+
+.rankList button:disabled {
+  color: #9aa2b1;
+  cursor: default;
 }
 
 .rankList small {
@@ -692,8 +740,55 @@
 }
 
 .preview {
-  margin: 0 0 12px;
+  margin: 4px 0 14px;
   font-size: 16px;
+}
+
+.afterNote {
+  margin-top: 14px;
+}
+
+.logEmpty {
+  margin: 14px 0 0;
+  padding: 18px;
+  border: 1px dashed rgba(22, 38, 74, 0.2);
+  color: var(--slate-700);
+  font-size: 14px;
+  text-align: center;
+}
+
+.startBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(22, 38, 74, 0.12);
+  border-left: 4px solid var(--gold-600);
+  background: white;
+}
+
+.startBar p {
+  display: grid;
+  flex: 1 1 240px;
+  gap: 4px;
+  margin: 0;
+}
+
+.startBar strong {
+  font-size: 16px;
+}
+
+.startBar span {
+  color: var(--slate-700);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.startBar button {
+  flex: 1 1 160px;
+  max-width: 260px;
 }
 
 .preview strong {
@@ -730,7 +825,7 @@
 
 .logTime small,
 .logText small {
-  color: var(--slate-500);
+  color: var(--slate-700);
   font-size: 11px;
   font-weight: 500;
 }
@@ -742,13 +837,13 @@
 }
 
 .voided .logText {
-  color: var(--slate-500);
+  color: var(--slate-700);
   text-decoration: line-through;
 }
 
 .undo {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 44px;
   align-items: center;
   gap: 4px;
   padding: 0 10px;
@@ -790,5 +885,16 @@
 
   .card {
     padding: 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .matchHeader {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .startBar button {
+    max-width: none;
   }
 }

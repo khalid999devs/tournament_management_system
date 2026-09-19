@@ -42,7 +42,7 @@ export default async function OperatorPage({
   };
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <header className={styles.header}>
         <Link href="/" className={styles.brand}>
           <Image
@@ -61,7 +61,7 @@ export default async function OperatorPage({
         </form>
       </header>
 
-      <div className={styles.content}>
+      <main id="main-content" className={styles.content}>
         <div className={styles.introRow}>
           <div className={styles.intro}>
             <p>Assigned tournament work</p>
@@ -79,8 +79,8 @@ export default async function OperatorPage({
         <div className={styles.boundary}>
           <ShieldCheck size={20} aria-hidden="true" />
           <span>
-            Scope-checked workspace · No registration payments or transaction
-            references are shown.
+            You see only the matches you are assigned to. Payment details are
+            never shown here.
           </span>
         </div>
 
@@ -92,7 +92,7 @@ export default async function OperatorPage({
             id="match-search"
             name="q"
             defaultValue={workload.search}
-            placeholder="Match code, player name or registration code"
+            placeholder="Match code or player name"
           />
           <label className="visually-hidden" htmlFor="match-status">
             Status
@@ -122,7 +122,12 @@ export default async function OperatorPage({
             </p>
           </div>
         ) : (
-          <div className={styles.tableShell}>
+          <div
+            className={styles.tableShell}
+            role="region"
+            aria-label="Your matches"
+            tabIndex={0}
+          >
             <table>
               <thead>
                 <tr>
@@ -145,14 +150,31 @@ export default async function OperatorPage({
                       </small>
                     </td>
                     <td data-label="Players">
-                      {match.entrants.length
-                        ? match.entrants.join(" vs ")
-                        : "Waiting for earlier results"}
+                      {match.entrants.length ? (
+                        <span className={styles.players}>
+                          {match.entrants.map((name, index) => (
+                            <span key={`${name}-${index}`}>
+                              {index > 0 ? (
+                                <span className={styles.versus}> vs </span>
+                              ) : null}
+                              {name}
+                            </span>
+                          ))}
+                          {match.entrants.length === 1 ? (
+                            <span>
+                              <span className={styles.versus}> vs </span>To be
+                              decided
+                            </span>
+                          ) : null}
+                        </span>
+                      ) : (
+                        "Waiting for earlier results"
+                      )}
                     </td>
                     <td data-label="Schedule">
                       {match.scheduledAt
                         ? formatDhakaDateTime(match.scheduledAt)
-                        : "Not scheduled"}
+                        : "Time not set"}
                       {match.station || match.venue ? (
                         <small>
                           {[match.station, match.venue]
@@ -162,7 +184,9 @@ export default async function OperatorPage({
                       ) : null}
                     </td>
                     <td data-label="Status">
-                      {describeStatus(match.status)}
+                      {match.status === "SCHEDULED"
+                        ? "Not started"
+                        : describeStatus(match.status)}
                       {match.displayScore ? (
                         <small>{match.displayScore}</small>
                       ) : null}
@@ -172,7 +196,10 @@ export default async function OperatorPage({
                         className={styles.openLink}
                         href={`/operator/matches/${match.id}`}
                       >
-                        Open score entry
+                        {match.entrants.length < 2 &&
+                        match.status === "SCHEDULED"
+                          ? "View match"
+                          : "Open score entry"}
                       </Link>
                     </td>
                   </tr>
@@ -212,7 +239,7 @@ export default async function OperatorPage({
             </div>
           </nav>
         ) : null}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

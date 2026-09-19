@@ -10,7 +10,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { calculateRegistrationQuote } from "@/features/registration/domain/quote";
+import { tryRegistrationQuote } from "@/features/registration/domain/quote";
 import {
   createRegistrationDetailsSchema,
   type RegistrationDetails,
@@ -21,6 +21,7 @@ import {
   type SubmitRegistrationState,
 } from "@/features/registration/server/actions";
 import { formatBdt } from "@/lib/money";
+import { GamesChanged } from "./games-changed";
 import { draftStorageKey } from "./registration-details-form";
 import styles from "./registration.module.css";
 
@@ -83,11 +84,24 @@ export function RegistrationPayment({
     );
   }
 
-  const quote = calculateRegistrationQuote(
+  // Taking the last place refreshes availability before the page moves on,
+  // so the student who got it sees this, not a "full" message.
+  if (state.status === "success") {
+    return (
+      <div className={styles.state} role="status">
+        <h2>Registration received</h2>
+        <p>Opening your receipt…</p>
+      </div>
+    );
+  }
+
+  const priced = tryRegistrationQuote(
     checkout.games,
     details.selectedGameIds,
     checkout.maxGamesPerParticipant,
   );
+  if (!priced.ok) return <GamesChanged message={priced.message} />;
+  const { quote } = priced;
   const selectedMethod = checkout.paymentMethods.find(
     (method) => method.provider === provider,
   );

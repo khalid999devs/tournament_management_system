@@ -204,6 +204,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  postgres@3.4.9: 41dcbe8f4985bf79ed8745b6742ab62eeca273d3c305d42afefadf9fb773eff7
+
 importers:
 
   .:
@@ -225,7 +228,7 @@ importers:
         version: 4.4.0
       drizzle-orm:
         specifier: ^0.45.2
-        version: 0.45.2(postgres@3.4.9)
+        version: 0.45.2(postgres@3.4.9(patch_hash=41dcbe8f4985bf79ed8745b6742ab62eeca273d3c305d42afefadf9fb773eff7))
       lucide-react:
         specifier: ^1.47.0
         version: 1.47.0(react@19.2.8)
@@ -237,7 +240,7 @@ importers:
         version: 10.0.10
       postgres:
         specifier: ^3.4.9
-        version: 3.4.9
+        version: 3.4.9(patch_hash=41dcbe8f4985bf79ed8745b6742ab62eeca273d3c305d42afefadf9fb773eff7)
       react:
         specifier: 19.2.8
         version: 19.2.8
@@ -257,6 +260,9 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
+      '@axe-core/playwright':
+        specifier: ^4.13.0
+        version: 4.13.0(playwright-core@1.63.0)
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
@@ -331,6 +337,11 @@ packages:
   '@asamuzakjp/dom-selector@9.1.4':
     resolution: {integrity: sha512-ynDE7RDZM1z+YuSU+iGhRp8WcSXHqK9+G32ZEzsL35TKSoy72fYR7VfrJCQkWe3ciiIWGSTAIBc9XB5jVpqyTw==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
+
+  '@axe-core/playwright@4.13.0':
+    resolution: {integrity: sha512-6YLx+kxXu5GJceG4ozFg+33a2EMTdjYwWGloJ3sb9Kta5pp+ZNS53uxGVog5JetIY8s++P5UrtX+cri+u0VAVg==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
 
   '@babel/code-frame@7.29.7':
     resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
@@ -4038,6 +4049,11 @@ snapshots:
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.2
 
+  '@axe-core/playwright@4.13.0(playwright-core@1.63.0)':
+    dependencies:
+      axe-core: 4.13.0
+      playwright-core: 1.63.0
+
   '@babel/code-frame@7.29.7':
     dependencies:
       '@babel/helper-validator-identifier': 7.29.7
@@ -5516,9 +5532,9 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.23.13
 
-  drizzle-orm@0.45.2(postgres@3.4.9):
+  drizzle-orm@0.45.2(postgres@3.4.9(patch_hash=41dcbe8f4985bf79ed8745b6742ab62eeca273d3c305d42afefadf9fb773eff7)):
     optionalDependencies:
-      postgres: 3.4.9
+      postgres: 3.4.9(patch_hash=41dcbe8f4985bf79ed8745b6742ab62eeca273d3c305d42afefadf9fb773eff7)
 
   dunder-proto@1.0.1:
     dependencies:
@@ -6742,7 +6758,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postgres@3.4.9: {}
+  postgres@3.4.9(patch_hash=41dcbe8f4985bf79ed8745b6742ab62eeca273d3c305d42afefadf9fb773eff7): {}
 
   prelude-ls@1.2.1: {}
 

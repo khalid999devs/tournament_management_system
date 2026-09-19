@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import styles from "./admin.module.css";
 
 const items = [
@@ -29,9 +30,20 @@ const items = [
 
 export function AdminNav({ openIssues = 0 }: { openIssues?: number }) {
   const pathname = usePathname();
+  const nav = useRef<HTMLElement>(null);
+
+  // On narrow screens the menu scrolls sideways; keep the current page's
+  // link in view.
+  useEffect(() => {
+    const list = nav.current;
+    const active = list?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!list || !active || list.scrollWidth <= list.clientWidth) return;
+    list.scrollLeft =
+      active.offsetLeft - list.clientWidth / 2 + active.clientWidth / 2;
+  }, [pathname]);
 
   return (
-    <nav aria-label="Admin navigation">
+    <nav ref={nav} aria-label="Admin navigation">
       {items.map(({ href, label, icon: Icon }) => {
         const active =
           href === "/admin" ? pathname === href : pathname.startsWith(href);

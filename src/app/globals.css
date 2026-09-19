@@ -9,11 +9,11 @@
   --gold-500: #e4c27a;
   --gold-600: #c9a861;
   --green-500: #36a96b;
-  --green-600: #118a4a;
+  --green-600: #0f7c43;
   --ivory-100: #f6f1e6;
   --paper: #fbfaf6;
   --slate-300: #a8b0c5;
-  --slate-500: #77829b;
+  --slate-500: #8f99b0;
   --slate-700: #4d596f;
   --line-light: rgba(246, 241, 230, 0.14);
   --line-gold: rgba(228, 194, 122, 0.34);
@@ -40,6 +40,12 @@ a {
   text-decoration: none;
 }
 
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
 button,
 input,
 select {
@@ -49,6 +55,26 @@ select {
 .page-width {
   width: min(1240px, calc(100% - 48px));
   margin-inline: auto;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  padding: 12px 18px;
+  border-radius: 3px;
+  background: var(--gold-500);
+  color: var(--navy-950);
+  font-size: 14px;
+  font-weight: 800;
+  transform: translateY(-160%);
+}
+
+.skip-link:focus-visible {
+  outline: 3px solid var(--ivory-100);
+  outline-offset: 2px;
+  transform: none;
 }
 
 .visually-hidden {
@@ -222,8 +248,36 @@ select {
   animation: ticker 38s linear infinite;
 }
 
-.ticker:hover .ticker-track {
+.ticker:hover .ticker-track,
+.ticker:focus-within .ticker-track,
+.ticker.paused .ticker-track {
   animation-play-state: paused;
+}
+
+.ticker-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  width: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid rgba(7, 17, 39, 0.28);
+  background: var(--gold-500);
+  color: var(--navy-950);
+  cursor: pointer;
+}
+
+.ticker-toggle:hover {
+  background: var(--ivory-100);
+}
+
+.ticker-toggle:focus-visible {
+  outline: 3px solid var(--navy-950);
+  outline-offset: -6px;
 }
 
 .ticker ul {
@@ -259,12 +313,22 @@ select {
 
 /* Hero */
 
+.home-header {
+  position: relative;
+  z-index: 30;
+  background-color: var(--navy-950);
+  background-image:
+    linear-gradient(rgba(228, 194, 122, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(228, 194, 122, 0.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
 .hero-shell {
   position: relative;
   overflow: hidden;
   background:
     radial-gradient(
-      circle at 82% 30%,
+      circle at 82% 22%,
       rgba(228, 194, 122, 0.12),
       transparent 28rem
     ),
@@ -387,6 +451,7 @@ select {
 
 .event-facts > div {
   display: grid;
+  align-content: start;
   gap: 8px;
   padding: 22px 26px;
   border-bottom: 1px solid var(--line-light);
@@ -457,10 +522,12 @@ select {
   line-height: 1.75;
 }
 
+/* Wraps from the left, so a new row starts under the first card. */
 .lineup-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  --lineup-gap: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lineup-gap);
   margin: 56px 0 0;
   padding: 0;
   list-style: none;
@@ -468,6 +535,26 @@ select {
 
 .lineup-grid > li {
   display: flex;
+  flex: 0 1 calc((100% - 4 * var(--lineup-gap)) / 5);
+  min-width: 0;
+}
+
+@media (max-width: 1180px) {
+  .lineup-grid > li {
+    flex-basis: calc((100% - 2 * var(--lineup-gap)) / 3);
+  }
+}
+
+@media (max-width: 760px) {
+  .lineup-grid > li {
+    flex-basis: calc((100% - var(--lineup-gap)) / 2);
+  }
+}
+
+@media (max-width: 359px) {
+  .lineup-grid > li {
+    flex-basis: 100%;
+  }
 }
 
 .lineup-card {
@@ -530,6 +617,16 @@ select {
 .lineup-meta span {
   color: var(--slate-300);
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.lineup-card.is-closed strong {
+  color: var(--slate-300);
+}
+
+.lineup-card.is-closed:hover {
+  border-color: var(--line-gold);
+  transform: none;
 }
 
 .lineup-go {
@@ -893,8 +990,7 @@ select {
   }
 
   .lineup-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    --lineup-gap: 10px;
     margin-top: 36px;
   }
 
@@ -968,7 +1064,40 @@ select {
     animation: none;
   }
 
-  .ticker ul[aria-hidden] {
+  .ticker ul[aria-hidden],
+  .ticker-toggle {
+    display: none;
+  }
+}
+
+/* Narrow phones: brand, Register and the menu button share one row. */
+@media (max-width: 380px) {
+  .site-header {
+    gap: 12px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 46px;
+  }
+
+  .brand-copy strong {
+    font-size: 21px;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .nav-cta {
+    gap: 8px;
+    padding-inline: 14px;
+  }
+
+  .nav-cta svg {
     display: none;
   }
 }

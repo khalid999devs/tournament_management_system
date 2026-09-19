@@ -23,11 +23,11 @@ export default async function SubmittedPage({
       : null;
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <div className={styles.headerShell}>
         <PublicHeader />
       </div>
-      <div className="page-width">
+      <main id="main-content" className="page-width">
         <section className={styles.submitted}>
           <div className={styles.submittedIcon}>
             <CheckCircle2 size={34} aria-hidden="true" />
@@ -68,7 +68,7 @@ export default async function SubmittedPage({
             </Link>
           </div>
         </section>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -96,5 +97,20 @@ export const auditLogs = pgTable(
       table.entityId,
       table.createdAt,
     ),
+  ],
+).enableRLS();
+
+// Fixed-window attempt counters for registration and staff sign-in. Keys hold
+// a keyed hash of the client address, never the address itself.
+export const rateLimitHits = pgTable(
+  "rate_limit_hits",
+  {
+    key: varchar("key", { length: 120 }).notNull(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    hits: integer("hits").notNull().default(1),
+  },
+  (table) => [
+    primaryKey({ columns: [table.key, table.windowStart] }),
+    index("rate_limit_hits_window_idx").on(table.windowStart),
   ],
 ).enableRLS();

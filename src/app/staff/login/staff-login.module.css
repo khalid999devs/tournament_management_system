@@ -216,9 +216,10 @@
     grid-template-columns: 1fr;
   }
 
+  /* Stacked: the welcome text and the form share one centred column. */
   .identity {
     min-height: auto;
-    padding: 24px 24px 30px;
+    padding: 24px max(24px, calc((100% - 560px) / 2)) 30px;
   }
 
   .brand img {
@@ -242,7 +243,11 @@
   }
 
   .formShell {
-    padding: 40px 24px 64px;
+    padding: 40px max(24px, calc((100% - 560px) / 2)) 64px;
+  }
+
+  .formPanel {
+    width: 100%;
   }
 
   .back {

@@ -107,13 +107,34 @@ export default async function SchedulePage() {
                       <span className={schedule.match}>
                         <strong>
                           {fixture.players.length
-                            ? fixture.players.join(" vs ")
+                            ? fixture.players.map((name, index) => (
+                                <span key={`${name}-${index}`}>
+                                  {index > 0 ? " vs " : ""}
+                                  <span className={schedule.nowrap}>
+                                    {name}
+                                  </span>
+                                </span>
+                              ))
                             : "Players to be decided"}
+                          {fixture.players.length === 1
+                            ? " vs to be decided"
+                            : ""}
                         </strong>
                         <small>
-                          {fixture.game} · {fixture.round} · {fixture.code}
-                          {fixture.station ? ` · ${fixture.station}` : ""}
-                          {fixture.status === "POSTPONED" ? " · Postponed" : ""}
+                          {[
+                            fixture.game,
+                            fixture.round,
+                            fixture.code,
+                            fixture.station,
+                            fixture.status === "POSTPONED" ? "Postponed" : null,
+                          ]
+                            .filter(Boolean)
+                            .map((item, index) => (
+                              <span key={index}>
+                                {index > 0 ? " · " : ""}
+                                <span className={schedule.nowrap}>{item}</span>
+                              </span>
+                            ))}
                         </small>
                       </span>
                     </li>

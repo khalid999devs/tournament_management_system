@@ -16,6 +16,13 @@ type NotificationsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+const notificationStatusLabels: Record<string, string> = {
+  QUEUED: "Waiting",
+  SENDING: "Sending",
+  SENT: "Sent",
+  FAILED: "Failed",
+};
+
 export default async function NotificationsPage({
   searchParams,
 }: NotificationsPageProps) {
@@ -101,14 +108,19 @@ export default async function NotificationsPage({
         </div>
       </form>
 
-      <div className={styles.tableShell}>
+      <div
+        className={styles.tableShell}
+        role="region"
+        aria-label="Emails"
+        tabIndex={0}
+      >
         <table>
           <thead>
             <tr>
               <th>Notification</th>
               <th>Recipient</th>
               <th>Registration</th>
-              <th>Attempts</th>
+              <th>Retries</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -120,26 +132,26 @@ export default async function NotificationsPage({
                   <strong>{notificationTypeLabels[row.type]}</strong>
                   <small>{formatDhakaDateTime(row.createdAt)}</small>
                 </td>
-                <td>
+                <td data-label="Recipient">
                   <span>{row.recipientEmail}</span>
                   {row.errorText ? <small>{row.errorText}</small> : null}
                 </td>
-                <td>
+                <td data-label="Registration">
                   {row.registrationId ? (
                     <Link href={`/admin/registrations/${row.registrationId}`}>
                       {row.registrationCode}
                     </Link>
                   ) : (
-                    "None"
+                    <small>Staff account</small>
                   )}
                 </td>
-                <td>{row.retryCount}</td>
-                <td>
+                <td data-label="Retries">{row.retryCount}</td>
+                <td data-label="Status">
                   <span className={styles.statusBadge} data-status={row.status}>
-                    {row.status}
+                    {notificationStatusLabels[row.status]}
                   </span>
                 </td>
-                <td>
+                <td data-label="Action">
                   {row.status === "FAILED" || row.status === "QUEUED" ? (
                     <form action={retryNotificationAction}>
                       <input

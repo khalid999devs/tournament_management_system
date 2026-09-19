@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RegistrationDomainError } from "@/features/registration/domain/errors";
 import {
   calculateRegistrationQuote,
+  tryRegistrationQuote,
   getRemainingCapacity,
 } from "@/features/registration/domain/quote";
 import type { RegistrationGameOption } from "@/features/registration/domain/types";
@@ -101,5 +102,15 @@ describe("registration quote", () => {
         calculateRegistrationQuote(games, ["chess", "closed", "carrom"], 2),
       ).code,
     ).toBe("TOO_MANY_GAMES");
+  });
+
+  it("reports a game that filled up instead of throwing", () => {
+    expect(tryRegistrationQuote(games, ["carrom"], 2)).toEqual({
+      ok: false,
+      message: expect.stringContaining("no remaining capacity"),
+    });
+    expect(tryRegistrationQuote(games, ["chess"], 2)).toMatchObject({
+      ok: true,
+    });
   });
 });

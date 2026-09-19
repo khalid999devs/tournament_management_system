@@ -2,11 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 const links = [
-  { href: "/", label: "Home" },
   { href: "/register", label: "Register" },
   { href: "/schedule", label: "Schedule" },
   { href: "/rulebook", label: "Rulebook" },
   { href: "/results", label: "Results" },
+  { href: "/developers", label: "Developers" },
 ];
 
 export function PublicFooter() {
@@ -44,7 +44,7 @@ export function PublicFooter() {
         <span>
           © {new Date().getFullYear()} Notre Dame College Association of KUET
         </span>
-        <Link href="/staff/login">Authorized staff access</Link>
+        <Link href="/staff/login">Authorised staff access</Link>
       </div>
     </footer>
   );
