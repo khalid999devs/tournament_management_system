@@ -20,7 +20,7 @@ export default async function RegisterPage() {
       step={1}
       back={{ href: "/", label: "Back to the championship" }}
       title="Register to play."
-      lead="One registration covers every game you enter. Fill in your details, choose your games, then pay the combined fee by mobile banking. No account needed."
+      lead="Pick your games and pay once for all of them. No account needed."
     >
       {tournament ? (
         <RegistrationDetailsForm

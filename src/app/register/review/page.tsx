@@ -19,7 +19,7 @@ export default async function RegistrationReviewPage() {
       step={2}
       back={{ href: "/register", label: "Back to details" }}
       title="Check your registration."
-      lead="Nothing has been submitted yet. Make sure your details and games are right before you pay."
+      lead="Nothing is submitted yet. Make sure everything is right before you pay."
     >
       {tournament ? (
         <RegistrationReview

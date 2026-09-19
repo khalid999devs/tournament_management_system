@@ -151,7 +151,9 @@ export function RegistrationPayment({
                     }}
                   />
                   {selected ? (
-                    <Check size={17} strokeWidth={3} aria-hidden="true" />
+                    <span className={styles.methodCheck} aria-hidden="true">
+                      <Check size={12} strokeWidth={3.4} />
+                    </span>
                   ) : null}
                   {method.displayName}
                 </label>

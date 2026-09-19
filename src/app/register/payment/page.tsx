@@ -19,7 +19,7 @@ export default async function RegistrationPaymentPage() {
       step={3}
       back={{ href: "/register/review", label: "Back to review" }}
       title="Pay and submit."
-      lead="Send the total by mobile banking, then enter the transaction ID from your receipt. Your place is held as soon as you submit."
+      lead="Send the total by mobile banking, then enter your transaction ID."
     >
       {checkout ? (
         <RegistrationPayment checkout={checkout} />

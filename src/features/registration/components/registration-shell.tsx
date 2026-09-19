@@ -5,7 +5,8 @@ import styles from "./registration.module.css";
 
 const stepNames = ["Details", "Review", "Payment"];
 
-// Shared frame for the three registration steps.
+// Shared frame for the three registration steps. The back link and the
+// progress share one row, so the title sits right above the form.
 export function RegistrationShell({
   step,
   back,
@@ -28,10 +29,10 @@ export function RegistrationShell({
         <Link className={styles.back} href={back.href}>
           <ChevronLeft size={16} aria-hidden="true" /> {back.label}
         </Link>
-        <p className={styles.eyebrow}>Registration · Step {step} of 3</p>
-        <h1>{title}</h1>
-        <p className={styles.lead}>{lead}</p>
-        <ol className={styles.steps} aria-label="Registration progress">
+        <ol
+          className={styles.steps}
+          aria-label={`Registration progress: step ${step} of 3`}
+        >
           {stepNames.map((name, index) => {
             const number = index + 1;
             const state =
@@ -55,11 +56,15 @@ export function RegistrationShell({
                     number
                   )}
                 </span>
-                {name}
+                <span className={styles.stepName}>{name}</span>
               </li>
             );
           })}
         </ol>
+        <div className={styles.heading}>
+          <h1>{title}</h1>
+          <p className={styles.lead}>{lead}</p>
+        </div>
       </section>
       <div className="page-width">{children}</div>
     </main>

@@ -26,18 +26,21 @@
   background: rgba(4, 12, 29, 0.96);
 }
 
-/* Intro and progress */
+/* Intro: the back link and progress share the top row on wider screens,
+   with the progress above the summary column. */
 
 .intro {
-  padding-block: 40px 28px;
+  display: grid;
+  gap: 12px;
+  padding-block: 18px 24px;
 }
 
 .back {
   display: inline-flex;
   min-height: 36px;
   align-items: center;
+  justify-self: start;
   gap: 6px;
-  margin-bottom: 18px;
   color: var(--slate-300);
   font-size: 14px;
   font-weight: 600;
@@ -56,30 +59,34 @@
   text-transform: uppercase;
 }
 
-.intro h1 {
-  max-width: 820px;
+.heading {
+  margin-top: 10px;
+}
+
+.heading h1 {
   margin: 0;
   font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: clamp(38px, 5vw, 60px);
+  font-size: clamp(34px, 4vw, 48px);
   font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 0.98;
+  line-height: 1;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .lead {
-  max-width: 640px;
-  margin: 14px 0 0;
+  max-width: 620px;
+  margin: 10px 0 0;
   color: var(--slate-300);
   font-size: 15px;
-  line-height: 1.65;
+  line-height: 1.6;
+  text-wrap: balance;
 }
 
 .steps {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 28px 0 0;
+  gap: 8px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -91,14 +98,25 @@
   color: var(--slate-500);
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Later steps grow so the connectors share the spare width equally. */
+.steps li + li {
+  flex: 1 1 auto;
 }
 
 .steps li + li::before {
-  width: clamp(16px, 5vw, 48px);
+  min-width: 12px;
   height: 1px;
-  margin-right: 2px;
+  flex: 1 1 0;
   background: var(--line-light);
   content: "";
+}
+
+.steps li.done::before,
+.steps li.current::before {
+  background: var(--line-gold);
 }
 
 .stepNumber {
@@ -194,6 +212,7 @@
   color: var(--slate-300);
   font-size: 14px;
   line-height: 1.55;
+  text-wrap: pretty;
 }
 
 .cardHeaderAction {
@@ -603,7 +622,7 @@
 
 .methods {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
   gap: 10px;
   margin: 0;
   padding: 0;
@@ -616,8 +635,7 @@
   min-height: 56px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 12px;
+  padding: 0 10px;
   border: 1px solid rgba(246, 241, 230, 0.16);
   border-radius: 4px;
   background: rgba(4, 12, 29, 0.45);
@@ -641,6 +659,20 @@
   border-color: var(--gold-500);
   background: rgba(228, 194, 122, 0.08);
   color: var(--gold-500);
+}
+
+/* Corner tab on the chosen method, so the name keeps the full width. */
+.methodCheck {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 0 4px 0 4px;
+  background: var(--gold-500);
+  color: var(--navy-950);
 }
 
 .amount {
@@ -883,7 +915,15 @@
 
 @media (min-width: 640px) {
   .intro {
-    padding-block: 52px 32px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    align-items: center;
+    gap: 18px 28px;
+    padding-block: 26px 32px;
+  }
+
+  .heading {
+    grid-column: 1 / -1;
+    margin-top: 0;
   }
 
   .card {
@@ -960,6 +1000,16 @@
     border: 1px solid var(--line-gold);
     border-radius: 4px;
     background: rgba(9, 20, 44, 0.92);
+  }
+}
+
+@media (max-width: 359px) {
+  .steps li:not(.current) .stepName {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
 

@@ -70,9 +70,12 @@ export function PublicHeader() {
       </nav>
 
       <div className="header-actions">
-        <Link className="nav-cta" href="/register">
-          Register <span aria-hidden="true">→</span>
-        </Link>
+        {/* Already in the registration flow: the page has its own actions. */}
+        {pathname.startsWith("/register") ? null : (
+          <Link className="nav-cta" href="/register">
+            Register <span aria-hidden="true">→</span>
+          </Link>
+        )}
         <button
           className="menu-toggle"
           type="button"
