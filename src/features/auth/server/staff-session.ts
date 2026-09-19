@@ -2,6 +2,7 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { getDatabase } from "@/db";
 import { staffProfiles } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -21,36 +22,39 @@ export class StaffAuthorizationError extends Error {
   }
 }
 
-export async function getCurrentStaff(): Promise<StaffIdentity | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
+// Layouts and pages both authorize; cache() keeps it to one check per request.
+export const getCurrentStaff = cache(
+  async (): Promise<StaffIdentity | null> => {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getClaims();
 
-  if (error || !data?.claims || typeof data.claims.sub !== "string") {
-    return null;
-  }
+    if (error || !data?.claims || typeof data.claims.sub !== "string") {
+      return null;
+    }
 
-  const [profile] = await getDatabase()
-    .select({
-      id: staffProfiles.id,
-      authUserId: staffProfiles.authUserId,
-      displayName: staffProfiles.displayName,
-      role: staffProfiles.role,
-      active: staffProfiles.active,
-    })
-    .from(staffProfiles)
-    .where(eq(staffProfiles.authUserId, data.claims.sub))
-    .limit(1);
+    const [profile] = await getDatabase()
+      .select({
+        id: staffProfiles.id,
+        authUserId: staffProfiles.authUserId,
+        displayName: staffProfiles.displayName,
+        role: staffProfiles.role,
+        active: staffProfiles.active,
+      })
+      .from(staffProfiles)
+      .where(eq(staffProfiles.authUserId, data.claims.sub))
+      .limit(1);
 
-  if (!profile?.active) return null;
+    if (!profile?.active) return null;
 
-  return {
-    id: profile.id,
-    authUserId: profile.authUserId,
-    displayName: profile.displayName,
-    role: profile.role,
-    email: typeof data.claims.email === "string" ? data.claims.email : null,
-  };
-}
+    return {
+      id: profile.id,
+      authUserId: profile.authUserId,
+      displayName: profile.displayName,
+      role: profile.role,
+      email: typeof data.claims.email === "string" ? data.claims.email : null,
+    };
+  },
+);
 
 export async function requireStaffPage() {
   const staff = await getCurrentStaff();

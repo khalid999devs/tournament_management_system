@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { processNotification } from "@/features/notifications/server/process-notification";
 import { RegistrationDomainError } from "@/features/registration/domain/errors";
 import { registrationSubmissionSchema } from "@/features/registration/domain/schemas";
+import { refreshPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
 import { submitRegistration } from "./submit-registration";
 
 export type SubmitRegistrationState = {
@@ -29,6 +30,7 @@ export async function submitRegistrationAction(
       transactionId: formData.get("transactionId"),
     });
     const result = await submitRegistration(input);
+    refreshPublicEvent();
 
     if (result.notificationId) {
       after(() => processNotification(result.notificationId!));
@@ -39,6 +41,9 @@ export async function submitRegistrationAction(
       registrationCode: result.registrationCode,
     };
   } catch (error) {
+    // A full or closed game means the cached availability is out of date.
+    if (error instanceof RegistrationDomainError) refreshPublicEvent();
+
     return {
       status: "error",
       message: getParticipantError(error),

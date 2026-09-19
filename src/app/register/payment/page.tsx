@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Payment information",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function RegistrationPaymentPage() {
   const checkout = await getRegistrationCheckout();

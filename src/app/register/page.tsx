@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Register once for your selected NDCAK Indoor Games events.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function RegisterPage() {
   const tournament = await getRegistrationTournament();

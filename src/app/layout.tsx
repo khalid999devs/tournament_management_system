@@ -17,7 +17,7 @@ const barlowCondensed = Barlow_Condensed({
 
 const title = "NDCAK Indoor Games Championship";
 const description =
-  "The official registration, schedule, and tournament operations platform for the NDCAK Indoor Games Championship.";
+  "Chess, table tennis, carrom and more. Register for the NDCAK Indoor Games Championship, organised by the Notre Dame College Association of KUET.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -28,21 +28,17 @@ export const metadata: Metadata = {
     template: "%s | NDCAK Indoor Games",
   },
   description,
-  icons: {
-    icon: "/brand/ndcak-mark.png",
-    apple: "/brand/ndcak-mark.png",
-  },
   openGraph: {
     title,
     description,
     type: "website",
-    images: [{ url: "/og.png", width: 1731, height: 909, alt: title }],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: title }],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: ["/og.png"],
+    images: ["/og.jpg"],
   },
 };
 

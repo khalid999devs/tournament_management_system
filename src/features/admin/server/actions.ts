@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireSuperAdmin } from "@/features/auth/server/staff-session";
 import { processNotification } from "@/features/notifications/server/process-notification";
+import { refreshPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
 import {
   RegistrationReviewError,
   reviewRegistration,
@@ -60,6 +61,7 @@ async function runReviewAction(
       after(() => processNotification(result.notificationId!));
     }
 
+    refreshPublicEvent();
     revalidatePath("/admin");
     revalidatePath("/admin/registrations");
     revalidatePath(`/admin/registrations/${registrationId.data}`);

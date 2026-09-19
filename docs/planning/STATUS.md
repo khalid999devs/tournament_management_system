@@ -55,12 +55,14 @@ Before people can use the live workflows:
 
 ## Decision log
 
-| Date       | Decision                                                                                               | Reason                                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Resend, Vercel.               | It matches the approved product direction and the relational/concurrency requirements.                    |
-| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                       | This is the central experience boundary in the PRD.                                                       |
-| 2026-09-19 | Use one feature-oriented monolith.                                                                     | It keeps transactional workflows cohesive without premature infrastructure.                               |
-| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                         | The committee has not finalized them and the PRD explicitly requires configuration.                       |
-| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                          | It avoids exposing payment and registration mutations directly to anonymous clients.                      |
-| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction. | Authoritative state remains correct on provider failure while every intended delivery remains observable. |
-| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.               | Approval email must contain an accurate calendar invitation; the application must not invent event data.  |
+| Date       | Decision                                                                                               | Reason                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 2026-09-19 | Keep the PRD stack: Next.js, Supabase PostgreSQL/Auth/Realtime, Drizzle, Resend, Vercel.               | It matches the approved product direction and the relational/concurrency requirements.                          |
+| 2026-09-19 | Treat the participant journey as account-free and staff routes as authenticated.                       | This is the central experience boundary in the PRD.                                                             |
+| 2026-09-19 | Use one feature-oriented monolith.                                                                     | It keeps transactional workflows cohesive without premature infrastructure.                                     |
+| 2026-09-19 | Do not hardcode event fees, dates, capacities, schedules, or payment accounts.                         | The committee has not finalized them and the PRD explicitly requires configuration.                             |
+| 2026-09-19 | Keep participant database access behind server actions with default-deny RLS.                          | It avoids exposing payment and registration mutations directly to anonymous clients.                            |
+| 2026-09-19 | Commit notification outbox records with state, then perform external email delivery after transaction. | Authoritative state remains correct on provider failure while every intended delivery remains observable.       |
+| 2026-09-19 | Require configured tournament start and end times before a registration can be approved.               | Approval email must contain an accurate calendar invitation; the application must not invent event data.        |
+| 2026-09-19 | Serve public event data from a 60-second tagged cache refreshed by submissions and reviews.            | Public pages were querying the database on every visit; capacity is still re-checked in the submit transaction. |
+| 2026-09-19 | Replace a database client idle for longer than its idle timeout before reuse.                          | Sockets that outlived a suspended machine silently hung every later query on the single pooled connection.      |

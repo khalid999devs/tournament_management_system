@@ -56,33 +56,6 @@
   padding-block: 62px 104px;
 }
 
-.toolbar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 28px;
-}
-
-.toolbar span {
-  display: grid;
-  min-height: 56px;
-  place-items: center;
-  border: 1px solid var(--line-light);
-  background: rgba(13, 27, 57, 0.68);
-  color: var(--slate-300);
-  font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.toolbar span:first-child {
-  border-color: var(--gold-500);
-  background: var(--gold-500);
-  color: var(--navy-950);
-}
-
 .informationGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -288,17 +261,6 @@
 
   .content {
     padding-block: 48px 76px;
-  }
-
-  .toolbar {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .toolbar span {
-    min-width: 120px;
-    flex: 0 0 auto;
   }
 
   .empty {

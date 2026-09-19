@@ -5,36 +5,35 @@ import {
   PublicPageShell,
   publicInformationStyles as styles,
 } from "@/components/brand/public-page-shell";
+import { getPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
+import { formatDhakaDateRange } from "@/lib/dates";
 
 export const metadata: Metadata = {
   title: "Schedule",
-  description: "NDCAK Indoor Games match and event schedule.",
+  description: "NDCAK Indoor Games Championship match and event schedule.",
 };
 
-export default function SchedulePage() {
+export const revalidate = 60;
+
+export default async function SchedulePage() {
+  const event = await getPublicEvent().catch(() => null);
+
   return (
     <PublicPageShell
-      eyebrow="Full event plan"
-      title="Schedule and event details."
-      intro="Browse published sessions by day, game, and round. Final event times will appear here after the organizing committee approves the schedule."
+      eyebrow="Match days"
+      title="Schedule."
+      intro="Match days, rounds and tables for every game are published here once the draw is made."
     >
-      <div className={styles.toolbar} aria-label="Schedule day filters">
-        <span>All days</span>
-        <span>Day 1</span>
-        <span>Day 2</span>
-        <span>Day 3</span>
-      </div>
       <div className={styles.informationGrid}>
         <section className={styles.empty}>
           <div>
             <CalendarClock size={42} aria-hidden="true" />
-            <h2>The match schedule is being prepared</h2>
+            <h2>The draw has not been made yet</h2>
             <p>
-              Approved dates, rounds, venues, and table assignments will be
-              published here. Registration details will always use the same
-              official schedule.
+              Fixtures are drawn after registration closes. Confirmed players
+              receive the event dates and check-in details by email.
             </p>
-            <Link href="/register">Registration information</Link>
+            <Link href="/register">Registration details</Link>
           </div>
         </section>
         <aside className={styles.sideCard}>
@@ -43,15 +42,19 @@ export default function SchedulePage() {
           <dl>
             <div>
               <dt>Venue</dt>
-              <dd>KUET Campus</dd>
+              <dd>{event?.venue ?? "KUET Campus, Khulna"}</dd>
             </div>
             <div>
               <dt>Dates</dt>
-              <dd>Awaiting committee approval</dd>
+              <dd>
+                {event?.startsAt
+                  ? formatDhakaDateRange(event.startsAt, event.endsAt)
+                  : "To be announced"}
+              </dd>
             </div>
             <div>
               <dt>Reporting time</dt>
-              <dd>Published with the final schedule</dd>
+              <dd>Published with the fixtures</dd>
             </div>
           </dl>
         </aside>

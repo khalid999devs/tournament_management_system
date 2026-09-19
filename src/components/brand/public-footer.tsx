@@ -16,14 +16,14 @@ export function PublicFooter() {
         <div className="footer-identity">
           <Image
             className="footer-brand"
-            src="/brand/ndcak-lockup.png"
+            src="/brand/ndcak-lockup.webp"
             alt="Notre Dame College Association of KUET"
-            width={1536}
-            height={700}
+            width={560}
+            height={241}
           />
           <p>
-            The official participant and tournament operations platform for the
-            NDCAK Indoor Games Championship.
+            The NDCAK Indoor Games Championship is organised by the Notre Dame
+            College Association of KUET.
           </p>
         </div>
         <div className="footer-contact">

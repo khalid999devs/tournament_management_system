@@ -39,10 +39,10 @@ export default async function StaffLoginPage({
           aria-label="NDCAK tournament home"
         >
           <Image
-            src="/brand/ndcak-lockup.png"
+            src="/brand/ndcak-lockup.webp"
             alt="Notre Dame College Association of KUET"
-            width={1536}
-            height={700}
+            width={560}
+            height={241}
             priority
           />
         </Link>

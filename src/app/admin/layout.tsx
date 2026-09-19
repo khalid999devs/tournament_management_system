@@ -27,10 +27,10 @@ export default async function AdminLayout({
       <aside className={styles.sidebar}>
         <Link className={styles.adminBrand} href="/admin">
           <Image
-            src="/brand/ndcak-mark.png"
+            src="/brand/ndcak-mark.webp"
             alt="NDCAK"
-            width={640}
-            height={640}
+            width={160}
+            height={71}
             priority
           />
           <span>
