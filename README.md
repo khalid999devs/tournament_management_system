@@ -2,7 +2,7 @@
 
 A clean, account-free participant experience and a controlled staff workspace for running the NDCAK Indoor Games from registration through results.
 
-Phases 0-2 of the approved seven-phase roadmap are implementation-complete. The repository includes the public experience, atomic participant registration, live Supabase schema and staff authorization, Super Admin verification queue, audited approval/rejection, notification retries, and project quality tooling. Live routes remain honest and closed until committee-approved event and payment configuration is published.
+Phases 0-2 of the approved seven-phase roadmap are implementation-complete. Phase 3 operator and assignment code is ready for live rehearsal once staff Auth and verified email sending are configured. The repository includes the public experience, atomic participant registration, live Supabase schema and staff authorization, Super Admin verification queue, audited approval/rejection, notification retries, and project quality tooling. Live routes remain honest and closed until committee-approved event and payment configuration is published.
 
 ## What is working
 
@@ -15,6 +15,8 @@ Phases 0-2 of the approved seven-phase roadmap are implementation-complete. The 
 - Server-side registration search, filters, sorting, pagination, and full payment review.
 - Idempotent audited approval/rejection with transactional capacity finalization/release.
 - Resend outbox processing, delivery status, manual retry, and approval calendar invitations.
+- Branded HTML/plain-text email templates with a development-only preview at `/dev/email-preview`.
+- Operator invitations, password setup, active/revoked staff lifecycle, five assignment scopes, and filtered operator workload views.
 - Unit tests for fee, capacity, normalization, review transitions, email wording, and calendar output.
 - Editable Mermaid architecture, data, authorization, and state-flow diagrams.
 

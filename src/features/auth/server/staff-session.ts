@@ -66,6 +66,13 @@ export async function requireSuperAdminPage() {
   return staff;
 }
 
+export async function requireOperatorPage() {
+  const staff = await requireStaffPage();
+
+  if (staff.role !== "SCORE_OPERATOR") redirect("/admin");
+  return staff;
+}
+
 export async function requireSuperAdmin() {
   const staff = await getCurrentStaff();
 

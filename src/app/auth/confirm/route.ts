@@ -23,7 +23,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (!error) {
-      return NextResponse.redirect(new URL("/staff", request.url));
+      return NextResponse.redirect(
+        new URL(
+          type === "invite" || type === "recovery"
+            ? "/staff/set-password"
+            : "/staff",
+          request.url,
+        ),
+      );
     }
   }
 

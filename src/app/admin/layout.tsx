@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, LayoutDashboard, LogOut, UserCheck } from "lucide-react";
+import {
+  Bell,
+  LayoutDashboard,
+  LogOut,
+  UserCheck,
+  UsersRound,
+} from "lucide-react";
 import { signOut } from "@/app/staff/actions";
 import { requireSuperAdminPage } from "@/features/auth/server/staff-session";
 import styles from "@/features/admin/components/admin.module.css";
@@ -41,6 +47,9 @@ export default async function AdminLayout({
           </Link>
           <Link href="/admin/notifications">
             <Bell size={17} aria-hidden="true" /> Notifications
+          </Link>
+          <Link href="/admin/operators">
+            <UsersRound size={17} aria-hidden="true" /> Operators
           </Link>
         </nav>
         <div className={styles.adminIdentity}>

@@ -1,0 +1,2 @@
+ALTER TABLE "staff_profiles" ADD COLUMN "email" varchar(254);--> statement-breakpoint
+CREATE UNIQUE INDEX "staff_profiles_email_uidx" ON "staff_profiles" USING btree (lower("email")) WHERE "staff_profiles"."email" is not null;

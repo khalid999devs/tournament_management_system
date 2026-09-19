@@ -30,7 +30,9 @@ The direct database URL is structurally valid but IPv6-only. It cannot resolve f
 
 ## Live verification
 
-The initial migration was applied on 19 September 2026. The project currently has 16 public tables, 28 foreign keys, 66 indexes, and RLS enabled on every public table. No browser-role RLS policies have been added, so anonymous and authenticated Data API access is default-deny until a narrowly scoped policy is intentionally introduced.
+The initial migration and the additive staff-email migration were applied on 19 September 2026. The project has 16 public tables, 28 foreign keys, 67 indexes, and RLS enabled on every public table. No browser-role RLS policies have been added, so anonymous and authenticated Data API access is default-deny until a narrowly scoped policy is intentionally introduced.
+
+Phase 3 operator invitations require the server-only `SUPABASE_SECRET_KEY` for Auth Admin link generation. It must never use a `NEXT_PUBLIC_` prefix or appear in the browser bundle. Match access is filtered through active assignment scopes in server-side SQL before pagination; operator queries do not select payment data.
 
 ## Initial Super Admin
 

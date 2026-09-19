@@ -4,7 +4,7 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phase 2 - Admin Verification is implementation-complete. Work is paused at the Phase 3 boundary as requested.
+Phase 3 - Operators and Assignments is implemented in code. Live invitation and access testing remain pending the Supabase server-only secret key, a Super Admin Auth user, and a verified Resend sender.
 
 ## Completed
 
@@ -24,10 +24,16 @@ Phase 2 - Admin Verification is implementation-complete. Work is paused at the P
 - Kept email delivery outside authoritative transactions and made failed/queued delivery manually retryable.
 - Added deterministic registration and notification pagination state to URL query parameters.
 - Verified formatting, type checking, linting, 19 unit tests, production build, live public route rendering, protected admin redirect, and live database connectivity.
+- Replaced one-off email markup with branded React Email HTML/plain-text templates for registration, operator invitations, reminders, schedule changes, and support acknowledgment. Only the first four registration/operator states are wired to live outbox delivery.
+- Added a development-only email design preview covering seven states.
+- Implemented operator creation, time-limited branded invitations, password setup, deactivation/reactivation, assignment grants/revocation, and audit records.
+- Added all five additive scope types and capability-aware match filtering before pagination; operator workload queries exclude payment fields.
+- Applied and verified the additive staff-email migration on the live database. All 16 tables remain; `staff_profiles.email` and its unique index are present.
+- Passed type checking, linting, 32 tests, production build, development email preview HTTP check, and unauthenticated operator redirect check.
 
 ## Phase boundary
 
-Phase 1 and Phase 2 exit evidence is recorded in `PHASE_2_COMPLETION.md`. Phase 3 operator and assignment work has not started.
+Phase 1 and Phase 2 exit evidence is recorded in `PHASE_2_COMPLETION.md`. Phase 3 code is ready for a live staff rehearsal, but the phase is not marked complete until an invited operator accepts a real email and all five scopes are checked against populated tournament matches. In-app browser visual inspection was unavailable in this session.
 
 ## Operational activation still required
 
@@ -41,10 +47,11 @@ The implementation is complete, but the live database intentionally contains no 
 Before people can use the live workflows:
 
 1. Create or invite `ndcakofficial@gmail.com` in Supabase Auth, then run `pnpm db:bootstrap-admin`.
-2. Supply the committee-approved tournament, games, capacities, fees, registration window, event dates, venue, rules, and payment receiving accounts.
-3. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
-4. Configure Supabase Auth SMTP in the dashboard with the verified sender.
-5. Supply Vercel access, the production domain, and production environment ownership when deployment is authorized.
+2. Add `SUPABASE_SECRET_KEY` to ignored `.env.local` so the Super Admin can invite operators.
+3. Supply the committee-approved tournament, games, capacities, fees, registration window, event dates, venue, rules, and payment receiving accounts.
+4. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
+5. Configure Supabase Auth SMTP in the dashboard with the verified sender.
+6. Supply Vercel access, the production domain, and production environment ownership when deployment is authorized.
 
 ## Decision log
 

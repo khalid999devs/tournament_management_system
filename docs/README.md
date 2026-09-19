@@ -18,6 +18,7 @@ This directory is the working product and engineering record for the NDCAK Digit
 - [`planning/ROADMAP.md`](planning/ROADMAP.md) - seven-phase delivery plan and exit criteria.
 - [`planning/STATUS.md`](planning/STATUS.md) - current progress, decisions, and next work.
 - [`planning/PHASE_2_COMPLETION.md`](planning/PHASE_2_COMPLETION.md) - Phase 1 and Phase 2 exit-criteria evidence.
+- [`planning/PHASE_3_PROGRESS.md`](planning/PHASE_3_PROGRESS.md) - operator implementation, flow, evidence, and remaining live rehearsal.
 - [`planning/EXTERNAL_ACCESS.md`](planning/EXTERNAL_ACCESS.md) - credentials and external setup that will be requested only when needed.
 - [`architecture/SYSTEM_ARCHITECTURE.md`](architecture/SYSTEM_ARCHITECTURE.md) - runtime boundaries and major workflows.
 - [`architecture/DATA_MODEL.md`](architecture/DATA_MODEL.md) - relational model, invariants, and indexes.

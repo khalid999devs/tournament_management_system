@@ -2,7 +2,21 @@
 
 ## Application email
 
-The application uses the official Resend SDK from server-only code in `src/lib/email/resend.ts`.
+The application uses the official Resend SDK from server-only code in `src/lib/email/resend.ts`. A shared React Email layout follows the navy, gold, ivory, and green NDCAK design system. It renders both HTML and plain text.
+
+Implemented states:
+
+| State                                  | Delivery                                                 |
+| -------------------------------------- | -------------------------------------------------------- |
+| Registration received / pending review | Wired to the registration outbox                         |
+| Registration confirmed                 | Wired to approval; includes a calendar invitation        |
+| Registration rejected                  | Wired to rejection; includes the participant-safe reason |
+| Operator invitation                    | Wired to the staff invitation outbox and retry flow      |
+| Event reminder                         | Template ready; job scheduling belongs to Phase 5        |
+| Schedule change                        | Template ready; event-change dispatch belongs to Phase 5 |
+| Support acknowledgment                 | Template ready; support intake is not built yet          |
+
+Preview every state locally at `/dev/email-preview`. The preview contains fictional details, never sends email, and returns 404 outside development. Do not use its dates or links as event configuration.
 
 Environment contract:
 
@@ -23,7 +37,7 @@ Before production email:
 
 ## Supabase Auth SMTP
 
-Supabase Auth SMTP is configured in the Supabase Dashboard, not by the Next.js environment file. Use these values under Authentication email/SMTP settings:
+Application-managed operator invitations use Supabase Auth link generation and the branded Resend template. Other Supabase Auth emails still require SMTP configured in the Supabase Dashboard, not in the Next.js environment file. Use these values under Authentication email/SMTP settings:
 
 | Setting      | Value                                           |
 | ------------ | ----------------------------------------------- |
@@ -40,9 +54,11 @@ Use TLS/SSL with port 465. Production Auth invitations must not be enabled until
 
 - Notification outbox rows are committed with the authoritative database change; sending starts only after commit.
 - Email failures are recorded and retried; they do not roll back registration or review transactions.
-- Notification idempotency keys prevent duplicate delivery.
+- Notification idempotency keys reduce duplicate delivery within the provider's retention window; database status remains the authoritative retry gate.
 - Provider errors and credentials are never returned to the browser.
 - Submission email always says pending review and never includes a calendar file.
 - Approval email requires configured event start/end times and includes an RFC 5545 `.ics` invitation.
 - Rejection email includes only the participant-safe reason entered by the administrator.
 - Failed and queued messages can be retried from `/admin/notifications` without repeating the registration decision.
+- Operator invitations are created only by a Super Admin. A Supabase invite link is generated immediately before email delivery; retry generates a fresh time-limited link. The link opens `/staff/set-password` after verification.
+- App emails contain no payment transaction ID, receiving account, or internal review note.

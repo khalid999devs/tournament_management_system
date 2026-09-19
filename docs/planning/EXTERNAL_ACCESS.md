@@ -13,15 +13,17 @@ No secrets should be pasted into chat, committed, or placed in client-exposed va
 - Official Super Admin Auth user: not created yet.
 - Resend API key: configured and valid.
 - Resend verified sending domains: none.
+- Supabase server-only secret key: not configured; needed for Phase 3 operator invitations.
 
 ## Needed now to activate staff access
 
 - Create `ndcakofficial@gmail.com` in Supabase Authentication with a secure password or invitation.
+- Put the Supabase secret key in ignored `.env.local` as `SUPABASE_SECRET_KEY`; never use a public prefix or paste it into chat.
 - Resend-verified NDCAK sending domain.
 
 A Session Pooler URL may optionally be stored as `MIGRATION_DATABASE_URL` for long-running local administration. It is not blocking the current schema because the initial Drizzle migration completed successfully through the Transaction Pooler.
 
-The initial Super Admin identity is `ndcakofficial@gmail.com`. The Supabase secret/service-role key is not needed for the completed verification workflow and should not be supplied preemptively. It will be requested only if a future staff-invitation workflow cannot use a narrower server-side mechanism.
+The initial Super Admin identity is `ndcakofficial@gmail.com`. The Phase 3 operator-invitation workflow now requires Auth Admin link generation, so a server-only secret key is needed. It is not needed for public registration or Super Admin payment review.
 
 ## Needed to complete email delivery
 

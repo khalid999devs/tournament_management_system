@@ -1,0 +1,341 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  color: var(--slate-700);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.panel {
+  margin-bottom: 24px;
+  padding: 28px;
+  border: 1px solid #d9dde0;
+  background: white;
+}
+
+.panelHeading,
+.accountLine,
+.assignment,
+.directory a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.panelHeading {
+  margin-bottom: 18px;
+  color: var(--navy-900);
+}
+
+.panelHeading p {
+  margin: 0 0 5px;
+  color: var(--green-600);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panelHeading h2 {
+  margin: 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.helper {
+  max-width: 720px;
+  margin: 0 0 22px;
+  color: var(--slate-700);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.helper a {
+  color: var(--green-600);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.inviteForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.inviteForm label,
+.grantForm > label {
+  display: grid;
+  gap: 7px;
+  color: var(--slate-700);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.inviteForm input,
+.grantForm select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid #c9cfd4;
+  background: #fafaf8;
+  color: var(--navy-950);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.inviteForm button,
+.grantForm button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 0;
+  background: var(--navy-900);
+  color: var(--ivory-100);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.inviteForm button:disabled,
+.grantForm button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.alert,
+.notice,
+.success {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.alert {
+  border-left: 3px solid #a93e37;
+  background: #fff0ed;
+  color: #8b312e;
+}
+
+.notice {
+  border-left: 3px solid var(--gold-500);
+  background: #fff8e8;
+  color: #604924;
+}
+
+.success {
+  border-left: 3px solid var(--green-600);
+  background: #e9f5ec;
+  color: #125c3c;
+  text-transform: capitalize;
+}
+
+.count {
+  color: var(--green-600);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.empty {
+  padding: 34px 20px;
+  border: 1px dashed #c8cdd2;
+  text-align: center;
+}
+
+.empty h3 {
+  margin: 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 23px;
+  text-transform: uppercase;
+}
+
+.empty p {
+  margin: 8px 0 0;
+  color: var(--slate-700);
+  font-size: 12px;
+}
+
+.directory a {
+  justify-content: flex-start;
+  padding: 17px 0;
+  border-top: 1px solid #e4e7e9;
+}
+
+.directory a:hover .person strong {
+  color: var(--green-600);
+}
+
+.avatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  background: var(--navy-900);
+  color: var(--gold-500);
+  font-weight: 800;
+}
+
+.person {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+
+.person strong,
+.assignment strong,
+.accountLine strong {
+  color: var(--navy-950);
+  font-size: 13px;
+}
+
+.person small,
+.assignment small,
+.accountLine small,
+.accountLine span {
+  color: var(--slate-700);
+  font-size: 11px;
+}
+
+.state,
+.revoked {
+  padding: 6px 10px;
+  background: #f2f2f1;
+  color: var(--slate-700);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.state[data-active="true"] {
+  background: #e8f5ed;
+  color: var(--green-600);
+}
+
+.accountLine > div,
+.assignment > div {
+  display: grid;
+  gap: 6px;
+}
+
+.accountLine {
+  padding-top: 8px;
+}
+
+.secondaryButton {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid #c8cdd2;
+  background: white;
+  color: var(--navy-950);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.assignment {
+  padding: 17px 0;
+  border-top: 1px solid #e4e7e9;
+}
+
+.scopeType {
+  color: var(--green-600);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.grantGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.grantForm {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e0e4e7;
+  background: #fafaf8;
+}
+
+.grantForm h3 {
+  margin: 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.grantForm fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.grantForm legend {
+  margin-bottom: 8px;
+  color: var(--slate-700);
+  font-size: 10px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.grantForm fieldset label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.grantForm button {
+  justify-self: start;
+}
+
+@media (max-width: 900px) {
+  .inviteForm,
+  .grantGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel {
+    padding: 20px;
+  }
+
+  .accountLine,
+  .assignment {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .state {
+    display: none;
+  }
+}

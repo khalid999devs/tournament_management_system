@@ -35,11 +35,13 @@ try {
   await sql`
     insert into public.staff_profiles (
       auth_user_id,
+      email,
       role,
       display_name,
       active
     ) values (
       ${authUser.id},
+      ${email.toLowerCase()},
       'SUPER_ADMIN',
       'NDCAK Super Admin',
       true
@@ -47,6 +49,7 @@ try {
     on conflict (auth_user_id) do update
     set
       role = excluded.role,
+      email = excluded.email,
       display_name = excluded.display_name,
       active = true,
       updated_at = now()

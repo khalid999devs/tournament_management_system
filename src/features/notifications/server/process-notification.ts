@@ -12,6 +12,7 @@ import {
   tournaments,
 } from "@/db/schema";
 import { buildRegistrationEmail } from "@/features/notifications/domain/registration-email";
+import { processOperatorInvite } from "@/features/operators/server/process-invite";
 import { sendEmail } from "@/lib/email/resend";
 import { getEmailEnv } from "@/lib/env/server";
 
@@ -23,6 +24,16 @@ const supportedTypes = [
 
 export async function processNotification(notificationId: string) {
   const db = getDatabase();
+  const [kind] = await db
+    .select({ type: notifications.type })
+    .from(notifications)
+    .where(eq(notifications.id, notificationId))
+    .limit(1);
+
+  if (kind?.type === "OPERATOR_INVITE") {
+    return processOperatorInvite(notificationId);
+  }
+
   const [claimed] = await db
     .update(notifications)
     .set({
@@ -85,7 +96,7 @@ export async function processNotification(notificationId: string) {
       .where(eq(registrationGameEntries.registrationId, context.registrationId))
       .orderBy(tournamentGames.sortOrder, games.name);
 
-    const email = buildRegistrationEmail({
+    const email = await buildRegistrationEmail({
       type: context.type,
       registrationId: context.registrationId,
       registrationCode: context.registrationCode,

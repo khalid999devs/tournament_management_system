@@ -1,4 +1,5 @@
 import { createCalendarInvitation } from "./calendar";
+import { renderTransactionalEmail } from "./render-email";
 
 export type RegistrationEmailInput = {
   type:
@@ -21,10 +22,9 @@ export type RegistrationEmailInput = {
   organizerEmail: string;
 };
 
-export type RegistrationEmail = {
-  subject: string;
-  text: string;
-  html: string;
+export type RegistrationEmail = Awaited<
+  ReturnType<typeof renderTransactionalEmail>
+> & {
   attachments?: Array<{
     filename: string;
     content: Buffer;
@@ -32,62 +32,99 @@ export type RegistrationEmail = {
   }>;
 };
 
-export function buildRegistrationEmail(
+export async function buildRegistrationEmail(
   input: RegistrationEmailInput,
-): RegistrationEmail {
+): Promise<RegistrationEmail> {
   const games = input.gameNames.join(", ");
-  const greeting = `Hello ${input.participantName},`;
+  const shared = {
+    greeting: `Hello ${input.participantName},`,
+    supportEmail: input.organizerEmail,
+    reference: input.registrationCode,
+  };
 
   if (input.type === "REGISTRATION_SUBMITTED") {
-    const subject = `${input.registrationCode}: registration received`;
-    const paragraphs = [
-      greeting,
-      `We received your registration for ${input.tournamentName}. It is pending manual payment review and is not confirmed yet.`,
-      `Registration code: ${input.registrationCode}`,
-      `Selected games: ${games}`,
-      "We will email you after the event team approves or rejects the submission.",
-    ];
-
-    return renderEmail(subject, paragraphs);
+    return renderTransactionalEmail(
+      `${input.registrationCode}: registration received`,
+      {
+        ...shared,
+        preview: "We received your registration. Payment review is pending.",
+        eyebrow: "Registration update",
+        title: "We have your entry.",
+        status: "Pending payment review",
+        tone: "pending",
+        paragraphs: [
+          `We received your registration for ${input.tournamentName}. It is pending manual payment review and is not confirmed yet.`,
+          "The event team will email you when your submission has been reviewed. Please keep your registration code for reference.",
+        ],
+        details: [
+          { label: "Registration code", value: input.registrationCode },
+          { label: "Selected games", value: games },
+        ],
+        notice:
+          "Your place is not confirmed until the event team approves the payment information you submitted.",
+      },
+    );
   }
 
   if (input.type === "REGISTRATION_REJECTED") {
-    const subject = `${input.registrationCode}: registration not confirmed`;
-    const paragraphs = [
-      greeting,
-      `Your registration for ${input.tournamentName} was not confirmed.`,
-      `Reason: ${input.rejectionReason ?? "The event team could not verify the submission."}`,
-      `Registration code: ${input.registrationCode}`,
-      `If you need clarification, reply to this email at ${input.organizerEmail}.`,
-    ];
-
-    return renderEmail(subject, paragraphs);
+    return renderTransactionalEmail(
+      `${input.registrationCode}: registration not confirmed`,
+      {
+        ...shared,
+        preview: `An update about your ${input.tournamentName} registration.`,
+        eyebrow: "Registration update",
+        title: "Your entry was not confirmed.",
+        status: "Not confirmed",
+        tone: "attention",
+        paragraphs: [
+          `Your registration for ${input.tournamentName} was not confirmed.`,
+          `Reason: ${input.rejectionReason ?? "The event team could not verify the submission."}`,
+          "If you think this is a mistake, reply to this email and include your registration code.",
+        ],
+        details: [
+          { label: "Registration code", value: input.registrationCode },
+        ],
+      },
+    );
   }
 
-  const schedule = formatEventSchedule(input);
-  const subject = `${input.registrationCode}: registration confirmed`;
-  const paragraphs = [
-    greeting,
-    `Your registration for ${input.tournamentName} is confirmed.`,
-    `Registration code: ${input.registrationCode}`,
-    `Selected games: ${games}`,
-    schedule,
-    input.venue ? `Venue: ${input.venue}` : "",
-    input.checkInInstructions ? `Check-in: ${input.checkInInstructions}` : "",
-    "A calendar invitation is attached.",
-  ].filter(Boolean);
+  const startsAt = requireDate(input.startsAt, "start");
+  const endsAt = requireDate(input.endsAt, "end");
+  const schedule = formatEventSchedule(startsAt, endsAt, input.timezone);
+  const email = await renderTransactionalEmail(
+    `${input.registrationCode}: registration confirmed`,
+    {
+      ...shared,
+      preview: `Your ${input.tournamentName} entry is confirmed.`,
+      eyebrow: "Registration update",
+      title: "You are in.",
+      status: "Registration confirmed",
+      tone: "success",
+      paragraphs: [
+        `Your registration for ${input.tournamentName} is confirmed. We look forward to seeing you there.`,
+        "Bring your student ID and registration code to check-in. A calendar invitation is attached to help you save the date.",
+      ],
+      details: [
+        { label: "Registration code", value: input.registrationCode },
+        { label: "Selected games", value: games },
+        { label: "Event", value: schedule },
+        ...(input.venue ? [{ label: "Venue", value: input.venue }] : []),
+      ],
+      notice: input.checkInInstructions,
+    },
+  );
   const invitation = createCalendarInvitation({
     uid: `registration-${input.registrationId}@ndcak`,
     title: input.tournamentName,
     description: `Registration ${input.registrationCode}. Games: ${games}`,
     location: input.venue ?? "",
-    startsAt: requireDate(input.startsAt, "start"),
-    endsAt: requireDate(input.endsAt, "end"),
+    startsAt,
+    endsAt,
     organizerEmail: input.organizerEmail,
   });
 
   return {
-    ...renderEmail(subject, paragraphs),
+    ...email,
     attachments: [
       {
         filename: `${input.tournamentSlug}.ics`,
@@ -98,41 +135,18 @@ export function buildRegistrationEmail(
   };
 }
 
-function renderEmail(subject: string, paragraphs: string[]) {
-  const text = paragraphs.join("\n\n");
-  const html = `<!doctype html><html><body style="margin:0;background:#f4f3ee;color:#0d1b39;font-family:Arial,sans-serif"><div style="max-width:620px;margin:0 auto;padding:40px 24px"><div style="background:#0d1b39;color:#fff;padding:24px 28px"><strong style="color:#e4c27a;letter-spacing:.08em">NDCAK</strong><h1 style="font-size:28px;margin:12px 0 0">${escapeHtml(subject)}</h1></div><div style="background:#fff;padding:30px 28px;border:1px solid #d9dce4">${paragraphs.map((paragraph) => `<p style="font-size:15px;line-height:1.65;margin:0 0 18px">${escapeHtml(paragraph)}</p>`).join("")}</div></div></body></html>`;
-
-  return { subject, text, html };
-}
-
-function formatEventSchedule(input: RegistrationEmailInput) {
-  const startsAt = requireDate(input.startsAt, "start");
-  const endsAt = requireDate(input.endsAt, "end");
+function formatEventSchedule(startsAt: Date, endsAt: Date, timezone: string) {
   const formatter = new Intl.DateTimeFormat("en-GB", {
     dateStyle: "full",
     timeStyle: "short",
-    timeZone: input.timezone,
+    timeZone: timezone,
   });
 
-  return `Event: ${formatter.format(startsAt)} – ${formatter.format(endsAt)}`;
+  return `${formatter.format(startsAt)} – ${formatter.format(endsAt)}`;
 }
 
 function requireDate(date: Date | null, name: string) {
   if (!date)
     throw new Error(`Confirmed registration email requires event ${name}.`);
   return date;
-}
-
-function escapeHtml(value: string) {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      })[character] ?? character,
-  );
 }

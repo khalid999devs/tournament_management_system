@@ -19,8 +19,8 @@ const baseInput = {
 };
 
 describe("registration emails", () => {
-  it("uses pending wording and omits calendar data for submission", () => {
-    const email = buildRegistrationEmail({
+  it("uses pending wording and omits calendar data for submission", async () => {
+    const email = await buildRegistrationEmail({
       ...baseInput,
       type: "REGISTRATION_SUBMITTED",
     });
@@ -31,8 +31,8 @@ describe("registration emails", () => {
     expect(email.html).toContain("Student &lt;One&gt;");
   });
 
-  it("attaches an ICS file only after approval", () => {
-    const email = buildRegistrationEmail({
+  it("attaches an ICS file only after approval", async () => {
+    const email = await buildRegistrationEmail({
       ...baseInput,
       type: "REGISTRATION_APPROVED",
     });
@@ -42,13 +42,13 @@ describe("registration emails", () => {
     expect(email.attachments?.[0].filename).toBe("ndcak-indoor-games.ics");
   });
 
-  it("requires configured event dates for approval mail", () => {
-    expect(() =>
+  it("requires configured event dates for approval mail", async () => {
+    await expect(
       buildRegistrationEmail({
         ...baseInput,
         type: "REGISTRATION_APPROVED",
         startsAt: null,
       }),
-    ).toThrow("requires event start");
+    ).rejects.toThrow("requires event start");
   });
 });
