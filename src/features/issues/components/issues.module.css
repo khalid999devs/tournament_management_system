@@ -1,0 +1,186 @@
+/* Problem reports: the report form and the list, used on the score screen,
+   the operator workspace and the admin issues page (all light surfaces). */
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field span {
+  color: var(--navy-950);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid rgba(22, 38, 74, 0.25);
+  border-radius: 0;
+  background: #fafaf8;
+  color: var(--navy-950);
+  font: inherit;
+  /* 16px stops phones from zooming into the field. */
+  font-size: 16px;
+}
+
+.field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.submit {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 0;
+  background: var(--navy-900);
+  color: var(--gold-500);
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.error,
+.success {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.error {
+  border: 1px solid #f0b4ad;
+  background: #fdecea;
+  color: #7c1d15;
+}
+
+.success {
+  border: 1px solid #b9dfc8;
+  background: #e7f5ed;
+  color: #0b5a31;
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(22, 38, 74, 0.12);
+  border-left: 4px solid #c0392b;
+  background: white;
+  color: var(--navy-950);
+}
+
+.list li[data-status="RESOLVED"] {
+  border-left-color: var(--green-600);
+  background: #fafaf8;
+}
+
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+}
+
+.itemHead strong {
+  font-size: 15px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fdecea;
+  color: #7c1d15;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pill[data-status="RESOLVED"] {
+  background: #e7f5ed;
+  color: #0b5a31;
+}
+
+.message {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.meta {
+  color: var(--slate-700);
+  font-size: 13px;
+}
+
+.meta a {
+  color: var(--navy-900);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.resolution {
+  margin: 0;
+  color: #0b5a31;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.resolve {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.resolve input {
+  min-width: 0;
+  min-height: 40px;
+  flex: 1 1 220px;
+  padding: 6px 10px;
+  border: 1px solid rgba(22, 38, 74, 0.25);
+  background: #fafaf8;
+  color: var(--navy-950);
+  font: inherit;
+  font-size: 15px;
+}
+
+.resolve button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--green-600);
+  background: #e7f5ed;
+  color: #0b5a31;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+}

@@ -101,6 +101,46 @@
   color: #0b6b39;
 }
 
+.syncTools {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.liveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--slate-700);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.liveTag::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c9a227;
+  content: "";
+}
+
+.liveTag[data-status="live"] {
+  color: #0b6b39;
+}
+
+.liveTag[data-status="live"]::before {
+  background: #1f9d55;
+}
+
+.issueBody {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+}
+
 .syncBusy {
   color: var(--navy-800);
 }

@@ -19,6 +19,12 @@ const messages: Record<string, string> = {
   match_resumed: "Match resumed.",
   match_cancelled: "Match cancelled.",
   schedule_saved: "Time and place saved.",
+  issue_resolved: "Problem report marked as resolved.",
+  reminder_saved: "Reminder setting saved.",
+  reminders_queued:
+    "Reminder emails are being sent. Delivery shows under Notifications.",
+  reminders_none:
+    "Every confirmed player already has this reminder. Nothing new to send.",
 };
 
 const errors: Record<string, string> = {
@@ -76,6 +82,12 @@ const errors: Record<string, string> = {
   match_closed: "That action is not possible in the match's current state.",
   unauthorized_scope: "You do not have access to this match.",
   not_found: "That match no longer exists.",
+  issue_not_found: "That problem report no longer exists.",
+  issue_invalid: "That problem report could not be updated. Try again.",
+  reminder_invalid:
+    "Choose how many days before the event to send the reminder.",
+  reminder_needs_dates: "Set the event start date before sending reminders.",
+  reminder_closed: "Reminders cannot be sent after the event has started.",
   save_failed: "The change could not be saved. Try again.",
 };
 

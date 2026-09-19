@@ -296,3 +296,45 @@
   font: inherit;
   font-weight: 800;
 }
+
+.introRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.reportCard {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid #d9dde0;
+  background: white;
+  color: var(--navy-950);
+}
+
+.reportCard summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.reportCard > p {
+  margin: 10px 0 14px;
+  color: var(--slate-700);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.reportCard h2 {
+  margin: 22px 0 10px;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .introRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

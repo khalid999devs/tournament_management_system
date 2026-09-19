@@ -51,6 +51,8 @@ export const tournaments = pgTable(
     maxGamesPerParticipant: integer("max_games_per_participant")
       .notNull()
       .default(1),
+    // Days before the start to email confirmed players; null sends none.
+    reminderDaysBefore: integer("reminder_days_before"),
     status: tournamentStatusEnum("status").notNull().default("DRAFT"),
     publicSettings: jsonb("public_settings")
       .$type<TournamentPublicSettings>()
@@ -72,6 +74,10 @@ export const tournaments = pgTable(
     check(
       "tournaments_registration_window_check",
       sql`${table.registrationCloseAt} is null or ${table.registrationOpenAt} is null or ${table.registrationCloseAt} > ${table.registrationOpenAt}`,
+    ),
+    check(
+      "tournaments_reminder_days_check",
+      sql`${table.reminderDaysBefore} is null or ${table.reminderDaysBefore} between 1 and 14`,
     ),
     check(
       "tournaments_event_window_check",

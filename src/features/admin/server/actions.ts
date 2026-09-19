@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requireSuperAdmin } from "@/features/auth/server/staff-session";
 import { processNotification } from "@/features/notifications/server/process-notification";
 import { refreshPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
+import { signalTournamentChange } from "@/lib/realtime/signal";
 import {
   RegistrationReviewError,
   reviewRegistration,
@@ -60,6 +61,7 @@ async function runReviewAction(
     if (result.notificationId) {
       after(() => processNotification(result.notificationId!));
     }
+    after(() => signalTournamentChange("registration"));
 
     refreshPublicEvent();
     revalidatePath("/admin");

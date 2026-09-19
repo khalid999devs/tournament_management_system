@@ -6,6 +6,13 @@ export function formatDhakaDateTime(value: Date | string) {
   }).format(new Date(value));
 }
 
+export function formatDhakaTime(value: Date | string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeStyle: "medium",
+    timeZone: "Asia/Dhaka",
+  }).format(new Date(value));
+}
+
 const dhakaDate = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "long",

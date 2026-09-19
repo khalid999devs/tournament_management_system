@@ -7,6 +7,8 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { matchTopic } from "@/lib/realtime/topics";
+import { useLiveChannel } from "@/lib/realtime/use-live-channel";
 import type { ScoreCommand } from "../domain/commands";
 import type { MatchState } from "../server/match-queries";
 
@@ -33,7 +35,10 @@ type ServerReply = {
 
 const requestTimeoutMs = 15_000;
 const backoffMs = [1_000, 2_000, 4_000, 8_000, 15_000];
-const pollLiveMs = 6_000;
+// Polling is the safety net under realtime: fast while the live connection
+// is down, slow while it is up.
+const pollFallbackMs = 6_000;
+const pollLiveMs = 20_000;
 const pollIdleMs = 30_000;
 
 // ---------------------------------------------------------------------------
@@ -315,30 +320,47 @@ export function useMatchSync(initial: MatchState, actorId: string) {
     return () => window.clearTimeout(timer);
   }, [outbox, leader, send, wakeups]);
 
-  const refresh = useCallback(async () => {
-    try {
-      const { status, body } = await request(
-        `${endpoint}?since=${state.version}`,
-      );
-      if (status === 401) setSignedOut(true);
-      if (status === 200) setSignedOut(false);
-      if (status === 200 && body?.ok && !body.unchanged) adopt(body.state);
-    } catch {
-      // The next poll tries again.
-    }
-  }, [endpoint, state.version, adopt]);
+  // force skips the version shortcut: problem reports change without a
+  // new match version.
+  const refresh = useCallback(
+    async (force = false) => {
+      try {
+        const { status, body } = await request(
+          force ? endpoint : `${endpoint}?since=${state.version}`,
+        );
+        if (status === 401) setSignedOut(true);
+        if (status === 200) setSignedOut(false);
+        if (status === 200 && body?.ok && !body.unchanged) adopt(body.state);
+      } catch {
+        // The next poll tries again.
+      }
+    },
+    [endpoint, state.version, adopt],
+  );
 
-  // Until realtime lands, poll cheaply: the server answers "unchanged"
-  // unless the version moved.
+  // Another screen changed this match: fetch unless we already have that
+  // version (our own actions echo back here too).
+  const liveStatus = useLiveChannel(matchTopic(initial.id), (message) => {
+    if (message.kind === "issue" || message.kind === "resync") {
+      void refresh(true);
+    } else if (!message.version || message.version > state.version) {
+      void refresh();
+    }
+  });
+
+  // Poll cheaply as well: the server answers "unchanged" unless the version
+  // moved, and this still works when realtime is unavailable.
   useEffect(() => {
-    const live = ["SCHEDULED", "IN_PROGRESS"].includes(state.status);
-    const timer = window.setInterval(
-      () => {
-        if (document.visibilityState === "visible" && !sending.current)
-          void refresh();
-      },
-      live ? pollLiveMs : pollIdleMs,
-    );
+    const open = ["SCHEDULED", "IN_PROGRESS"].includes(state.status);
+    const every = !open
+      ? pollIdleMs
+      : liveStatus === "live"
+        ? pollLiveMs
+        : pollFallbackMs;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && !sending.current)
+        void refresh();
+    }, every);
     const onVisible = () => {
       if (document.visibilityState === "visible") void refresh();
     };
@@ -347,7 +369,7 @@ export function useMatchSync(initial: MatchState, actorId: string) {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [state.status, refresh]);
+  }, [state.status, liveStatus, refresh]);
 
   const enqueue = useCallback(
     (command: ScoreCommand, label: string) => {
@@ -386,6 +408,7 @@ export function useMatchSync(initial: MatchState, actorId: string) {
     state,
     outbox,
     online,
+    liveStatus,
     signedOut,
     leader,
     takeOver: () => acquire(true),

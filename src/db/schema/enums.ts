@@ -96,3 +96,5 @@ export const notificationStatusEnum = pgEnum("notification_status", [
   "SENT",
   "FAILED",
 ]);
+
+export const issueStatusEnum = pgEnum("issue_status", ["OPEN", "RESOLVED"]);

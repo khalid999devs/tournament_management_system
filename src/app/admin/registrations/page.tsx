@@ -3,10 +3,13 @@ import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
+  Download,
   Search,
   SlidersHorizontal,
 } from "lucide-react";
+import { LiveRefresh } from "@/components/live/live-refresh";
 import { getAdminRegistrationPage } from "@/features/admin/server/registration-queries";
+import { findCurrentTournamentId } from "@/features/event/server/event-queries";
 import { formatDhakaDateTime } from "@/lib/dates";
 import { formatBdt } from "@/lib/money";
 import styles from "@/features/admin/components/admin.module.css";
@@ -23,7 +26,10 @@ export default async function RegistrationsPage({
 }: RegistrationsPageProps) {
   const rawParams = await searchParams;
   const params = firstValues(rawParams);
-  const data = await getAdminRegistrationPage(params);
+  const [data, tournamentId] = await Promise.all([
+    getAdminRegistrationPage(params),
+    findCurrentTournamentId(),
+  ]);
 
   return (
     <div className={styles.content}>
@@ -35,6 +41,18 @@ export default async function RegistrationsPage({
             {data.total} submissions. Filters, sort, and page are stored in the
             URL.
           </span>
+        </div>
+        <div className={styles.headerTools}>
+          <a
+            className={styles.exportLink}
+            href={exportHref(rawParams)}
+            download
+          >
+            <Download size={15} aria-hidden="true" /> Export CSV
+          </a>
+          {tournamentId ? (
+            <LiveRefresh tournamentId={tournamentId} kinds={["registration"]} />
+          ) : null}
         </div>
       </header>
 
@@ -239,4 +257,17 @@ function pageHref(
 
   params.set("page", String(page));
   return `/admin/registrations?${params.toString()}`;
+}
+
+// Every row matching the current filters, not just this page.
+function exportHref(input: Record<string, string | string[] | undefined>) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(input)) {
+    const first = Array.isArray(value) ? value[0] : value;
+    if (first && key !== "page") params.set(key, first);
+  }
+
+  const query = params.toString();
+  return `/admin/reports/export/registrations${query ? `?${query}` : ""}`;
 }

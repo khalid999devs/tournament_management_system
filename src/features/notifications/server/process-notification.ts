@@ -11,7 +11,9 @@ import {
   tournamentGames,
   tournaments,
 } from "@/db/schema";
+import { buildOperationalEmail } from "@/features/notifications/domain/operational-email";
 import { buildRegistrationEmail } from "@/features/notifications/domain/registration-email";
+import { formatEventSchedule } from "@/features/notifications/domain/reminders";
 import { processOperatorInvite } from "@/features/operators/server/process-invite";
 import { sendEmail } from "@/lib/email/send";
 import { getEmailEnv } from "@/lib/env/server";
@@ -20,6 +22,7 @@ const supportedTypes = [
   "REGISTRATION_SUBMITTED",
   "REGISTRATION_APPROVED",
   "REGISTRATION_REJECTED",
+  "EVENT_REMINDER",
 ] as const;
 
 export async function processNotification(notificationId: string) {
@@ -61,6 +64,7 @@ export async function processNotification(notificationId: string) {
         recipientEmail: notifications.recipientEmail,
         registrationId: registrations.id,
         registrationCode: registrations.code,
+        registrationStatus: registrations.status,
         rejectionReason: registrations.rejectionReason,
         participantName: participants.fullName,
         tournamentName: tournaments.name,
@@ -96,23 +100,27 @@ export async function processNotification(notificationId: string) {
       .where(eq(registrationGameEntries.registrationId, context.registrationId))
       .orderBy(tournamentGames.sortOrder, games.name);
 
-    const email = await buildRegistrationEmail({
-      type: context.type,
-      registrationId: context.registrationId,
-      registrationCode: context.registrationCode,
-      participantName: context.participantName,
-      recipientEmail: context.recipientEmail,
-      tournamentName: context.tournamentName,
-      tournamentSlug: context.tournamentSlug,
-      timezone: context.timezone,
-      venue: context.venue,
-      startsAt: context.startsAt,
-      endsAt: context.endsAt,
-      checkInInstructions: context.publicSettings.checkInInstructions,
-      rejectionReason: context.rejectionReason,
-      gameNames: selectedGames.map((game) => game.name),
-      organizerEmail: getEmailEnv().EMAIL_REPLY_TO,
-    });
+    const organizerEmail = getEmailEnv().EMAIL_REPLY_TO;
+    const email =
+      context.type === "EVENT_REMINDER"
+        ? await buildReminder(context, selectedGames, organizerEmail)
+        : await buildRegistrationEmail({
+            type: context.type,
+            registrationId: context.registrationId,
+            registrationCode: context.registrationCode,
+            participantName: context.participantName,
+            recipientEmail: context.recipientEmail,
+            tournamentName: context.tournamentName,
+            tournamentSlug: context.tournamentSlug,
+            timezone: context.timezone,
+            venue: context.venue,
+            startsAt: context.startsAt,
+            endsAt: context.endsAt,
+            checkInInstructions: context.publicSettings.checkInInstructions,
+            rejectionReason: context.rejectionReason,
+            gameNames: selectedGames.map((game) => game.name),
+            organizerEmail,
+          });
     const result = await sendEmail({
       to: context.recipientEmail,
       ...email,
@@ -143,6 +151,50 @@ export async function processNotification(notificationId: string) {
 
     return { status: "FAILED" as const };
   }
+}
+
+type ReminderContext = {
+  registrationCode: string;
+  registrationStatus: string;
+  participantName: string;
+  tournamentName: string;
+  timezone: string;
+  venue: string | null;
+  startsAt: Date | null;
+  endsAt: Date | null;
+  publicSettings: { checkInInstructions?: string };
+};
+
+// A player whose registration was cancelled after the reminder was queued
+// is not emailed; the record shows why.
+function buildReminder(
+  context: ReminderContext,
+  selectedGames: { name: string }[],
+  organizerEmail: string,
+) {
+  if (context.registrationStatus !== "CONFIRMED") {
+    throw new Error("Not sent: the registration is no longer confirmed.");
+  }
+  if (!context.startsAt) {
+    throw new Error("Not sent: the event start time is not set.");
+  }
+  return buildOperationalEmail({
+    type: "EVENT_REMINDER",
+    recipientName: context.participantName,
+    tournamentName: context.tournamentName,
+    supportEmail: organizerEmail,
+    registrationCode: context.registrationCode,
+    gameNames: selectedGames.map((game) => game.name).join(", "),
+    schedule: formatEventSchedule(
+      context.startsAt,
+      context.endsAt,
+      context.timezone,
+    ),
+    venue: context.venue ?? "Venue to be announced",
+    checkInInstructions:
+      context.publicSettings.checkInInstructions ??
+      "Bring your student ID and registration code to check-in.",
+  });
 }
 
 function isSupportedType(

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { z } from "zod";
 import { getCurrentStaff } from "@/features/auth/server/staff-session";
 import { commandEnvelopeSchema } from "@/features/matches/domain/commands";
@@ -11,6 +12,7 @@ import {
   getMatchVersion,
 } from "@/features/matches/server/match-queries";
 import { refreshPublicResults } from "@/features/matches/server/public-results";
+import { signalMatchChange } from "@/lib/realtime/signal";
 
 export const dynamic = "force-dynamic";
 
@@ -138,12 +140,18 @@ export async function POST(
       deviceTime: plausible,
       command,
     });
-    // Public pages show confirmed results only, so they refresh on these.
-    if (
-      !outcome.duplicate &&
-      (command.type === "FINALIZE" || command.type === "WALKOVER")
-    ) {
-      refreshPublicResults();
+    const decided = command.type === "FINALIZE" || command.type === "WALKOVER";
+    if (!outcome.duplicate) {
+      // Public pages show confirmed results only, so they refresh on these.
+      if (decided) refreshPublicResults();
+      // Other staff screens fetch the change; a decided match also wakes
+      // the next-round match its winner moved into.
+      after(() =>
+        signalMatchChange(id, {
+          version: outcome.version,
+          includeNext: decided,
+        }),
+      );
     }
     const state = await getMatchState(id, actor);
     return json({

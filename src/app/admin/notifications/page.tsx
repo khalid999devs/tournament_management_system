@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, RotateCcw, Search } from "lucide-react";
 import { retryNotificationAction } from "@/features/admin/server/actions";
-import { getAdminNotificationPage } from "@/features/admin/server/notification-queries";
+import {
+  getAdminNotificationPage,
+  notificationTypeLabels,
+} from "@/features/admin/server/notification-queries";
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/admin/components/admin.module.css";
 
@@ -44,7 +47,7 @@ export default async function NotificationsPage({
         </div>
       ) : null}
 
-      <form className={styles.notificationFilters} method="get">
+      <form className={styles.filters} method="get">
         <label className={styles.searchField}>
           <span>Recipient search</span>
           <div>
@@ -65,6 +68,25 @@ export default async function NotificationsPage({
             <option value="SENT">Sent</option>
             <option value="FAILED">Failed</option>
           </select>
+        </label>
+        <label>
+          <span>Type</span>
+          <select name="type" defaultValue={data.filters.type}>
+            <option value="">All types</option>
+            {Object.entries(notificationTypeLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>From</span>
+          <input type="date" name="from" defaultValue={data.filters.from} />
+        </label>
+        <label>
+          <span>To</span>
+          <input type="date" name="to" defaultValue={data.filters.to} />
         </label>
         <label>
           <span>Sort</span>
@@ -95,7 +117,7 @@ export default async function NotificationsPage({
             {data.rows.map((row) => (
               <tr key={row.id}>
                 <td>
-                  <strong>{row.type.replaceAll("_", " ")}</strong>
+                  <strong>{notificationTypeLabels[row.type]}</strong>
                   <small>{formatDhakaDateTime(row.createdAt)}</small>
                 </td>
                 <td>

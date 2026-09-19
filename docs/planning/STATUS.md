@@ -1,10 +1,10 @@
 # Implementation Status
 
-Last updated: 19 September 2026
+Last updated: 20 September 2026
 
 ## Current phase
 
-Phases 0–4 are complete in code and verified against PostgreSQL, in a browser, and under load. The next build phase is Phase 5 - Realtime, Analytics, and Communication, designed in `docs/architecture/SCORING_AND_REALTIME.md`. Phase 4 evidence is in `PHASE_4_COMPLETION.md`. The live tournament holds clearly marked demo configuration (five games; bKash, Nagad and Rocket) and stays in Draft; deployment waits until all phases are complete.
+Phases 0–5 are complete in code and verified against PostgreSQL, in a browser, and on the live Supabase project. The next phase is Phase 6 - Hardening and Launch. Phase 5 evidence is in `PHASE_5_COMPLETION.md`. The live tournament holds realistic demo configuration (five games; bKash, Nagad and Rocket numbers still marked as demo) and has registration open, but nothing is deployed yet.
 
 ## Completed
 
@@ -43,16 +43,18 @@ Phases 0–4 are complete in code and verified against PostgreSQL, in a browser,
 - Rehearsed the full flow in a browser against a local database with real Supabase Auth sessions: create the event, configure it, add and open games, open registration, register as a student, approve as admin, and view a game-scoped operator workspace that shows only its matches.
 - Redesigned the registration flow: two-column layout with a sticky summary on desktop, a fixed total bar on phones, clearer game cards with places left, friendly validation messages, copy-to-clipboard payment numbers, and a round trip from review back to editing. Landing-page game cards open registration with that game preselected. Schedule lists fixtures by day once the draw is published. Fixed a bug where restored drafts ignored typing.
 - Phase 4: seven configurable scoring types, knockout draws with byes, manual rounds, an append-only score log with idempotent commands and version checks, an offline-safe operator score screen, admin match monitor and corrections, and public confirmed results. See `PHASE_4_COMPLETION.md`.
+- Phase 5: live updates on every staff screen through private Supabase Realtime channels, with polling underneath; an admin dashboard counted from the database; problem reports from operators with admin resolution; five filtered CSV exports; a configurable reminder email with a daily job that also retries email and keeps Supabase awake. See `PHASE_5_COMPLETION.md`.
 
 ## Phase boundary
 
-Phase 1 and 2 evidence is in `PHASE_2_COMPLETION.md`, Phase 3 in `PHASE_3_PROGRESS.md`, and Phase 4 in `PHASE_4_COMPLETION.md`.
+Phase 1 and 2 evidence is in `PHASE_2_COMPLETION.md`, Phase 3 in `PHASE_3_PROGRESS.md`, Phase 4 in `PHASE_4_COMPLETION.md`, and Phase 5 in `PHASE_5_COMPLETION.md`.
 
 ## Before launch
 
 - Replace the demo event data in `/admin/event` and `/admin/games` with the committee's details, then open registration.
 - Rotate the Gmail App Password that appeared in a screenshot; `pnpm readiness:check` confirms the new one.
 - Decide hosting against Vercel Hobby's non-commercial rule (see `SCORING_AND_REALTIME.md`), then deploy and set the Supabase Site URL (`docs/operations/DEPLOYMENT.md`).
+- Set `CRON_SECRET` in Vercel so the daily reminder and email retries run; `pnpm readiness:check` confirms it.
 
 ## Decision log
 
@@ -74,3 +76,7 @@ Phase 1 and 2 evidence is in `PHASE_2_COMPLETION.md`, Phase 3 in `PHASE_3_PROGRE
 | 2026-09-19 | Store every score change as an append-only update with a per-match sequence and a client event id.     | Retries after lost responses apply once, simultaneous operators never overwrite each other, and the log keeps server and device times.        |
 | 2026-09-19 | Make scoring types configurable per game and freeze the settings once play starts.                     | New games need settings, not code, and every result in a game is judged by the same rules.                                                    |
 | 2026-09-19 | Poll every 6 seconds on open score screens until Phase 5 realtime.                                     | Keeps screens current on the free plans; realtime will replace polling, and scoring never depends on either.                                  |
+| 2026-09-20 | Send live-update signals from the server after each commit instead of database triggers.               | Simpler, testable on plain PostgreSQL, and nothing in the database depends on Realtime; screens still poll underneath.                        |
+| 2026-09-20 | One Realtime access rule: active staff may listen, and no browser may send.                            | Signals carry only ids and a version, so finer per-match rules would add complexity without protecting any data.                              |
+| 2026-09-20 | One reminder per registration per event day, queued by a daily job or an admin's "send now".           | Unique keys make every run safe to repeat, and Vercel Hobby allows one scheduled run a day.                                                   |
+| 2026-09-20 | Record every CSV export in the audit log.                                                              | Exports contain participant contact details.                                                                                                  |

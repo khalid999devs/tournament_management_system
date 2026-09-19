@@ -13,6 +13,7 @@ export type OperationalEmailInput =
       schedule: string;
       venue: string;
       checkInInstructions: string;
+      gameNames?: string;
     })
   | (SharedInput & {
       type: "SCHEDULE_CHANGED";
@@ -55,6 +56,9 @@ export function buildOperationalEmail(input: OperationalEmailInput) {
           ],
           details: [
             { label: "Registration code", value: input.registrationCode },
+            ...(input.gameNames
+              ? [{ label: "Your games", value: input.gameNames }]
+              : []),
             { label: "When", value: input.schedule },
             { label: "Where", value: input.venue },
           ],

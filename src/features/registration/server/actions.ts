@@ -6,6 +6,7 @@ import { processNotification } from "@/features/notifications/server/process-not
 import { RegistrationDomainError } from "@/features/registration/domain/errors";
 import { registrationSubmissionSchema } from "@/features/registration/domain/schemas";
 import { refreshPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
+import { signalTournamentChange } from "@/lib/realtime/signal";
 import { submitRegistration } from "./submit-registration";
 
 export type SubmitRegistrationState = {
@@ -35,6 +36,8 @@ export async function submitRegistrationAction(
     if (result.notificationId) {
       after(() => processNotification(result.notificationId!));
     }
+    // Open admin screens show the new registration straight away.
+    after(() => signalTournamentChange("registration", input.tournamentId));
 
     return {
       status: "success",

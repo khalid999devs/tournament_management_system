@@ -16,7 +16,7 @@ import type { RegistrationSubmission } from "@/features/registration/domain/sche
 export async function resetDatabase() {
   await getDatabase().execute(sql`
     truncate table
-      audit_logs, notifications, match_updates, match_entries, operator_assignments,
+      audit_logs, notifications, issue_reports, match_updates, match_entries, operator_assignments,
       matches, rounds, payments, registration_game_entries, registrations,
       participants, payment_methods, tournament_games, games, tournaments,
       staff_profiles

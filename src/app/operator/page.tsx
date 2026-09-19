@@ -3,7 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { signOut } from "@/app/staff/actions";
+import { LiveRefresh } from "@/components/live/live-refresh";
 import { requireOperatorPage } from "@/features/auth/server/staff-session";
+import { findCurrentTournamentId } from "@/features/event/server/event-queries";
+import { IssueList } from "@/features/issues/components/issue-list";
+import { IssueReportForm } from "@/features/issues/components/issue-report-form";
+import { listOwnIssues } from "@/features/issues/server/issues";
 import { describeStatus } from "@/features/matches/domain/commands";
 import { getOperatorWorkload } from "@/features/operators/server/workload";
 import { formatDhakaDateTime } from "@/lib/dates";
@@ -22,7 +27,11 @@ export default async function OperatorPage({
 }) {
   const staff = await requireOperatorPage();
   const params = await searchParams;
-  const workload = await getOperatorWorkload(staff.id, params);
+  const [workload, tournamentId, ownIssues] = await Promise.all([
+    getOperatorWorkload(staff.id, params),
+    findCurrentTournamentId(),
+    listOwnIssues(staff.id),
+  ]);
   const pageHref = (page: number) => {
     const query = new URLSearchParams({
       page: String(page),
@@ -53,13 +62,18 @@ export default async function OperatorPage({
       </header>
 
       <div className={styles.content}>
-        <div className={styles.intro}>
-          <p>Assigned tournament work</p>
-          <h1>Your matches</h1>
-          <span>
-            Welcome, {staff.displayName}. Live matches come first. Only matches
-            within your active assignments appear here.
-          </span>
+        <div className={styles.introRow}>
+          <div className={styles.intro}>
+            <p>Assigned tournament work</p>
+            <h1>Your matches</h1>
+            <span>
+              Welcome, {staff.displayName}. Live matches come first. Only
+              matches within your active assignments appear here.
+            </span>
+          </div>
+          {tournamentId ? (
+            <LiveRefresh tournamentId={tournamentId} kinds={["match"]} />
+          ) : null}
         </div>
 
         <div className={styles.boundary}>
@@ -167,6 +181,21 @@ export default async function OperatorPage({
             </table>
           </div>
         )}
+
+        <details className={styles.reportCard}>
+          <summary>Report a problem that is not about one match</summary>
+          <p>
+            For example a missing table, a venue issue or a question for the
+            admins. To report a problem with a match, open its score entry.
+          </p>
+          <IssueReportForm matchId={null} />
+          {ownIssues.length ? (
+            <>
+              <h2>Your recent reports</h2>
+              <IssueList issues={ownIssues} showMatch />
+            </>
+          ) : null}
+        </details>
 
         {workload.pageCount > 1 ? (
           <nav className={styles.pagination} aria-label="Match pages">

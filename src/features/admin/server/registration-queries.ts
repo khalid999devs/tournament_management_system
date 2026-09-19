@@ -192,7 +192,7 @@ export async function getAdminDashboardMetrics() {
   };
 }
 
-function buildConditions(filters: RegistrationFilters) {
+export function buildConditions(filters: RegistrationFilters) {
   const conditions: SQL[] = [];
 
   if (filters.status !== "ALL") {
@@ -246,7 +246,7 @@ function buildConditions(filters: RegistrationFilters) {
   return conditions;
 }
 
-function getOrder(sort: RegistrationFilters["sort"]): SQL[] {
+export function getOrder(sort: RegistrationFilters["sort"]): SQL[] {
   if (sort === "oldest") {
     return [asc(registrations.submittedAt), asc(registrations.id)];
   }

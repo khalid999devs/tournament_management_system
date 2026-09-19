@@ -2,7 +2,7 @@
 
 Design for live score entry by several operators at once, with no lost, duplicated or silently overwritten updates, on the **free** Supabase and Vercel plans.
 
-**Status:** Phase 4 (everything except the Realtime section) is implemented and verified; see `docs/planning/PHASE_4_COMPLETION.md`. Phase 5 adds Realtime.
+**Status:** implemented and verified. Phase 4 built the scoring and concurrency model (`docs/planning/PHASE_4_COMPLETION.md`); Phase 5 added realtime and the daily job (`docs/planning/PHASE_5_COMPLETION.md`).
 
 ## Constraints
 
@@ -71,22 +71,27 @@ Locks are always taken in one order (current match, then the next-round match), 
 - The UI shows every action as _sending_, _saved_ or _needs attention_. Nothing is shown as saved until the server confirms.
 - Failed sends retry with backoff using the same `clientEventId`, so a retry after a lost response cannot double-count.
 - A `STALE_MATCH_VERSION` response shows the other operator's change and asks the operator to confirm again. Delta events never hit this path.
-- Score entry works without realtime. Realtime only speeds up seeing other operators' changes. Until Phase 5, open score screens poll every 6 seconds; the server answers "unchanged" from one indexed lookup.
+- Score entry works without realtime. Realtime only speeds up seeing other operators' changes. Open score screens also poll (every 20 seconds while the live connection is up, every 6 seconds while it is down); the server answers "unchanged" from one indexed lookup.
 - Only one browser tab per operator and match sends the queue (Web Locks), so tabs never race each other.
 
 ## Realtime (Phase 5)
 
-- **Transport:** Supabase Realtime **Broadcast from the database**. After a score event commits, a trigger on `match_updates` calls `realtime.send` with a small payload (`matchId`, `seq`, `version`, derived score) to private topics `match:<id>` and `tournament:<id>:matches`.
-- **Authorization:** private channels with RLS policies on `realtime.messages` that reuse the operator-scope rules; payment data never enters a payload.
-- **Clients:** the operator screen subscribes only to its open match. The admin monitor subscribes to the tournament topic. A client ignores messages whose `seq` it already has, and refetches if it sees a gap or reconnects.
-- **Budget:** about 3,000 events × ~10 subscribers per event gives roughly 30,000 messages for the whole event, against 2 M a month. Peak rate stays under 100 messages/s because each match has 1–3 subscribers.
+Built simpler than first planned: the server sends a signal after each change commits, instead of database triggers. Nothing in the database depends on Realtime, and local PostgreSQL needs no Supabase stand-ins.
+
+- **Transport:** Supabase Realtime Broadcast on private channels. After a change commits, the server posts a signal to the Realtime REST endpoint with the secret key (`src/lib/realtime/signal.ts`, called through `after()` so it never delays a response). A signal only says what changed: `{ kind, version?, matchIds? }`. No names, scores or payment data travel over Realtime; screens fetch the data through their usual authorized routes.
+- **Topics:** `match:<id>` for score screens and `tournament:<id>` for the dashboard, match monitor, registrations queue, problem reports and the operator's match list.
+- **Senders:** score commands (with the new version, plus the next-round match when a result moves a winner on), admin match actions, draw changes, registrations submitted and reviewed, and problem reports raised and resolved.
+- **Authorization:** one RLS policy on `realtime.messages` lets active staff receive broadcasts, using `private.is_active_staff()` (security definer, checks `staff_profiles`). There is no insert policy, so no browser can send. Verified on the live project: active staff joined; signed-in non-staff, anonymous visitors and deactivated staff were refused; a message sent from a browser never reached other staff.
+- **Clients:** `useLiveChannel` joins with the signed-in staff member's token. A score screen refetches when a signal's version is newer than its own (its own actions echo back and are skipped). List pages re-render once per burst of changes (1.5 s settle) and catch up when a hidden tab is shown again. Every reconnect triggers a full refetch, because Broadcast does not replay messages sent while a device was away.
+- **Fallback:** polling stays underneath. Score screens check every 20 s while the live connection is up and every 6 s while it is down; list pages refresh every 30 s while it is down. Scoring never depends on Realtime.
+- **Budget:** each change sends at most three messages (the match, the next match and the tournament). With about 25 staff screens open, a busy event day stays far below 100 messages per second and 2 million per month.
 - **Public pages:** no sockets. Results and brackets are cached reads refreshed on demand (`revalidateTag`) when a match finalizes, as the PRD requires.
 
 ## Background work without frequent cron
 
-- **Emails** keep sending post-commit through `after()`. Stuck `QUEUED` or `FAILED` messages are retried from `/admin/notifications`, plus a daily sweep.
-- **Daily Vercel cron** (`/api/cron/daily`, protected by `CRON_SECRET`): sends event reminders, sweeps stuck notifications, and runs one cheap query that keeps the Supabase project from pausing.
-- **Supabase `pg_cron`** (free) is the fallback if something must run more often than daily. It stays in the database and needs no paid Vercel plan.
+- **Emails** send after the database commit through `after()`. Failed or waiting messages can be retried from `/admin/notifications`, and the daily job retries them automatically (up to three attempts).
+- **Daily Vercel cron** (`/api/cron/daily`, protected by `CRON_SECRET`, 09:00 Dhaka): queues the event reminder when it is due, sends waiting emails, marks messages stuck mid-send as failed, and runs one query that keeps the free Supabase project from pausing. Every step is safe to repeat.
+- **Supabase `pg_cron`** (free) remains the fallback if something must run more often than daily. Nothing needs it yet.
 
 ## Verification
 
@@ -96,7 +101,12 @@ Done in Phase 4 (details in `PHASE_4_COMPLETION.md`):
 - **Load rehearsal:** 20 operators × 5 matches, about 42 requests per second for 60 seconds, 10% duplicate resends. All requests succeeded, p95 20 ms, and the database matched every accepted event exactly.
 - **Crash test:** the server was killed and restarted mid-load; retries with the same ids landed every event exactly once.
 
-Still to do in Phase 6: repeat the rehearsal against the deployed site and the Supabase pooler, and drop Realtime during scoring.
+Done in Phase 5 (details in `PHASE_5_COMPLETION.md`):
+
+- **Live authorization check** on the real project with throwaway accounts: server signal accepted (HTTP 202) and delivered to two staff listeners in about 170 ms; every refusal case refused; the accounts were deleted afterwards.
+- **Two-screen walkthrough** (local production build, local data, live Supabase sign-in and Realtime): a point entered on the operator's phone appeared on the admin's match page in 0.3 s and the reverse in 0.3 s; the match monitor followed in about 2 s; a problem report reached the dashboard in 1.1 to 1.7 s; after three seconds offline, the operator's screen caught up 0.15 s after reconnecting.
+
+Still to do in Phase 6: repeat the rehearsal against the deployed site and the Supabase pooler, and cut Realtime mid-event to confirm the fallback on real phones.
 
 ## Open risk: Vercel Hobby commercial-use rule
 

@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { IssueList } from "@/features/issues/components/issue-list";
+import { IssueReportForm } from "@/features/issues/components/issue-report-form";
 import {
   buildScoringContext,
   getScoringAdapter,
@@ -86,6 +88,17 @@ export function ScoreConsole({
   const [walkoverNote, setWalkoverNote] = useState("");
 
   const live = state.status === "SCHEDULED" || state.status === "IN_PROGRESS";
+  const openIssues = state.issues.filter(
+    (issue) => issue.status === "OPEN",
+  ).length;
+  // The problems section opens when a new report arrives and otherwise stays
+  // as the user left it, so a resolution is seen rather than folded away.
+  const [problemsOpen, setProblemsOpen] = useState(openIssues > 0);
+  const [seenOpenIssues, setSeenOpenIssues] = useState(openIssues);
+  if (openIssues !== seenOpenIssues) {
+    setSeenOpenIssues(openIssues);
+    if (openIssues > seenOpenIssues) setProblemsOpen(true);
+  }
   const ready =
     state.pendingFeeders === 0 && state.entrants.length >= adapter.seats.min;
   const failed = outbox.find((item) => item.status === "failed");
@@ -165,13 +178,30 @@ export function ScoreConsole({
             {state.version}
           </span>
         )}
-        <button
-          type="button"
-          onClick={() => void sync.refresh()}
-          aria-label="Check for updates"
-        >
-          <RefreshCw size={16} aria-hidden="true" />
-        </button>
+        <span className={styles.syncTools}>
+          <span
+            className={styles.liveTag}
+            data-status={sync.liveStatus}
+            title={
+              sync.liveStatus === "live"
+                ? "Changes from other screens appear instantly."
+                : "Changes from other screens appear within a few seconds."
+            }
+          >
+            {sync.liveStatus === "live"
+              ? "Live"
+              : sync.liveStatus === "connecting"
+                ? "Connecting"
+                : "Reconnecting"}
+          </span>
+          <button
+            type="button"
+            onClick={() => void sync.refresh(true)}
+            aria-label="Check for updates"
+          >
+            <RefreshCw size={16} aria-hidden="true" />
+          </button>
+        </span>
       </div>
 
       {sync.signedOut ? (
@@ -446,6 +476,40 @@ export function ScoreConsole({
             </p>
           ) : null}
         </section>
+      ) : null}
+
+      {state.permissions.report || state.issues.length ? (
+        <details
+          className={styles.card}
+          open={problemsOpen}
+          onToggle={(event) => setProblemsOpen(event.currentTarget.open)}
+        >
+          <summary className={styles.summary}>
+            {openIssues
+              ? `Problems reported (${openIssues} open)`
+              : "Report a problem"}
+          </summary>
+          <div className={styles.issueBody}>
+            <p className={styles.hint}>
+              Flags this match for the admins, for example a no-show, a disputed
+              score or a broken table. It does not change the score.
+            </p>
+            {state.permissions.report ? (
+              <IssueReportForm
+                matchId={state.id}
+                onReported={() => void sync.refresh(true)}
+              />
+            ) : null}
+            <IssueList
+              issues={state.issues}
+              resolveReturnTo={
+                state.permissions.admin
+                  ? `/admin/matches/${state.id}`
+                  : undefined
+              }
+            />
+          </div>
+        </details>
       ) : null}
 
       <section className={styles.card} aria-labelledby="log-title">

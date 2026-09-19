@@ -20,6 +20,23 @@ The platform runs on Vercel's free `*.vercel.app` address. No custom domain is n
 | `SMTP_USER`                            | `ndcakofficial@gmail.com`                              |
 | `SMTP_PASSWORD`                        | Google App Password (see `docs/integrations/EMAIL.md`) |
 | `EMAIL_REPLY_TO`                       | `ndcakofficial@gmail.com`                              |
+| `CRON_SECRET`                          | 16+ random characters; protects the daily job          |
+
+`SUPABASE_SECRET_KEY` also sends the live-update signals to staff screens. Without it the app still works, and staff screens fall back to refreshing every few seconds.
+
+## Daily job
+
+`vercel.json` runs `/api/cron/daily` once a day at 03:00 UTC (09:00 in Dhaka; the Hobby plan may run it any time within that hour). Vercel sends `CRON_SECRET` with the request, and the route refuses anything else. Each run:
+
+- sends the event reminder on the day chosen in Event settings, to confirmed players who have not had it;
+- sends emails that are still waiting and retries failed ones up to three attempts, and marks any message stuck mid-send as failed so it can be retried;
+- runs one query, which keeps the free Supabase project from pausing.
+
+Every step is safe to repeat. To run it by hand: `curl -H "Authorization: Bearer $CRON_SECRET" https://….vercel.app/api/cron/daily`.
+
+## Live updates
+
+Staff screens listen on private Supabase Realtime channels. Migration `0003_live_updates_and_issues` adds the only access rule: active staff may listen, and no browser may send. `pnpm readiness:check` confirms it is in place. Nothing needs switching on in the Supabase dashboard.
 
 Preview deployments should not use the production database. Until a separate Supabase project exists for previews, deploy production only.
 

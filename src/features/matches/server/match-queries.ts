@@ -16,6 +16,10 @@ import {
   tournamentGames,
   tournaments,
 } from "@/db/schema";
+import {
+  listMatchIssues,
+  type IssueItem,
+} from "@/features/issues/server/issues";
 import { operatorMatchAccessPredicate } from "@/features/operators/server/workload";
 import {
   buildScoringContext,
@@ -57,6 +61,7 @@ export type MatchState = {
   completedAt: string | null;
   venue: string | null;
   station: string | null;
+  tournamentId: string;
   tournamentStatus: string;
   tournamentGameId: string;
   gameName: string;
@@ -71,7 +76,13 @@ export type MatchState = {
   result: unknown;
   nextMatch: { id: string; code: string } | null;
   log: MatchLogItem[];
-  permissions: { score: boolean; finalize: boolean; admin: boolean };
+  issues: IssueItem[];
+  permissions: {
+    score: boolean;
+    finalize: boolean;
+    report: boolean;
+    admin: boolean;
+  };
 };
 
 const logLimit = 80;
@@ -115,6 +126,7 @@ async function readMatchState(
       resultData: matches.resultData,
       nextMatchId: matches.nextMatchId,
       nextMatchCode: nextMatch.code,
+      tournamentId: tournaments.id,
       tournamentStatus: tournaments.status,
       tournamentGameId: tournamentGames.id,
       gameName: games.name,
@@ -131,6 +143,9 @@ async function readMatchState(
       canFinalize: isAdmin
         ? sql<boolean>`true`
         : sql<boolean>`${operatorMatchAccessPredicate(actor.id, "FINALIZE_MATCH", db)}`,
+      canReport: isAdmin
+        ? sql<boolean>`true`
+        : sql<boolean>`${operatorMatchAccessPredicate(actor.id, "ISSUE_REPORT", db)}`,
     })
     .from(matches)
     .innerJoin(rounds, eq(matches.roundId, rounds.id))
@@ -143,7 +158,7 @@ async function readMatchState(
 
   if (!row || !row.canView) return null;
 
-  const [entrants, log, [feeders]] = await Promise.all([
+  const [entrants, log, [feeders], issues] = await Promise.all([
     db
       .select({
         seat: matchEntries.seat,
@@ -192,6 +207,7 @@ async function readMatchState(
           notInArray(matches.status, finishedStatuses),
         ),
       ),
+    listMatchIssues(db, matchId),
   ]);
 
   // Voids can point at events older than the loaded window.
@@ -227,6 +243,7 @@ async function readMatchState(
     completedAt: row.completedAt?.toISOString() ?? null,
     venue: row.venue,
     station: row.station,
+    tournamentId: row.tournamentId,
     tournamentStatus: row.tournamentStatus,
     tournamentGameId: row.tournamentGameId,
     gameName: row.gameName,
@@ -253,9 +270,11 @@ async function readMatchState(
       deviceTime: item.deviceTime?.toISOString() ?? null,
       voided: voided.has(item.id),
     })),
+    issues,
     permissions: {
       score: Boolean(row.canScore),
       finalize: Boolean(row.canFinalize),
+      report: Boolean(row.canReport),
       admin: isAdmin,
     },
   };

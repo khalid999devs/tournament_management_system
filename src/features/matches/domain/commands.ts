@@ -74,6 +74,25 @@ export const updateTypes = {
   ENTRANT_WITHDRAWN: "ENTRANT_WITHDRAWN",
 } as const;
 
+const updateLabels: Record<string, string> = {
+  STARTED: "Match started",
+  SCORE_EVENT: "Score entered",
+  SCORE_VOIDED: "Score undone",
+  SCORE_SET: "Score typed in",
+  FINALIZED: "Result confirmed",
+  WALKOVER: "Walkover recorded",
+  REOPENED: "Result reopened",
+  POSTPONED: "Match postponed",
+  RESUMED: "Match resumed",
+  CANCELLED: "Match cancelled",
+  ENTRANT_ADVANCED: "Winner moved in",
+  ENTRANT_WITHDRAWN: "Winner withdrawn",
+};
+
+export function describeUpdateType(type: string) {
+  return updateLabels[type] ?? "Update";
+}
+
 export type LoggedUpdate = {
   id: string;
   updateType: string;

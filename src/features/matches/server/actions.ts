@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 import { requireSuperAdmin } from "@/features/auth/server/staff-session";
 import { dhakaInputToDate } from "@/features/event/domain/event-settings";
@@ -28,6 +29,10 @@ import {
   resumeMatch,
   updateMatchSchedule,
 } from "./match-commands";
+import {
+  signalMatchChange,
+  signalTournamentChange,
+} from "@/lib/realtime/signal";
 import { refreshPublicResults } from "./public-results";
 
 const id = z.uuid();
@@ -58,15 +63,18 @@ function withStatus(
   return `${path}${separator}${key}=${value}${hash ? `#${hash}` : ""}`;
 }
 
+// signal tells open staff screens to fetch the change (after the response).
 async function run(
   destination: string,
   action: () => Promise<unknown>,
   success: string,
+  signal: () => Promise<void> = () => signalTournamentChange("match"),
 ) {
   let target = withStatus(destination, "message", success);
   try {
     await action();
     afterChange();
+    after(signal);
   } catch (error) {
     target = withStatus(destination, "error", errorCode(error));
   }
@@ -218,6 +226,7 @@ export async function reopenMatchAction(formData: FormData) {
     `/admin/matches/${matchId}`,
     () => reopenMatch({ actor, matchId, reason: text(formData, "reason") }),
     "match_reopened",
+    () => signalMatchChange(matchId, { includeNext: true }),
   );
 }
 
@@ -228,6 +237,7 @@ export async function postponeMatchAction(formData: FormData) {
     `/admin/matches/${matchId}`,
     () => postponeMatch({ actor, matchId, reason: text(formData, "reason") }),
     "match_postponed",
+    () => signalMatchChange(matchId),
   );
 }
 
@@ -238,6 +248,7 @@ export async function resumeMatchAction(formData: FormData) {
     `/admin/matches/${matchId}`,
     () => resumeMatch({ actor, matchId }),
     "match_resumed",
+    () => signalMatchChange(matchId),
   );
 }
 
@@ -248,6 +259,7 @@ export async function cancelMatchAction(formData: FormData) {
     `/admin/matches/${matchId}`,
     () => cancelMatch({ actor, matchId, reason: text(formData, "reason") }),
     "match_cancelled",
+    () => signalMatchChange(matchId),
   );
 }
 
@@ -270,5 +282,6 @@ export async function updateMatchScheduleAction(formData: FormData) {
         station: text(formData, "station").trim().slice(0, 80) || null,
       }),
     "schedule_saved",
+    () => signalMatchChange(matchId),
   );
 }

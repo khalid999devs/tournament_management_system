@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
+  Download,
   Search,
   SlidersHorizontal,
 } from "lucide-react";
@@ -10,6 +11,8 @@ import {
   describeStatus,
   type MatchStatus,
 } from "@/features/matches/domain/commands";
+import { LiveRefresh } from "@/components/live/live-refresh";
+import { findCurrentTournamentId } from "@/features/event/server/event-queries";
 import { getAdminMatchPage } from "@/features/matches/server/admin-match-queries";
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/admin/components/admin.module.css";
@@ -36,7 +39,10 @@ export default async function MatchesPage({
     page?: string;
   }>;
 }) {
-  const data = await getAdminMatchPage(await searchParams);
+  const [data, tournamentId] = await Promise.all([
+    getAdminMatchPage(await searchParams),
+    findCurrentTournamentId(),
+  ]);
 
   if (!data) {
     return (
@@ -61,6 +67,12 @@ export default async function MatchesPage({
     return `/admin/matches?${query.toString()}`;
   };
 
+  const exportQuery = new URLSearchParams();
+  if (data.filters.game) exportQuery.set("game", data.filters.game);
+  if (data.filters.status) exportQuery.set("status", data.filters.status);
+  if (data.filters.q) exportQuery.set("q", data.filters.q);
+  const exportHref = `/admin/reports/export/results${exportQuery.size ? `?${exportQuery.toString()}` : ""}`;
+
   return (
     <div className={styles.content}>
       <header className={styles.pageHeader}>
@@ -75,6 +87,14 @@ export default async function MatchesPage({
               : ""}
             . Draws are made on each game&apos;s page.
           </span>
+        </div>
+        <div className={styles.headerTools}>
+          <a className={styles.exportLink} href={exportHref} download>
+            <Download size={15} aria-hidden="true" /> Export CSV
+          </a>
+          {tournamentId ? (
+            <LiveRefresh tournamentId={tournamentId} kinds={["match"]} />
+          ) : null}
         </div>
       </header>
 

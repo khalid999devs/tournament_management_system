@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { signOut } from "@/app/staff/actions";
 import { AdminNav } from "@/features/admin/components/admin-nav";
 import { requireSuperAdminPage } from "@/features/auth/server/staff-session";
+import { countOpenIssues } from "@/features/issues/server/issues";
 import styles from "@/features/admin/components/admin.module.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default async function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const staff = await requireSuperAdminPage();
+  const openIssues = await countOpenIssues();
 
   return (
     <div className={styles.workspace}>
@@ -33,7 +35,7 @@ export default async function AdminLayout({
             Tournament admin
           </span>
         </Link>
-        <AdminNav />
+        <AdminNav openIssues={openIssues} />
         <div className={styles.adminIdentity}>
           <span>Signed in as</span>
           <strong>{staff.displayName}</strong>

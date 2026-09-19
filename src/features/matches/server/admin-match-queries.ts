@@ -38,7 +38,7 @@ const statuses: MatchStatus[] = [
   "CANCELLED",
 ];
 
-async function entrantNames(matchIds: string[]) {
+export async function entrantNames(matchIds: string[]) {
   if (matchIds.length === 0)
     return new Map<
       string,
@@ -76,17 +76,19 @@ async function entrantNames(matchIds: string[]) {
   return byMatch;
 }
 
-// Tournament-wide monitor: filtered and paginated on the server (PRD 12.2).
-export async function getAdminMatchPage(options: {
+export type MatchFilterInput = {
   game?: string;
   status?: string;
   q?: string;
-  page?: string;
-}) {
-  const db = getDatabase();
-  const tournamentId = await findCurrentTournamentId(db);
-  if (!tournamentId) return null;
+};
 
+// One definition of the monitor's filters, shared with the results export
+// so a download always matches what the page shows.
+export async function resolveMatchFilters(
+  db: ReturnType<typeof getDatabase>,
+  tournamentId: string,
+  options: MatchFilterInput,
+) {
   const gameOptions = await db
     .select({ id: tournamentGames.id, name: games.name })
     .from(tournamentGames)
@@ -106,11 +108,6 @@ export async function getAdminMatchPage(options: {
     ? (options.status as MatchStatus)
     : "";
   const search = options.q?.trim().slice(0, 80) ?? "";
-  const requestedPage = Number(options.page);
-  const page =
-    Number.isSafeInteger(requestedPage) && requestedPage > 0
-      ? requestedPage
-      : 1;
 
   const conditions: SQL[] = [eq(tournamentGames.tournamentId, tournamentId)];
   if (game) conditions.push(eq(tournamentGames.id, game));
@@ -140,7 +137,32 @@ export async function getAdminMatchPage(options: {
       );
     conditions.push(or(ilike(matches.code, pattern), exists(entrant))!);
   }
-  const where = and(...conditions);
+
+  return {
+    where: and(...conditions),
+    filters: { game, status, q: search },
+    gameOptions,
+  };
+}
+
+// Tournament-wide monitor: filtered and paginated on the server (PRD 12.2).
+export async function getAdminMatchPage(
+  options: MatchFilterInput & { page?: string },
+) {
+  const db = getDatabase();
+  const tournamentId = await findCurrentTournamentId(db);
+  if (!tournamentId) return null;
+
+  const { where, filters, gameOptions } = await resolveMatchFilters(
+    db,
+    tournamentId,
+    options,
+  );
+  const requestedPage = Number(options.page);
+  const page =
+    Number.isSafeInteger(requestedPage) && requestedPage > 0
+      ? requestedPage
+      : 1;
 
   const [{ total }] = await db
     .select({ total: count() })
@@ -196,7 +218,7 @@ export async function getAdminMatchPage(options: {
     total,
     page: currentPage,
     pageCount,
-    filters: { game, status, q: search },
+    filters,
     gameOptions,
     counts,
   };

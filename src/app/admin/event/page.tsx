@@ -19,8 +19,11 @@ import {
   updateEventDetailsAction,
 } from "@/features/event/server/actions";
 import { getEventSetup } from "@/features/event/server/event-queries";
+import { ReminderPanel } from "@/features/notifications/components/reminder-panel";
 
 export const metadata: Metadata = { title: "Event settings" };
+// "Send the reminder now" keeps sending after the page reloads.
+export const maxDuration = 300;
 
 const statusCopy: Record<TournamentStatus, { title: string; detail: string }> =
   {
@@ -406,6 +409,8 @@ function EventSetup({ setup }: { setup: Setup }) {
           </details>
         </div>
       </section>
+
+      <ReminderPanel />
     </>
   );
 }
