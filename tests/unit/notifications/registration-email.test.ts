@@ -38,6 +38,9 @@ describe("registration emails", () => {
     });
 
     expect(email.text).toContain("is confirmed");
+    expect(email.text).toContain("24 Sept 2026, 09:00");
+    expect(email.text).toContain("26 Sept 2026, 18:00");
+    expect(email.text).toContain("Asia/Dhaka");
     expect(email.attachments).toHaveLength(1);
     expect(email.attachments?.[0].filename).toBe("ndcak-indoor-games.ics");
   });

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildOperationalEmail } from "@/features/notifications/domain/operational-email";
 import { buildRegistrationEmail } from "@/features/notifications/domain/registration-email";
+import { EmailFrame } from "./email-frame";
 import styles from "./preview.module.css";
 
 export const metadata: Metadata = {
@@ -61,10 +62,9 @@ export default async function EmailPreviewPage({
           <strong>Subject</strong>
           <span>{email.subject}</span>
         </div>
-        <iframe
+        <EmailFrame
           title={`${state} email preview`}
-          sandbox=""
-          srcDoc={email.html}
+          html={email.html}
           className={styles.frame}
         />
       </div>

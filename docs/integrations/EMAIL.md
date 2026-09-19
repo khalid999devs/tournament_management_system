@@ -18,6 +18,8 @@ Implemented states:
 
 Preview every state locally at `/dev/email-preview`. The preview contains fictional details, never sends email, and returns 404 outside development. Do not use its dates or links as event configuration.
 
+Run `pnpm test:e2e` after installing Playwright Chromium to check all seven states at desktop and mobile widths. The checks cover full email height, visible support footer, and horizontal overflow; the preview does not send messages.
+
 Environment contract:
 
 - `RESEND_API_KEY` - secret API key; never client-exposed or committed.

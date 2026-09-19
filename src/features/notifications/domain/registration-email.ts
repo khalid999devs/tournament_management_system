@@ -90,7 +90,11 @@ export async function buildRegistrationEmail(
 
   const startsAt = requireDate(input.startsAt, "start");
   const endsAt = requireDate(input.endsAt, "end");
-  const schedule = formatEventSchedule(startsAt, endsAt, input.timezone);
+  const eventTime = new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: input.timezone,
+  });
   const email = await renderTransactionalEmail(
     `${input.registrationCode}: registration confirmed`,
     {
@@ -107,7 +111,9 @@ export async function buildRegistrationEmail(
       details: [
         { label: "Registration code", value: input.registrationCode },
         { label: "Selected games", value: games },
-        { label: "Event", value: schedule },
+        { label: "Starts", value: eventTime.format(startsAt) },
+        { label: "Ends", value: eventTime.format(endsAt) },
+        { label: "Time zone", value: input.timezone },
         ...(input.venue ? [{ label: "Venue", value: input.venue }] : []),
       ],
       notice: input.checkInInstructions,
@@ -133,16 +139,6 @@ export async function buildRegistrationEmail(
       },
     ],
   };
-}
-
-function formatEventSchedule(startsAt: Date, endsAt: Date, timezone: string) {
-  const formatter = new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "full",
-    timeStyle: "short",
-    timeZone: timezone,
-  });
-
-  return `${formatter.format(startsAt)} – ${formatter.format(endsAt)}`;
 }
 
 function requireDate(date: Date | null, name: string) {

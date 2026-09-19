@@ -87,7 +87,6 @@
 .frame {
   display: block;
   width: 100%;
-  height: 880px;
   border: 0;
 }
 
@@ -95,9 +94,5 @@
   .topbar {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .frame {
-    height: 820px;
   }
 }

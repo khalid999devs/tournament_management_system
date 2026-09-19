@@ -30,10 +30,11 @@ Phase 3 - Operators and Assignments is implemented in code. Live invitation and 
 - Added all five additive scope types and capability-aware match filtering before pagination; operator workload queries exclude payment fields.
 - Applied and verified the additive staff-email migration on the live database. All 16 tables remain; `staff_profiles.email` and its unique index are present.
 - Passed type checking, linting, 32 tests, production build, development email preview HTTP check, and unauthenticated operator redirect check.
+- Browser-reviewed all seven email states at 1440px and 390px. The preview now sizes to its content; all 14 Playwright viewport checks pass without clipping or horizontal overflow.
 
 ## Phase boundary
 
-Phase 1 and Phase 2 exit evidence is recorded in `PHASE_2_COMPLETION.md`. Phase 3 code is ready for a live staff rehearsal, but the phase is not marked complete until an invited operator accepts a real email and all five scopes are checked against populated tournament matches. In-app browser visual inspection was unavailable in this session.
+Phase 1 and Phase 2 exit evidence is recorded in `PHASE_2_COMPLETION.md`. Phase 3 code is ready for a live staff rehearsal, but the phase is not marked complete until an invited operator accepts a real email and all five scopes are checked against populated tournament matches. Email visual review is complete; authenticated staff pages still need a real-account browser pass.
 
 ## Operational activation still required
 
