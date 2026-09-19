@@ -12,14 +12,14 @@ No secrets should be pasted into chat, committed, or placed in client-exposed va
 - Application schema: migrated and verified on the live project.
 - Transaction Pooler: configured on port 6543 and verified for runtime and migrations.
 - Direct PostgreSQL URL: not used because it is IPv6-only in this environment.
-- Official Super Admin Auth user and active profile: created; email confirmation and password setup are awaiting invite acceptance.
+- Official Super Admin Auth user and active profile: confirmed with password set; normal staff sign-in remains to be reviewed.
 - Resend API key: configured and valid.
 - Resend verified sending domains: none.
 - Supabase server-only secret key: configured locally and verified against the Auth Admin API.
 
 ## Needed now to activate staff access
 
-- Accept the delivered setup email on the computer running the app, choose a strong password, and sign in at `/staff/login`.
+- Sign in at `/staff/login` with the password set during setup and review the protected Admin pages.
 - Resend-verified NDCAK sending domain.
 
 A Session Pooler URL may optionally be stored as `MIGRATION_DATABASE_URL` for long-running local administration. It is not blocking the current schema because the initial Drizzle migration completed successfully through the Transaction Pooler.

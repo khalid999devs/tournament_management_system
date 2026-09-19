@@ -5,7 +5,7 @@ This is a live-configuration checklist. Do not paste passwords, database URLs, o
 ## Current verified state — 19 September 2026
 
 - Local public Supabase connection, database URL, Resend API key, official Admin email, reply-to, and server-only Supabase key are configured. The Auth Admin API accepts the key.
-- The official Admin Auth account and active `SUPER_ADMIN` profile exist. A one-time setup email was delivered to `ndcakofficial@gmail.com`; email confirmation and password setup still require the recipient to open it.
+- The official Admin Auth account is confirmed, has a password, and has an active `SUPER_ADMIN` profile. A one-time setup email was delivered to `ndcakofficial@gmail.com` and its link was accepted.
 - `NEXT_PUBLIC_APP_URL` still points to localhost; `EMAIL_FROM` still uses Resend's sandbox sender. The live database has no tournament, payment method, operator, match, or participant entry.
 - The Resend account has no sending domains.
 
@@ -48,7 +48,7 @@ In **Supabase → Project Settings → API Keys**, create or copy a `sb_secret_.
 
 ## 5. Finish the official Super Admin setup
 
-The official Auth user and app profile were created with the server-only Admin API, and Resend reported the setup email as delivered. The email uses a time-limited link to `/auth/confirm`, followed by `/staff/set-password`. It avoids sending or storing a password. Open it on the same computer running the app, because the current link points to `localhost:3000`.
+The official Auth user and app profile were created with the server-only Admin API. The time-limited link to `/auth/confirm` was accepted and a password was set. A reused link will show an invalid-link message; use the normal sign-in form instead.
 
 If the local server is not running, start it before opening the link:
 
@@ -56,7 +56,7 @@ If the local server is not running, start it before opening the link:
 pnpm dev
 ```
 
-Set a strong password, then sign in at `http://localhost:3000/staff/login` and verify that `/admin` and `/admin/operators` load. If the link expires, run `pnpm db:invite-admin` to send a fresh one to the configured official inbox. Do not share a password or one-time link in chat. `pnpm phase3:check` will report the Auth user as confirmed after the link is accepted.
+Sign in at `http://localhost:3000/staff/login` with the password set during setup, then verify that `/admin` and `/admin/operators` load. Do not share a password or one-time link in chat. `pnpm phase3:check` now reports the Auth user as confirmed.
 
 ## 6. Supply approved event data and rehearse an operator
 

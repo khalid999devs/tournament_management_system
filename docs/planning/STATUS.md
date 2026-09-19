@@ -4,7 +4,7 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phase 3 - Operators and Assignments is implemented in code. The server-only Supabase key works and the official Super Admin account/profile are created. The setup email is delivered; acceptance, a verified Resend sender, and live operator/access rehearsal remain pending.
+Phase 3 - Operators and Assignments is implemented in code. The server-only Supabase key works, and the official Super Admin account is confirmed with a password and active profile. A verified Resend sender and live operator/access rehearsal remain pending.
 
 ## Completed
 
@@ -47,7 +47,7 @@ The implementation is complete, but the live database intentionally contains no 
 
 Before people can use the live workflows:
 
-1. Accept the delivered setup email on the computer running the app, set the Admin password, and sign in.
+1. Sign in with the official Admin account and review the protected pages.
 2. Supply the committee-approved tournament, games, capacities, fees, registration window, event dates, venue, rules, and payment receiving accounts.
 3. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
 4. Configure Supabase Auth SMTP in the dashboard with the verified sender.

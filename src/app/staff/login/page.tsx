@@ -14,6 +14,17 @@ type StaffLoginPageProps = {
   searchParams: Promise<{ error?: string }>;
 };
 
+function getErrorMessage(error: string) {
+  switch (error) {
+    case "invalid_link":
+      return "This setup link is invalid, expired, or already used. If you set your password, sign in below. Otherwise, request a fresh link from the event team.";
+    case "access_denied":
+      return "This account has no active staff access. Contact the Super Admin.";
+    default:
+      return "That email or password was not recognized. Check your details and try again.";
+  }
+}
+
 export default async function StaffLoginPage({
   searchParams,
 }: StaffLoginPageProps) {
@@ -53,16 +64,15 @@ export default async function StaffLoginPage({
           <Link className={styles.back} href="/">
             <ChevronLeft size={15} aria-hidden="true" /> Back to public site
           </Link>
-          <p>Protected access</p>
+          <p className={styles.eyebrow}>Protected access</p>
           <h2>Staff sign in</h2>
           <span className={styles.intro}>
-            Use the email and password issued by the event administrator.
+            Use your staff email and the password you set during account setup.
           </span>
 
           {error ? (
             <div className={styles.error} role="alert">
-              The credentials or sign-in link could not be verified. Try again
-              or contact the Super Admin.
+              {getErrorMessage(error)}
             </div>
           ) : null}
 
