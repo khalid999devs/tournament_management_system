@@ -21,6 +21,8 @@ import {
 export type TournamentPublicSettings = {
   description?: string;
   checkInInstructions?: string;
+  departments?: string[];
+  academicYears?: string[];
   resultsEnabled: boolean;
   publicCapacityEnabled: boolean;
 };

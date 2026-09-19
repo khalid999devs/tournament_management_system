@@ -26,6 +26,8 @@ export type RegistrationTournament = {
   name: string;
   venue: string | null;
   maxGamesPerParticipant: number;
+  departments: string[];
+  academicYears: string[];
   games: RegistrationGameOption[];
 };
 

@@ -3,13 +3,16 @@ import {
   PublicPageShell,
   publicInformationStyles as styles,
 } from "@/components/brand/public-page-shell";
+import { getPublicEvent } from "@/features/tournaments/server/get-registration-tournament";
 
 export const metadata: Metadata = {
   title: "Rulebook",
   description: "General and game-specific NDCAK Indoor Games rules.",
 };
 
-const sections = [
+export const revalidate = 60;
+
+const generalRules = [
   {
     title: "Eligibility",
     copy: "Participation is limited to eligible KUET students. The committee may request a valid student identity check before competition.",
@@ -28,28 +31,40 @@ const sections = [
   },
 ];
 
-export default function RulebookPage() {
+export default async function RulebookPage() {
+  const event = await getPublicEvent().catch(() => null);
+  const gameRules = (event?.games ?? [])
+    .filter((game) => game.rules)
+    .map((game) => ({ title: game.name, copy: game.rules ?? "" }));
+  const sections = [...generalRules, ...gameRules];
+
   return (
     <PublicPageShell
       eyebrow="Official document"
       title="Tournament rulebook."
-      intro="General event rules apply to every participant. Final game-specific formats, tie-breaks, walkovers, and scoring rules will be published after committee approval."
+      intro={
+        gameRules.length
+          ? "General event rules apply to every participant, followed by the rules for each game."
+          : "General event rules apply to every participant. Game-specific formats, tie-breaks, walkovers and scoring rules are published here once confirmed."
+      }
     >
       <div className={styles.rulebookLayout}>
         <nav className={styles.rulebookNav} aria-label="Rulebook sections">
-          <p>General rules</p>
+          <p>Sections</p>
           {sections.map((section, index) => (
             <a href={`#rule-${index + 1}`} key={section.title}>
-              <span>0{index + 1}</span> {section.title}
+              <span>{String(index + 1).padStart(2, "0")}</span> {section.title}
             </a>
           ))}
         </nav>
         <div className={styles.ruleGrid}>
           {sections.map((section, index) => (
             <article id={`rule-${index + 1}`} key={section.title}>
-              <span>0{index + 1}</span>
+              <span>{String(index + 1).padStart(2, "0")}</span>
               <h2>{section.title}</h2>
-              <p>{section.copy}</p>
+              {section.copy.split(/\n{2,}/).map((paragraph, part) => (
+                <p key={part}>{paragraph}</p>
+              ))}
             </article>
           ))}
         </div>

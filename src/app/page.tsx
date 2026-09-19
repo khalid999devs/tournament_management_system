@@ -16,6 +16,7 @@ import { PublicFooter } from "@/components/brand/public-footer";
 import { PublicHeader } from "@/components/brand/public-header";
 import {
   getPublicEvent,
+  isAcceptingRegistrations,
   type PublicEvent,
 } from "@/features/tournaments/server/get-registration-tournament";
 import { formatDhakaDate, formatDhakaDateRange } from "@/lib/dates";
@@ -55,7 +56,17 @@ async function loadEvent() {
 
 function describeRegistration(event: PublicEvent | null) {
   if (!event) return { open: false, label: "Registration opens soon" };
-  if (event.status !== "REGISTRATION_OPEN") {
+  if (
+    event.status === "REGISTRATION_OPEN" &&
+    event.registrationOpenAt &&
+    new Date(event.registrationOpenAt) > new Date()
+  ) {
+    return {
+      open: false,
+      label: `Registration opens ${formatDhakaDate(event.registrationOpenAt)}`,
+    };
+  }
+  if (!isAcceptingRegistrations(event)) {
     return { open: false, label: "Registration has closed" };
   }
 
@@ -120,9 +131,8 @@ export default async function Home() {
               <span>Championship.</span>
             </h1>
             <p className="hero-intro">
-              {lineup.length} games. One championship. From the chessboard to
-              the carrom board, take on the best players at KUET and play for
-              the title.
+              {event?.description ??
+                `${lineup.length} games. One championship. From the chessboard to the carrom board, take on the best players at KUET and play for the title.`}
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/register">

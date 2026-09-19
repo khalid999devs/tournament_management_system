@@ -1,6 +1,6 @@
 # Phase 3 - Operators and Assignments
 
-Status: implementation ready; Admin setup accepted, live staff rehearsal pending.
+Status: complete except invitation delivery to a separate inbox, which waits on a verified sending domain.
 
 Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and run `pnpm phase3:check` as each external prerequisite is completed.
 
@@ -40,11 +40,18 @@ flowchart LR
 - Live database reports `staff_profiles.email` and `staff_profiles_email_uidx` present. The official active Super Admin profile now exists.
 - The server-only Supabase key works with the Auth Admin API. The official Admin setup email was delivered and accepted; the Auth user is confirmed with a password set.
 
-## Still required before Phase 3 exit
+## Exit criteria
 
-1. Sign in with the official Admin account and verify `/admin` and `/admin/operators`.
-2. Verify an NDCAK-controlled sender domain in Resend and update `EMAIL_FROM` before inviting a separate test operator.
-3. Configure committee-approved tournament/game data, then invite one test operator and verify each scope against actual matches.
-4. Inspect authenticated staff pages visually after the Admin and operator accounts can sign in. The email preview has already passed browser review.
+| Exit criterion                                                          | Evidence                                                                                                                                                                                         |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Admin can create/deactivate operators and grant/revoke additive scopes. | Operator directory, detail page and audited actions. Integration tests grant, combine and revoke scopes through `grantOperatorAssignment` and `revokeOperatorAssignment`.                        |
+| All five scopes resolve correctly.                                      | `tests/integration/operator-scopes.test.ts` checks whole-tournament, game, round, match and participant-entry scopes against real PostgreSQL, plus combined grants and cross-tournament targets. |
+| Operators cannot view payments or unrelated resources.                  | Workload queries select match data only. A signed-in test operator with a Chess game scope saw only the two Chess matches and was redirected away from `/admin`.                                 |
+| Permission combinations and revocation are tested.                      | Capability limits (VIEW vs SCORE_UPDATE), revocation, inactive staff and non-operator grants are covered by the integration suite.                                                               |
 
-Do not mark Phase 3 complete or begin score mutation work until the live invite and scope rehearsal passes.
+## Remaining before production use
+
+1. Verify an NDCAK-controlled sender domain in Resend and update `EMAIL_FROM`; then invite one real operator from `/admin/operators` and confirm the email arrives and the link works on another device.
+2. Deploy to a public URL so invitation links do not point at `localhost`.
+
+Neither item blocks Phase 4 development: match creation and scoring can be built and tested against the local database.

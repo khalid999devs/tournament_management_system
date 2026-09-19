@@ -50,6 +50,8 @@ export default async function RegisterPage() {
           <RegistrationDetailsForm
             games={tournament.games}
             maxGames={tournament.maxGamesPerParticipant}
+            departments={tournament.departments}
+            academicYears={tournament.academicYears}
           />
         ) : (
           <div className={styles.reviewState}>

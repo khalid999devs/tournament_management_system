@@ -5,11 +5,14 @@ import * as schema from "./schema";
 
 const idleTimeoutSeconds = 20;
 
+const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+
 export function createDatabase(databaseUrl = getServerEnv().DATABASE_URL) {
   const client = postgres(databaseUrl, {
     max: 3,
     prepare: false,
-    ssl: "require",
+    // Hosted databases always use TLS; local test databases usually have none.
+    ssl: localHosts.has(new URL(databaseUrl).hostname) ? false : "require",
     idle_timeout: idleTimeoutSeconds,
     max_lifetime: 60 * 10,
     connect_timeout: 10,

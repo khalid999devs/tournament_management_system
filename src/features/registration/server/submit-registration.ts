@@ -27,6 +27,10 @@ import {
   type RegistrationSubmission,
 } from "@/features/registration/domain/schemas";
 import type { RegistrationGameOption } from "@/features/registration/domain/types";
+import {
+  defaultAcademicYears,
+  defaultDepartments,
+} from "@/features/event/domain/event-settings";
 
 export type RegistrationSubmissionResult = {
   registrationCode: string;
@@ -75,6 +79,7 @@ export async function submitRegistration(
           registrationOpenAt: tournaments.registrationOpenAt,
           registrationCloseAt: tournaments.registrationCloseAt,
           maxGamesPerParticipant: tournaments.maxGamesPerParticipant,
+          publicSettings: tournaments.publicSettings,
         })
         .from(tournaments)
         .where(eq(tournaments.id, command.tournamentId))
@@ -100,6 +105,21 @@ export async function submitRegistration(
       const details = createRegistrationDetailsSchema(
         tournament.maxGamesPerParticipant,
       ).parse(command.details);
+      const departments =
+        tournament.publicSettings.departments ?? defaultDepartments;
+      const academicYears =
+        tournament.publicSettings.academicYears ?? defaultAcademicYears;
+
+      if (
+        !departments.includes(details.department) ||
+        !academicYears.includes(details.academicYear)
+      ) {
+        throw new RegistrationDomainError(
+          "INVALID_SUBMISSION",
+          "Choose your department and academic year from the lists provided.",
+        );
+      }
+
       const selectedIds = [...details.selectedGameIds].sort();
 
       const selectedGames = await tx
@@ -313,7 +333,10 @@ function createRegistrationCode(year: number) {
 function mapRegistrationError(error: unknown) {
   if (error instanceof RegistrationDomainError) return error;
 
-  const databaseError = error as {
+  // Drizzle wraps the driver error, so the Postgres details live on `cause`.
+  const databaseError = (
+    error instanceof Error && error.cause ? error.cause : error
+  ) as {
     code?: string;
     constraint_name?: string;
     constraint?: string;

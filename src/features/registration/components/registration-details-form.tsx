@@ -24,36 +24,15 @@ type RegistrationDetailsInput = z.input<
 type RegistrationDetailsFormProps = {
   games: RegistrationGameOption[];
   maxGames: number;
+  departments: string[];
+  academicYears: string[];
 };
-
-const departments = [
-  "Architecture",
-  "Building Engineering and Construction Management",
-  "Chemical Engineering",
-  "Civil Engineering",
-  "Computer Science and Engineering",
-  "Electrical and Electronic Engineering",
-  "Electronics and Communication Engineering",
-  "Energy Science and Engineering",
-  "Industrial Engineering and Management",
-  "Leather Engineering",
-  "Mechanical Engineering",
-  "Mechatronics Engineering",
-  "Textile Engineering",
-  "Urban and Regional Planning",
-];
-
-const academicYears = [
-  "1st year",
-  "2nd year",
-  "3rd year",
-  "4th year",
-  "5th year",
-];
 
 export function RegistrationDetailsForm({
   games,
   maxGames,
+  departments,
+  academicYears,
 }: RegistrationDetailsFormProps) {
   const router = useRouter();
   const schema = useMemo(

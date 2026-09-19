@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { signOut } from "@/app/staff/actions";
@@ -26,7 +27,14 @@ export default async function OperatorPage({
     <main className={styles.page}>
       <header className={styles.header}>
         <Link href="/" className={styles.brand}>
-          <span>∞</span> NDCAK <small>OPERATOR</small>
+          <Image
+            src="/brand/ndcak-mark.webp"
+            alt=""
+            width={160}
+            height={71}
+            priority
+          />
+          NDCAK <small>OPERATOR</small>
         </Link>
         <form action={signOut}>
           <button type="submit">
@@ -80,21 +88,25 @@ export default async function OperatorPage({
                       <strong>{match.code}</strong>
                       <small>{match.tournamentName}</small>
                     </td>
-                    <td>
-                      <strong>{match.gameName}</strong>
-                      <small>{match.roundName}</small>
+                    <td data-label="Game and round">
+                      <span>
+                        <strong>{match.gameName}</strong>
+                        <small>{match.roundName}</small>
+                      </span>
                     </td>
-                    <td>
+                    <td data-label="Schedule">
                       {match.scheduledAt
                         ? formatDhakaDateTime(match.scheduledAt)
                         : "Not scheduled"}
                     </td>
-                    <td>
+                    <td data-label="Location">
                       {[match.venue, match.station]
                         .filter(Boolean)
                         .join(" · ") || "To be announced"}
                     </td>
-                    <td>{match.status.replaceAll("_", " ")}</td>
+                    <td data-label="Status">
+                      {match.status.replaceAll("_", " ")}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -10,6 +10,10 @@ import {
   tournamentGames,
   tournaments,
 } from "@/db/schema";
+import {
+  defaultAcademicYears,
+  defaultDepartments,
+} from "@/features/event/domain/event-settings";
 import type {
   RegistrationCheckout,
   RegistrationGameOption,
@@ -29,9 +33,14 @@ export type PublicEvent = {
     "REGISTRATION_OPEN" | "REGISTRATION_CLOSED" | "IN_PROGRESS" | "COMPLETED";
   startsAt: string | null;
   endsAt: string | null;
+  registrationOpenAt: string | null;
   registrationCloseAt: string | null;
   maxGamesPerParticipant: number;
-  games: (RegistrationGameOption & { status: string })[];
+  description: string | null;
+  departments: string[];
+  academicYears: string[];
+  resultsEnabled: boolean;
+  games: (RegistrationGameOption & { status: string; rules: string | null })[];
   paymentMethods: RegistrationPaymentMethod[];
 };
 
@@ -52,12 +61,14 @@ async function loadPublicEvent(): Promise<PublicEvent | null> {
       status: tournaments.status,
       startsAt: tournaments.startsAt,
       endsAt: tournaments.endsAt,
+      registrationOpenAt: tournaments.registrationOpenAt,
       registrationCloseAt: tournaments.registrationCloseAt,
       maxGamesPerParticipant: tournaments.maxGamesPerParticipant,
+      publicSettings: tournaments.publicSettings,
     })
     .from(tournaments)
     .where(inArray(tournaments.status, [...visibleStatuses]))
-    .orderBy(desc(tournaments.registrationOpenAt))
+    .orderBy(desc(tournaments.createdAt))
     .limit(1);
 
   if (!tournament) return null;
@@ -74,6 +85,7 @@ async function loadPublicEvent(): Promise<PublicEvent | null> {
         confirmedCount: tournamentGames.confirmedCount,
         registrationOpen: tournamentGames.registrationOpen,
         status: tournamentGames.status,
+        rules: tournamentGames.rules,
       })
       .from(tournamentGames)
       .innerJoin(games, eq(tournamentGames.gameId, games.id))
@@ -107,12 +119,19 @@ async function loadPublicEvent(): Promise<PublicEvent | null> {
       .orderBy(paymentMethods.sortOrder, paymentMethods.displayName),
   ]);
 
+  const { publicSettings, ...details } = tournament;
+
   return {
-    ...tournament,
+    ...details,
     status: tournament.status as PublicEvent["status"],
     startsAt: tournament.startsAt?.toISOString() ?? null,
     endsAt: tournament.endsAt?.toISOString() ?? null,
+    registrationOpenAt: tournament.registrationOpenAt?.toISOString() ?? null,
     registrationCloseAt: tournament.registrationCloseAt?.toISOString() ?? null,
+    description: publicSettings.description ?? null,
+    departments: publicSettings.departments ?? defaultDepartments,
+    academicYears: publicSettings.academicYears ?? defaultAcademicYears,
+    resultsEnabled: publicSettings.resultsEnabled,
     games: eventGames.map((game) => ({
       ...game,
       description: game.description ?? "Tournament game",
@@ -136,7 +155,7 @@ function withTimeout<T>(promise: Promise<T>) {
 // transaction, so a briefly stale slot count can never oversubscribe a game.
 const getCachedPublicEvent = unstable_cache(
   () => withTimeout(loadPublicEvent()),
-  ["public-event-v1"],
+  ["public-event-v2"],
   { tags: [publicEventTag], revalidate: 60 },
 );
 
@@ -146,10 +165,24 @@ export function refreshPublicEvent() {
   revalidateTag(publicEventTag, { expire: 0 });
 }
 
+export function isAcceptingRegistrations(
+  event: Pick<
+    PublicEvent,
+    "status" | "registrationOpenAt" | "registrationCloseAt"
+  >,
+  now = new Date(),
+) {
+  return (
+    event.status === "REGISTRATION_OPEN" &&
+    (!event.registrationOpenAt || new Date(event.registrationOpenAt) <= now) &&
+    (!event.registrationCloseAt || new Date(event.registrationCloseAt) > now)
+  );
+}
+
 export async function getRegistrationTournament(): Promise<RegistrationTournament | null> {
   const event = await getPublicEvent();
 
-  if (!event || event.status !== "REGISTRATION_OPEN") return null;
+  if (!event || !isAcceptingRegistrations(event)) return null;
 
   const openGames = event.games
     .filter(
@@ -173,6 +206,8 @@ export async function getRegistrationTournament(): Promise<RegistrationTournamen
     name: event.name,
     venue: event.venue,
     maxGamesPerParticipant: event.maxGamesPerParticipant,
+    departments: event.departments,
+    academicYears: event.academicYears,
     games: openGames,
   };
 }
