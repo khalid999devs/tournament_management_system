@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Inter } from "next/font/google";
+import { getAppUrl } from "@/lib/env/server";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,9 +21,7 @@ const description =
   "Chess, table tennis, carrom and more. Register for the NDCAK Indoor Games Championship, organised by the Notre Dame College Association of KUET.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(getAppUrl()),
   title: {
     default: title,
     template: "%s | NDCAK Indoor Games",

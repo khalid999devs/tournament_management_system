@@ -4,8 +4,8 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { getDatabase } from "@/db";
 import { notifications, staffProfiles } from "@/db/schema";
 import { buildOperationalEmail } from "@/features/notifications/domain/operational-email";
-import { sendEmail } from "@/lib/email/resend";
-import { getServerEnv } from "@/lib/env/server";
+import { sendEmail } from "@/lib/email/send";
+import { getAppUrl, getServerEnv } from "@/lib/env/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function processOperatorInvite(
@@ -85,10 +85,7 @@ export async function processOperatorInvite(
       tokenType = invite.error ? "recovery" : "invite";
     }
 
-    const actionUrl = new URL(
-      "/auth/confirm",
-      getServerEnv().NEXT_PUBLIC_APP_URL,
-    );
+    const actionUrl = new URL("/auth/confirm", getAppUrl());
     actionUrl.searchParams.set("token_hash", tokenHash);
     actionUrl.searchParams.set("type", tokenType);
     const email = await buildOperationalEmail({

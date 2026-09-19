@@ -1,8 +1,8 @@
 # Phase 3 - Operators and Assignments
 
-Status: complete except invitation delivery to a separate inbox, which waits on a verified sending domain.
+Status: complete except invitation delivery to a separate inbox, which waits on the Gmail App Password and a deployed URL.
 
-Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and run `pnpm phase3:check` as each external prerequisite is completed.
+Follow the [Phase 3 activation runbook](../operations/PHASE_3_ACTIVATION.md) and run `pnpm readiness:check` as each external prerequisite is completed.
 
 ## Delivered
 
@@ -51,7 +51,7 @@ flowchart LR
 
 ## Remaining before production use
 
-1. Verify an NDCAK-controlled sender domain in Resend and update `EMAIL_FROM`; then invite one real operator from `/admin/operators` and confirm the email arrives and the link works on another device.
+1. Set the Gmail App Password (`SMTP_USER`/`SMTP_PASSWORD`); then invite one real operator from `/admin/operators` and confirm the email arrives and the link works on another device.
 2. Deploy to a public URL so invitation links do not point at `localhost`.
 
 Neither item blocks Phase 4 development: match creation and scoring can be built and tested against the local database.

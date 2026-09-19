@@ -1,9 +1,13 @@
+import { createTransport } from "nodemailer";
 import postgres from "postgres";
 import { Resend } from "resend";
 
 const env = process.env;
 const checks = {
-  appUrl: Boolean(env.NEXT_PUBLIC_APP_URL),
+  appUrl: Boolean(
+    env.NEXT_PUBLIC_APP_URL &&
+    !env.NEXT_PUBLIC_APP_URL.startsWith("http://localhost"),
+  ),
   secretKey: Boolean(env.SUPABASE_SECRET_KEY),
   adminAuthUser: false,
   adminProfile: false,
@@ -26,9 +30,9 @@ report("Server-only Supabase key", checks.secretKey);
 report(
   "Invitation URL",
   checks.appUrl,
-  env.NEXT_PUBLIC_APP_URL?.startsWith("http://localhost")
-    ? "localhost links work only on the same computer"
-    : "check that operators can open this URL",
+  checks.appUrl
+    ? env.NEXT_PUBLIC_APP_URL
+    : "set NEXT_PUBLIC_APP_URL to the https://….vercel.app address; localhost links only work on this computer",
 );
 
 const databaseUrl = env.MIGRATION_DATABASE_URL ?? env.DATABASE_URL;
@@ -66,14 +70,9 @@ if (databaseUrl) {
     report("Confirmed Super Admin Auth user", checks.adminAuthUser);
     report("Active Super Admin profile", checks.adminProfile);
     report(
-      "Scope-test data",
-      checks.tournament &&
-        checks.game &&
-        checks.paymentMethod &&
-        checks.round &&
-        checks.match &&
-        checks.participantEntry,
-      `${counts.tournaments} tournaments, ${counts.games} games, ${counts.payment_methods} payment methods, ${counts.rounds} rounds, ${counts.matches} matches, ${counts.entries} entries`,
+      "Event data",
+      checks.tournament && checks.game && checks.paymentMethod,
+      `${counts.tournaments} tournaments, ${counts.games} games, ${counts.payment_methods} payment methods, ${counts.entries} entries`,
     );
   } catch {
     report("Live database check", false, "connection or query failed");
@@ -84,31 +83,53 @@ if (databaseUrl) {
   report("Live database check", false, "DATABASE_URL is missing");
 }
 
-const senderAddress =
-  env.EMAIL_FROM?.match(/<([^<>]+)>$/)?.[1] ?? env.EMAIL_FROM;
-const senderDomain = senderAddress?.split("@")[1]?.toLowerCase();
-
-if (env.RESEND_API_KEY) {
+if (env.SMTP_USER || env.SMTP_PASSWORD) {
+  // Logs in to the SMTP server without sending a message.
   try {
-    const { data, error } = await new Resend(env.RESEND_API_KEY).domains.list();
+    const port = Number(env.SMTP_PORT ?? 465);
+    await createTransport({
+      host: env.SMTP_HOST ?? "smtp.gmail.com",
+      port,
+      secure: port === 465,
+      auth: {
+        user: env.SMTP_USER,
+        pass: (env.SMTP_PASSWORD ?? "").replace(/\s+/g, ""),
+      },
+    }).verify();
+    checks.verifiedSender = true;
+  } catch {
+    console.error("SMTP login failed. Check SMTP_USER and the App Password.");
+  }
+  report("Gmail SMTP sign-in", checks.verifiedSender, env.SMTP_USER);
+} else {
+  const senderAddress =
+    env.EMAIL_FROM?.match(/<([^<>]+)>$/)?.[1] ?? env.EMAIL_FROM;
+  const senderDomain = senderAddress?.split("@")[1]?.toLowerCase();
 
-    if (!error) {
-      checks.verifiedSender = Boolean(
-        data?.data?.some(
-          (domain) =>
-            domain.status === "verified" &&
-            domain.name.toLowerCase() === senderDomain,
-        ),
-      );
-    } else {
+  if (env.RESEND_API_KEY) {
+    try {
+      const { data, error } = await new Resend(
+        env.RESEND_API_KEY,
+      ).domains.list();
+
+      if (!error) {
+        checks.verifiedSender = Boolean(
+          data?.data?.some(
+            (domain) =>
+              domain.status === "verified" &&
+              domain.name.toLowerCase() === senderDomain,
+          ),
+        );
+      } else {
+        console.error("Resend domain lookup failed.");
+      }
+    } catch {
       console.error("Resend domain lookup failed.");
     }
-  } catch {
-    console.error("Resend domain lookup failed.");
   }
-}
 
-report("Verified Resend sender domain", checks.verifiedSender);
+  report("Verified Resend sender domain", checks.verifiedSender);
+}
 
 const inviteReady =
   checks.appUrl &&
@@ -116,19 +137,14 @@ const inviteReady =
   checks.adminAuthUser &&
   checks.adminProfile &&
   checks.verifiedSender;
-const scopeReady =
-  checks.tournament &&
-  checks.game &&
-  checks.paymentMethod &&
-  checks.round &&
-  checks.match &&
-  checks.participantEntry;
+const eventConfigured =
+  checks.tournament && checks.game && checks.paymentMethod;
 
 console.log(
-  `\nStaff invitation rehearsal: ${inviteReady ? "READY" : "BLOCKED"}`,
+  `\nEmail and staff invitations: ${inviteReady ? "READY" : "BLOCKED"}`,
 );
 console.log(
-  `Full assignment-scope rehearsal: ${inviteReady && scopeReady ? "READY" : "BLOCKED"}`,
+  `Event configuration: ${eventConfigured ? "PRESENT" : "NOT ENTERED YET (use /admin/event)"}`,
 );
 
-if (!inviteReady || !scopeReady) process.exitCode = 1;
+if (!inviteReady) process.exitCode = 1;

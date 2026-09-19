@@ -1,5 +1,7 @@
 # Phase 3 activation: staff invitations and access rehearsal
 
+> Superseded for email: NDCAK has no domain, so email now uses Gmail SMTP (`docs/integrations/EMAIL.md`) and hosting uses the Vercel address (`docs/operations/DEPLOYMENT.md`). The Resend domain steps below apply only if a domain is bought later.
+
 This is a live-configuration checklist. Do not paste passwords, database URLs, or API keys into chat, issues, commits, or screenshots. The check command below reports status without printing credential values.
 
 ## Current verified state — 19 September 2026
@@ -56,7 +58,7 @@ If the local server is not running, start it before opening the link:
 pnpm dev
 ```
 
-Sign in at `http://localhost:3000/staff/login` with the password set during setup, then verify that `/admin` and `/admin/operators` load. Do not share a password or one-time link in chat. `pnpm phase3:check` now reports the Auth user as confirmed.
+Sign in at `http://localhost:3000/staff/login` with the password set during setup, then verify that `/admin` and `/admin/operators` load. Do not share a password or one-time link in chat. `pnpm readiness:check` now reports the Auth user as confirmed.
 
 ## 6. Supply approved event data and rehearse an operator
 
@@ -64,4 +66,4 @@ The app must not invent competition or payment details. Provide the committee-ap
 
 With a reachable app URL, verified sending domain, and Admin session, use `/admin/operators` to invite one designated test inbox. Check delivery under `/admin/notifications`; the operator should accept the link, set a password, and see an empty `/operator` workspace before assignment. Grant and revoke whole-tournament, game, round, match, and participant-entry scopes in `/admin/operators/[id]`, verifying that only in-scope matches appear and payment data never does. Inspect the authenticated Admin and operator pages at desktop and mobile widths during this rehearsal.
 
-Run `pnpm phase3:check` after each external setup step. It is read-only and does not send email or change database data.
+Run `pnpm readiness:check` after each external setup step. It is read-only and does not send email or change database data.

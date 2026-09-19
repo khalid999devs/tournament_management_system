@@ -13,7 +13,7 @@ import {
 } from "@/db/schema";
 import { buildRegistrationEmail } from "@/features/notifications/domain/registration-email";
 import { processOperatorInvite } from "@/features/operators/server/process-invite";
-import { sendEmail } from "@/lib/email/resend";
+import { sendEmail } from "@/lib/email/send";
 import { getEmailEnv } from "@/lib/env/server";
 
 const supportedTypes = [

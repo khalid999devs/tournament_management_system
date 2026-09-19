@@ -21,7 +21,7 @@
     "db:studio": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs studio",
     "db:bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-super-admin.mjs",
     "db:invite-admin": "node --env-file=.env.local scripts/invite-super-admin.mjs",
-    "phase3:check": "node --env-file=.env.local scripts/check-phase3-readiness.mjs"
+    "readiness:check": "node --env-file=.env.local scripts/check-readiness.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -32,6 +32,7 @@
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.47.0",
     "next": "16.3.5",
+    "nodemailer": "^10.0.10",
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",

@@ -4,7 +4,7 @@ Last updated: 19 September 2026
 
 ## Current phase
 
-Phases 0–3 are complete in code and verified against a real PostgreSQL database. The next build phase is Phase 4 - Matches and Scoring. Going live still needs the committee's event data (entered in `/admin/event` and `/admin/games`) and a verified email domain; neither blocks Phase 4 development.
+Phases 0–3 are complete in code and verified against a real PostgreSQL database. The next build phase is Phase 4 - Matches and Scoring. Going live still needs the committee's event data (entered in `/admin/event` and `/admin/games`), a Gmail App Password for email, and a Vercel deployment; none of these blocks Phase 4 development.
 
 ## Completed
 
@@ -61,9 +61,8 @@ Before people can use the live workflows:
 
 1. Sign in with the official Admin account, open `/admin/event`, and enter the committee-approved details, games, fees, capacities, rules and payment accounts. The readiness checklist shows what is missing.
 2. Open registration from `/admin/event` once the checklist passes.
-3. Verify an NDCAK-controlled domain in Resend and replace the sandbox `EMAIL_FROM` value.
-4. Configure Supabase Auth SMTP in the dashboard with the verified sender.
-5. Supply Vercel access, the production domain, and production environment ownership when deployment is authorized.
+3. Create a Google App Password for `ndcakofficial@gmail.com` and set `SMTP_USER`/`SMTP_PASSWORD` locally and in Vercel (`docs/integrations/EMAIL.md`). `pnpm readiness:check` confirms the Gmail login.
+4. Deploy to Vercel with the right account and set the Supabase Site URL to the `*.vercel.app` address (`docs/operations/DEPLOYMENT.md`).
 
 ## Decision log
 
@@ -81,3 +80,4 @@ Before people can use the live workflows:
 | 2026-09-19 | Manage one tournament at a time: the newest one that is not archived.                                  | Matches how NDCAK runs one event a year and keeps admin screens simple; archiving starts the next event.        |
 | 2026-09-19 | Store department and academic-year lists in tournament settings and validate them on the server.       | The PRD requires configured lists; the client-side list alone let any value through.                            |
 | 2026-09-19 | Run integration tests only against local PostgreSQL.                                                   | Every test truncates tables; the setup refuses non-local hosts so it can never touch Supabase.                  |
+| 2026-09-19 | Host on the free `*.vercel.app` address in the Mumbai region and send email through Gmail SMTP.        | NDCAK has no domain to verify for Resend; Gmail delivers to any recipient within ~500 messages a day.           |
