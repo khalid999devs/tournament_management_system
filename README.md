@@ -199,6 +199,9 @@ re-checks authorization on the server.
 Issues and pull requests are welcome, particularly from other university clubs
 adapting this for their own events.
 
+`main` is protected: every change arrives through a pull request, including
+the maintainer's own. Branch, push the branch, open a PR, merge it.
+
 - Open an issue first for anything substantial, so we can agree on the shape
   before you spend time on it.
 - Run `pnpm typecheck && pnpm lint && pnpm test` before opening a pull

@@ -131,6 +131,23 @@ test("admin invites an operator, the operator sets a password, and sees only the
     operatorPage.getByRole("row").filter({ hasText: "Table Tennis" }),
   ).toHaveCount(0);
 
+  // Removing the last assignment empties the list rather than leaving a
+  // "removed" row behind.
+  await adminPage.goto(operatorPath);
+  const panel = adminPage.locator("section", {
+    has: adminPage.getByRole("heading", { name: "Assignments" }),
+  });
+  await expect(panel.getByText("1 active")).toBeVisible();
+  await panel.getByRole("button", { name: "Remove" }).click();
+  await expect(adminPage).toHaveURL(
+    new RegExp(`${operatorPath}\\?message=assignment_revoked`),
+  );
+  await expect(
+    panel.getByRole("heading", { name: "No access yet" }),
+  ).toBeVisible();
+  await expect(panel.getByText("0 active")).toBeVisible();
+  await expect(panel.getByText("Mobile Football")).toHaveCount(0);
+
   await admin.close();
   await operator.close();
 });

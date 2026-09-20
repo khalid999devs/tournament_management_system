@@ -13,6 +13,7 @@ import { describeStatus } from "@/features/matches/domain/commands";
 import { getOperatorWorkload } from "@/features/operators/server/workload";
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/operators/components/workspace.module.css";
+import { FilterForm } from "@/components/filters/filter-form";
 
 export const metadata: Metadata = {
   title: "Operator workspace",
@@ -84,7 +85,7 @@ export default async function OperatorPage({
           </span>
         </div>
 
-        <form className={styles.filters} action="/operator" role="search">
+        <FilterForm action="/operator" className={styles.filters} role="search">
           <label className="visually-hidden" htmlFor="match-search">
             Search matches
           </label>
@@ -107,7 +108,7 @@ export default async function OperatorPage({
             <option value="all">All</option>
           </select>
           <button type="submit">Show</button>
-        </form>
+        </FilterForm>
 
         {workload.rows.length === 0 ? (
           <div className={styles.empty}>

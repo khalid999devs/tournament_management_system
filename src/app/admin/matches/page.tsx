@@ -16,6 +16,7 @@ import { findCurrentTournamentId } from "@/features/event/server/event-queries";
 import { getAdminMatchPage } from "@/features/matches/server/admin-match-queries";
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/admin/components/admin.module.css";
+import { FilterForm } from "@/components/filters/filter-form";
 
 export const metadata: Metadata = { title: "Matches" };
 export const dynamic = "force-dynamic";
@@ -98,7 +99,7 @@ export default async function MatchesPage({
         </div>
       </header>
 
-      <form className={styles.filters} method="get">
+      <FilterForm action="/admin/matches" className={styles.filters}>
         <label className={styles.searchField}>
           <span>Search</span>
           <div>
@@ -138,7 +139,7 @@ export default async function MatchesPage({
           </button>
           <Link href="/admin/matches">Reset</Link>
         </div>
-      </form>
+      </FilterForm>
 
       <div
         className={styles.tableShell}
