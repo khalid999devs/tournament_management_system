@@ -70,6 +70,10 @@ pnpm typecheck && pnpm lint && pnpm format:check && pnpm test
 If you touched registration, payments, scoring, brackets or operator access,
 also run `pnpm test:integration`. If you touched a page, `pnpm test:e2e`.
 
+The same checks run in CI on your pull request. The browser suite is not in
+CI, because it needs a real Supabase Auth project, so run it yourself when you
+touch a page.
+
 Pull requests should be one change. If you find an unrelated problem on the
 way, note it in an issue rather than folding it in; a reviewer who has to hold
 two ideas at once catches less.
