@@ -238,6 +238,10 @@ email, phone or transaction ID. Filter by status, game, department, payment
 method and date range, and sort by newest, oldest or name. 25 to a page.
 **Export CSV** carries whatever filters you have set.
 
+Applying a filter, with the button or by pressing Enter, refreshes only the
+list. The page does not reload, so the boxes keep what you typed and you stay
+where you were. This is the same on Matches and Notifications.
+
 Opening one shows the participant's details, the payment evidence (method,
 receiving account, expected amount, transaction ID) and the games they picked.
 

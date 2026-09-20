@@ -120,16 +120,18 @@ export async function getOperatorDetail(operatorId: string) {
         matchId: operatorAssignments.matchId,
         registrationGameEntryId: operatorAssignments.registrationGameEntryId,
         capabilities: operatorAssignments.capabilities,
-        active: operatorAssignments.active,
         createdAt: operatorAssignments.createdAt,
-        revokedAt: operatorAssignments.revokedAt,
       })
       .from(operatorAssignments)
-      .where(eq(operatorAssignments.operatorId, operatorId))
-      .orderBy(
-        desc(operatorAssignments.active),
-        desc(operatorAssignments.createdAt),
-      ),
+      // Removed access is history, kept in the audit log rather than on the
+      // page, so an admin reads only what this operator can reach today.
+      .where(
+        and(
+          eq(operatorAssignments.operatorId, operatorId),
+          eq(operatorAssignments.active, true),
+        ),
+      )
+      .orderBy(desc(operatorAssignments.createdAt)),
     db
       .select({
         id: notifications.id,

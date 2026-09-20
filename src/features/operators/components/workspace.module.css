@@ -454,3 +454,16 @@
 .headerScore {
   padding-inline: max(16px, calc((100% - 760px) / 2));
 }
+
+/* While a filter is being applied the list dims instead of the page
+   reloading, so the form keeps its focus and scroll position. */
+.filters[data-pending="true"] + * {
+  opacity: 0.55;
+  transition: opacity 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filters[data-pending="true"] + * {
+    transition: none;
+  }
+}

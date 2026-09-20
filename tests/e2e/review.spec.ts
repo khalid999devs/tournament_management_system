@@ -112,3 +112,40 @@ test("a double-clicked approval is applied once", async ({ page }) => {
     where registration_id = ${registration.id} and type = 'REGISTRATION_APPROVED'`;
   expect(emails.count).toBe(1);
 });
+
+test("applying a filter refreshes the list without reloading the page", async ({
+  page,
+}) => {
+  await page.goto("/admin/registrations");
+
+  // Survives a client-side navigation, disappears on a full page load.
+  await page.evaluate(() => {
+    (window as unknown as { kept?: boolean }).kept = true;
+  });
+
+  const search = page.getByLabel("Search");
+  await search.click();
+  await search.fill("ND26");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/q=ND26/);
+
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { kept?: boolean }).kept === true,
+    ),
+    "the page reloaded instead of refreshing the list",
+  ).toBe(true);
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue("ND26");
+
+  // The button does the same, and the other fields keep their values.
+  await page.getByLabel("Status").selectOption("CONFIRMED");
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(page).toHaveURL(/status=CONFIRMED/);
+  await expect(page).toHaveURL(/q=ND26/);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { kept?: boolean }).kept === true,
+    ),
+  ).toBe(true);
+});

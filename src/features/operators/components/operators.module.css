@@ -302,8 +302,7 @@
   font-size: 13px;
 }
 
-.state,
-.revoked {
+.state {
   padding: 6px 10px;
   background: #f2f2f1;
   color: var(--slate-700);

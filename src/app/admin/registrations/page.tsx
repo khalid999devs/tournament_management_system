@@ -13,6 +13,7 @@ import { findCurrentTournamentId } from "@/features/event/server/event-queries";
 import { formatDhakaDateTime } from "@/lib/dates";
 import { formatBdt } from "@/lib/money";
 import styles from "@/features/admin/components/admin.module.css";
+import { FilterForm } from "@/components/filters/filter-form";
 
 export const metadata: Metadata = { title: "Registrations" };
 export const dynamic = "force-dynamic";
@@ -56,7 +57,7 @@ export default async function RegistrationsPage({
         </div>
       </header>
 
-      <form className={styles.filters} method="get">
+      <FilterForm action="/admin/registrations" className={styles.filters}>
         <label className={styles.searchField}>
           <span>Search</span>
           <div>
@@ -126,7 +127,7 @@ export default async function RegistrationsPage({
           </button>
           <Link href="/admin/registrations">Reset</Link>
         </div>
-      </form>
+      </FilterForm>
 
       <div
         className={styles.tableShell}

@@ -131,10 +131,7 @@ export default async function OperatorDetailPage({
   // Whole-tournament access already covers every narrower grant beside it.
   const coversEverything = new Set(
     assignments
-      .filter(
-        (assignment) =>
-          assignment.active && assignment.scopeType === "ALL_TOURNAMENT",
-      )
+      .filter((assignment) => assignment.scopeType === "ALL_TOURNAMENT")
       .map((assignment) => assignment.tournamentId),
   );
 
@@ -180,7 +177,7 @@ export default async function OperatorDetailPage({
             <span>
               {profile.active
                 ? "Can sign in, and sees whatever the assignments below allow."
-                : "Cannot open the operator workspace. Previous assignments stay revoked."}
+                : "Cannot open the operator workspace. Deactivating removed their access, and reactivating does not bring it back."}
             </span>
             {invitation ? (
               <small>Invitation email: {invitation.status.toLowerCase()}</small>
@@ -212,10 +209,7 @@ export default async function OperatorDetailPage({
             <p>What this operator can reach</p>
             <h2 id="assignments-title">Assignments</h2>
           </div>
-          <span className={styles.count}>
-            {assignments.filter((assignment) => assignment.active).length}{" "}
-            active
-          </span>
+          <span className={styles.count}>{assignments.length} active</span>
         </div>
         <p className={styles.helper}>
           Assignments add up: an operator can do anything at least one of them
@@ -224,7 +218,7 @@ export default async function OperatorDetailPage({
         </p>
         {assignments.length === 0 ? (
           <div className={styles.empty}>
-            <h3>No assignments yet</h3>
+            <h3>No access yet</h3>
             <p>This operator cannot see any matches.</p>
           </div>
         ) : (
@@ -237,7 +231,6 @@ export default async function OperatorDetailPage({
                 assignment.registrationGameEntryId ??
                 assignment.tournamentId;
               const redundant =
-                assignment.active &&
                 assignment.scopeType !== "ALL_TOURNAMENT" &&
                 coversEverything.has(assignment.tournamentId);
 
@@ -258,25 +251,17 @@ export default async function OperatorDetailPage({
                       </small>
                     ) : null}
                   </div>
-                  {assignment.active ? (
-                    <form action={revokeAssignmentAction}>
-                      <input
-                        type="hidden"
-                        name="assignmentId"
-                        value={assignment.id}
-                      />
-                      <input
-                        type="hidden"
-                        name="operatorId"
-                        value={profile.id}
-                      />
-                      <button type="submit" className={styles.secondaryButton}>
-                        Remove
-                      </button>
-                    </form>
-                  ) : (
-                    <span className={styles.revoked}>Removed</span>
-                  )}
+                  <form action={revokeAssignmentAction}>
+                    <input
+                      type="hidden"
+                      name="assignmentId"
+                      value={assignment.id}
+                    />
+                    <input type="hidden" name="operatorId" value={profile.id} />
+                    <button type="submit" className={styles.secondaryButton}>
+                      Remove
+                    </button>
+                  </form>
                 </div>
               );
             })}

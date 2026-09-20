@@ -8,6 +8,7 @@ import {
 } from "@/features/admin/server/notification-queries";
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/admin/components/admin.module.css";
+import { FilterForm } from "@/components/filters/filter-form";
 
 export const metadata: Metadata = { title: "Notifications" };
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export default async function NotificationsPage({
         </div>
       ) : null}
 
-      <form className={styles.filters} method="get">
+      <FilterForm action="/admin/notifications" className={styles.filters}>
         <label className={styles.searchField}>
           <span>Recipient search</span>
           <div>
@@ -106,7 +107,7 @@ export default async function NotificationsPage({
           <button type="submit">Apply</button>
           <Link href="/admin/notifications">Reset</Link>
         </div>
-      </form>
+      </FilterForm>
 
       <div
         className={styles.tableShell}
