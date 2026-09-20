@@ -50,5 +50,20 @@ tests exercise).
 | Screen widths | 320, 390, 768, 1024 and 1440 px on every page, with no sideways scrolling                                                                  |
 | Security      | Headers, robots, staff pages kept out of search, protected endpoints refuse anonymous requests, repeated failed sign-ins slowed down       |
 
+## Checking the layout by measurement
+
+Screenshots are slow to judge and easy to misread, so three scripts measure
+the screens that are hard to get right. Each needs a kept environment
+(`pnpm test:e2e --keep -g "the skip link"`), and each needs that environment
+restarted after a rebuild, because `next start` serves the build it began
+with.
+
+| Script                               | Answers                                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `tests/e2e/support/measure.mjs`      | Where each guide button sits in its panel, whether the modal is centred, sideways scrolling, at 1440, 1024 and 390 |
+| `tests/e2e/support/layout-check.mjs` | Tiles of unequal height in one row, stray list markers, uneven gaps between panels                                 |
+| `tests/e2e/support/svg-check.mjs`    | Every label in every diagram against the box it sits in and the viewBox                                            |
+| `tests/e2e/support/shots.mjs`        | Screenshots of the same screens for a human to look at                                                             |
+
 The email design preview has its own run, because that page exists only in
 development: `pnpm test:e2e:email`.

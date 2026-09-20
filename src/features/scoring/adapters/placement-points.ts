@@ -84,7 +84,7 @@ export const placementPointsAdapter: ScoringAdapter<Config, Score, Event> = {
       kind: "numberList",
       name: "placementPoints",
       label: "Points by finishing position",
-      help: "Comma-separated, 1st place first (e.g. 12, 9, 7, 5, 4, 3, 2, 1). Places beyond the list score 0.",
+      help: "1st place first, e.g. 12, 9, 7, 5, 4, 3, 2, 1.",
       min: 0,
       max: 1000,
     },

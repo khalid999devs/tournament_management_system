@@ -98,7 +98,7 @@ export const scoreCompareAdapter: ScoringAdapter<Config, Score, Event> = {
       kind: "boolean",
       name: "allowSharedPlacement",
       label: "Tied competitors may share a placement",
-      help: "Otherwise the operator must set a tie-break order. Knockout games always need one winner.",
+      help: "Otherwise the operator ranks the tied players.",
     },
   ],
   scoreSchema,

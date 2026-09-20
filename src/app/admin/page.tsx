@@ -62,10 +62,7 @@ export default async function AdminDashboardPage() {
                 ? `${setup.readiness.filter((check) => check.required && !check.ok).length} setup steps before registration can open`
                 : "Create the tournament to get started"}
             </h2>
-            <span>
-              Add the event dates, venue, games and payment methods. Nothing is
-              public until you open registration.
-            </span>
+            <span>Nothing is public until you open registration.</span>
           </div>
           <Link href="/admin/event">
             Event settings <ArrowRight size={17} aria-hidden="true" />
@@ -214,9 +211,8 @@ function Overview({ dashboard }: { dashboard: Dashboard }) {
         />
       </section>
       <p className={styles.metricNote}>
-        Fee totals add up the amounts participants were asked to pay. Check them
-        against the mobile banking statements: they are not an accounting
-        record.
+        What people were asked to pay, not an accounting record. Check it
+        against your banking statement.
       </p>
 
       {registrations.pending ? (

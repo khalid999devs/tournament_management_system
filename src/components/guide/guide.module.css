@@ -1,0 +1,315 @@
+.trigger {
+  display: inline-flex;
+  min-height: 36px;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid #c8cdd2;
+  background: white;
+  color: var(--navy-900);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.trigger:hover {
+  border-color: var(--navy-900);
+}
+
+@media (min-width: 641px) {
+  .trigger {
+    margin-top: 19px;
+  }
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--navy-900);
+  outline-offset: 2px;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: min(720px, calc(100vw - 32px));
+  display: flex;
+  max-height: min(84vh, 880px);
+  flex-direction: column;
+  margin: auto;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: white;
+  color: var(--slate-700);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 15px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.dialog:not([open]) {
+  display: none;
+}
+
+.dialog .body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dialog .body::-webkit-scrollbar-thumb {
+  border: 3px solid white;
+  border-radius: 6px;
+  background: #c3c9cf;
+}
+
+.dialog::backdrop {
+  background: rgb(8 13 28 / 55%);
+}
+
+.dialog .dialogHead {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #e4e7e9;
+  background: white;
+}
+
+.dialog .dialogHead h2 {
+  margin: 0;
+  color: var(--navy-950);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 25px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.dialog .dialogHead button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  place-items: center;
+  border: 1px solid #d4d9dd;
+  background: white;
+  color: var(--navy-900);
+  cursor: pointer;
+}
+
+.dialog .dialogHead button:hover {
+  border-color: var(--navy-900);
+}
+
+.dialog .body {
+  flex: 1;
+  padding: 22px 24px 36px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  /* Shows there is more below, since macOS hides overlay scrollbars. */
+  mask-image: linear-gradient(
+    to bottom,
+    black calc(100% - 26px),
+    transparent 100%
+  );
+  letter-spacing: normal;
+  text-transform: none;
+  color: #43505c;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.dialog .body p,
+.dialog .body li,
+.dialog .body span,
+.dialog .body small {
+  max-width: 62ch;
+  color: #43505c;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.dialog .body strong {
+  color: var(--navy-950);
+  font-weight: 700;
+}
+
+.dialog .body > :first-child {
+  margin-top: 0;
+}
+
+.dialog .body > :last-child {
+  margin-bottom: 0;
+}
+
+.dialog .body h3 {
+  margin: 26px 0 8px;
+  color: var(--navy-950);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.dialog .body p {
+  margin: 0 0 12px;
+}
+
+.dialog .body ul {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.dialog .body li {
+  margin-bottom: 5px;
+}
+
+.dialog .body strong {
+  color: var(--navy-950);
+}
+
+/* Diagrams. Colours come from tokens so they follow the theme. */
+.dialog .figure {
+  margin: 4px 0 18px;
+}
+
+.dialog .figure {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.dialog .figure svg {
+  display: block;
+  width: 100%;
+  min-width: 520px;
+  height: auto;
+}
+
+.dialog .figure figcaption {
+  margin-top: 8px;
+  color: var(--slate-700);
+  font-size: 13px;
+}
+
+.box {
+  fill: #fff;
+  stroke: #cfd5da;
+}
+
+.boxSolid {
+  fill: var(--navy-900);
+  stroke: var(--navy-900);
+}
+
+.boxGhost {
+  fill: none;
+  stroke: #c8cdd2;
+  stroke-dasharray: 4 4;
+}
+
+.line {
+  fill: none;
+  stroke: #b9c0c6;
+  stroke-width: 1.5;
+}
+
+.lineStrong {
+  fill: none;
+  stroke: var(--green-600);
+  stroke-width: 2;
+}
+
+.label {
+  fill: var(--navy-950);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.labelLight {
+  fill: var(--ivory-100);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.muted {
+  fill: #5c6470;
+  font-size: 11px;
+}
+
+.round {
+  fill: var(--green-600);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.dialog .demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0 14px;
+}
+
+.dialog .key {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 13px;
+  border: 1px solid #cfd5da;
+  background: white;
+  color: var(--navy-950);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dialog .readout {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 13px;
+  background: var(--navy-900);
+  color: var(--ivory-100);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dialog .grid {
+  width: 100%;
+  margin: 2px 0 14px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.dialog .grid th,
+.dialog .grid td {
+  padding: 7px 10px;
+  border: 1px solid #dfe3e6;
+  text-align: left;
+}
+
+.dialog .grid th {
+  background: #f2f3f1;
+  color: var(--navy-950);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  /* The button drops under the title, so it takes the full width. */
+  .trigger {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dialog .dialogHead,
+  .dialog .body {
+    padding-inline: 16px;
+  }
+}

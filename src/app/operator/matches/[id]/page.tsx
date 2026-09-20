@@ -8,6 +8,7 @@ import { requireOperatorPage } from "@/features/auth/server/staff-session";
 import { ScoreConsole } from "@/features/matches/components/score-console";
 import { getMatchState } from "@/features/matches/server/match-queries";
 import styles from "@/features/operators/components/workspace.module.css";
+import { OperatorScoringGuide } from "@/features/matches/components/scoring-guide-operator";
 
 export const metadata: Metadata = {
   title: "Score entry",
@@ -45,6 +46,9 @@ export default async function OperatorMatchPage({
         </Link>
       </header>
       <main id="main-content" className={styles.scoreContent}>
+        <div className={styles.scoreGuide}>
+          <OperatorScoringGuide />
+        </div>
         <ScoreConsole initial={state} actorId={staff.id} />
       </main>
     </div>

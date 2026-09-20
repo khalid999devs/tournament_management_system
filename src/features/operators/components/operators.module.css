@@ -40,6 +40,15 @@
   text-transform: uppercase;
 }
 
+.panelHeading > div > span {
+  display: block;
+  max-width: 900px;
+  margin-top: 8px;
+  color: var(--slate-700);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .panelHeading h2 {
   margin: 0;
   font-family: var(--font-barlow-condensed), sans-serif;
@@ -49,7 +58,7 @@
 }
 
 .helper {
-  max-width: 720px;
+  max-width: 900px;
   margin: 0 0 22px;
   color: var(--slate-700);
   font-size: 14px;
@@ -154,11 +163,13 @@
 
 .count {
   flex: none;
-  color: var(--green-600);
+  align-self: center;
+  padding: 5px 10px;
+  background: #f2f3f1;
+  color: var(--slate-700);
   white-space: nowrap;
-  font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: 25px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .empty {
@@ -346,10 +357,10 @@
 }
 
 .scopeType {
-  color: var(--green-600);
+  color: #5c6470;
   font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .grantForm {
@@ -404,7 +415,7 @@
 .level input {
   width: 17px;
   height: 17px;
-  margin: 1px 0 0;
+  margin: 3px 0 0;
   accent-color: var(--navy-900);
   flex: none;
 }
@@ -449,6 +460,11 @@
 }
 
 @media (max-width: 640px) {
+  /* The guide button drops under the title rather than squeezing it. */
+  .panelHeading {
+    flex-wrap: wrap;
+  }
+
   .operatorTop {
     flex-wrap: wrap;
     gap: 14px;
@@ -471,10 +487,288 @@
   }
 
   .state {
-    display: none;
+    order: 3;
   }
 }
 
 .detailLink > svg {
   flex: none;
+}
+
+/* Add an assignment: three numbered steps, so an admin reads down the page
+   instead of guessing which control matters. */
+.assignForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 26px;
+}
+
+.step {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.step > legend {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  color: var(--navy-950);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stepNumber {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  background: var(--navy-900);
+  color: var(--ivory-100);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.stepEmpty {
+  margin: 0;
+  padding: 13px 15px;
+  border: 1px dashed #c8cdd2;
+  color: var(--slate-700);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.kinds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  max-width: 1080px;
+  align-items: start;
+  gap: 12px;
+}
+
+.kind {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e0e4e7;
+  background: #fafaf8;
+  cursor: pointer;
+}
+
+.kind:hover {
+  border-color: #c2c9cf;
+}
+
+.kind:has(input:checked) {
+  border-color: var(--navy-900);
+  background: white;
+  box-shadow: inset 0 0 0 1px var(--navy-900);
+}
+
+.kind:has(input:focus-visible),
+.level:has(input:focus-visible) {
+  outline: 2px solid var(--navy-900);
+  outline-offset: 2px;
+}
+
+.kind input {
+  width: 16px;
+  height: 16px;
+  margin: 3px 0 0;
+  flex: none;
+  accent-color: var(--navy-900);
+}
+
+.kind > span {
+  display: grid;
+  gap: 2px;
+}
+
+.kind strong {
+  color: var(--navy-950);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kind small {
+  color: var(--slate-700);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.targetField select {
+  width: 100%;
+  max-width: 520px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid #c9cfd4;
+  background: #fafaf8;
+  color: var(--navy-950);
+  font: inherit;
+  font-size: 14px;
+}
+
+.playerPicker {
+  display: grid;
+  gap: 10px;
+}
+
+.playerSearch {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid #c9cfd4;
+  background: #fafaf8;
+  color: var(--slate-700);
+}
+
+.playerSearch input {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--navy-950);
+  font: inherit;
+  font-size: 14px;
+}
+
+.playerSearch input:focus {
+  outline: none;
+}
+
+.playerSearch:focus-within {
+  border-color: var(--navy-900);
+  box-shadow: inset 0 0 0 1px var(--navy-900);
+}
+
+.chosen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chosen li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px 5px 10px;
+  background: #e8f5ed;
+  color: #1f6b41;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chosen button {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 0;
+  background: #cfe6d8;
+  color: #1f6b41;
+  cursor: pointer;
+}
+
+.playerResults {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid #e0e4e7;
+  background: white;
+}
+
+.playerResults[aria-busy="true"] {
+  opacity: 0.6;
+}
+
+.playerResults ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.playerResults li + li {
+  border-top: 1px solid #eef0f1;
+}
+
+.playerResults label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 13px;
+  cursor: pointer;
+}
+
+.playerResults label:hover {
+  background: #f6f7f5;
+}
+
+.playerResults input {
+  width: 17px;
+  height: 17px;
+  margin: 3px 0 0;
+  flex: none;
+  accent-color: var(--navy-900);
+}
+
+.playerResults span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.playerResults strong {
+  color: var(--navy-950);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.playerResults small {
+  color: var(--slate-700);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.playerResults .stepEmpty {
+  border: 0;
+}
+
+.pickerNote {
+  margin: 0;
+  color: var(--slate-700);
+  font-size: 12px;
+}
+
+.assignActions button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 20px;
+  border: 0;
+  background: var(--navy-900);
+  color: var(--ivory-100);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.assignActions button:disabled {
+  background: #e7e9ea;
+  color: #6c757e;
+  cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+  .kinds {
+    grid-template-columns: 1fr;
+  }
 }

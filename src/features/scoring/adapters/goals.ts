@@ -71,7 +71,7 @@ export const goalsAdapter: ScoringAdapter<Config, Score, Event> = {
       kind: "boolean",
       name: "allowDraws",
       label: "Draws can stand as a final result",
-      help: "Only in manually progressed games.",
+      help: "Manual games only.",
     },
   ],
   scoreSchema,

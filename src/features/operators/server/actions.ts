@@ -97,22 +97,32 @@ export async function setOperatorActiveAction(formData: FormData) {
 export async function grantAssignmentAction(formData: FormData) {
   const actor = await requireSuperAdmin();
   const operatorId = id.safeParse(formData.get("operatorId"));
-  // One select carries the whole choice: scope type, tournament and target.
-  const selected = String(formData.get("scope") ?? "").split("|");
-  const scope = scopeType.safeParse(selected[0]);
-  const tournamentId = id.safeParse(selected[1]);
-  const targetId = selected[2] ? id.safeParse(selected[2]) : null;
   const level = accessLevel.safeParse(formData.get("accessLevel"));
 
   if (!operatorId.success) redirect("/admin/operators?error=invalid_operator");
 
   const base = `/admin/operators/${operatorId.data}`;
 
+  // One target per "scope" value: scope type, tournament and target id. The
+  // player picker sends several at once.
+  const targets = formData
+    .getAll("scope")
+    .map((value) => String(value).split("|"))
+    .map((parts) => ({
+      scope: scopeType.safeParse(parts[0]),
+      tournamentId: id.safeParse(parts[1]),
+      targetId: parts[2] ? id.safeParse(parts[2]) : null,
+    }));
+
   if (
-    !scope.success ||
-    !tournamentId.success ||
-    (targetId && !targetId.success) ||
-    !level.success
+    !level.success ||
+    targets.length === 0 ||
+    targets.some(
+      (target) =>
+        !target.scope.success ||
+        !target.tournamentId.success ||
+        (target.targetId && !target.targetId.success),
+    )
   ) {
     redirect(`${base}?error=invalid_assignment`);
   }
@@ -120,17 +130,26 @@ export async function grantAssignmentAction(formData: FormData) {
   let destination = `${base}?message=assignment_granted`;
 
   try {
-    const result = await grantOperatorAssignment({
-      actorId: actor.id,
-      operatorId: operatorId.data,
-      tournamentId: tournamentId.data,
-      scopeType: scope.data,
-      targetId: targetId?.data ?? null,
-      capabilities: capabilitiesForLevel(level.data),
-    });
+    let replaced = 0;
+    for (const target of targets) {
+      const result = await grantOperatorAssignment({
+        actorId: actor.id,
+        operatorId: operatorId.data,
+        tournamentId: target.tournamentId.data!,
+        scopeType: target.scope.data!,
+        targetId: target.targetId?.data ?? null,
+        capabilities: capabilitiesForLevel(level.data),
+      });
+      if (result.replaced) replaced += 1;
+    }
     revalidatePath(base);
     revalidatePath("/operator");
-    if (result.replaced) destination = `${base}?message=assignment_updated`;
+
+    if (targets.length > 1) {
+      destination = `${base}?message=assignments_granted&count=${targets.length}`;
+    } else if (replaced === 1) {
+      destination = `${base}?message=assignment_updated`;
+    }
   } catch (error) {
     destination = `${base}?error=${errorCode(error)}`;
   }

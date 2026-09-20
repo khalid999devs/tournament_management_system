@@ -19,6 +19,11 @@ export async function adminRoutes() {
     select id from registrations where status = 'CONFIRMED' order by created_at limit 1`;
   const [operator] = await db()`
     select id from staff_profiles where role = 'SCORE_OPERATOR' order by created_at limit 1`;
+  // A game with no draw yet, so the checklist, seeding picker and guide render.
+  const [undrawn] = await db()`
+    select tg.id from tournament_games tg
+    where not exists (select 1 from rounds r where r.tournament_game_id = tg.id)
+    order by tg.sort_order limit 1`;
   return [
     "/admin",
     "/admin/registrations",
@@ -26,6 +31,7 @@ export async function adminRoutes() {
     `/admin/registrations/${confirmed.id}`,
     "/admin/games",
     `/admin/games/${run.games["Table Tennis"]}`,
+    ...(undrawn ? [`/admin/games/${undrawn.id}`] : []),
     "/admin/event",
     "/admin/matches",
     `/admin/matches/${run.tableTennisMatches.semiFinals[1]}`,

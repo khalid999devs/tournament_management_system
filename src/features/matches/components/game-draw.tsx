@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import styles from "@/features/event/components/settings.module.css";
 import { formatDhakaDateTime } from "@/lib/dates";
 import { describeStatus } from "../domain/commands";
@@ -10,6 +11,8 @@ import {
   resetBracketAction,
 } from "../server/actions";
 import type { getGameBracket } from "../server/admin-match-queries";
+import { DrawGuide } from "./draw-guide";
+import { SeedingPicker } from "./seeding-picker";
 import draw from "./game-draw.module.css";
 
 type Bracket = Awaited<ReturnType<typeof getGameBracket>>;
@@ -23,17 +26,24 @@ export function GameDraw({
 }) {
   const knockout = game.progressionMode === "AUTOMATIC_SINGLE_ELIMINATION";
   const hasRounds = bracket.rounds.length > 0;
-  const blockers = [
-    game.registrationOpen
-      ? "Registration for this game is still open. Set it to Closed above."
-      : null,
-    bracket.pendingCount > 0
-      ? `${bracket.pendingCount} registration${bracket.pendingCount === 1 ? " is" : "s are"} awaiting payment review.`
-      : null,
-    bracket.confirmed.length < 2
-      ? "At least two confirmed players are needed."
-      : null,
-  ].filter(Boolean);
+  const steps = [
+    {
+      label: "Registration closed",
+      done: !game.registrationOpen,
+      hint: "Set it to Closed in Game settings above.",
+    },
+    {
+      label: "All payments decided",
+      done: bracket.pendingCount === 0,
+      hint: `${bracket.pendingCount} still waiting. Approve or reject them first.`,
+    },
+    {
+      label: "Two or more confirmed players",
+      done: bracket.confirmed.length >= 2,
+      hint: `${bracket.confirmed.length} so far.`,
+    },
+  ];
+  const ready = steps.every((step) => step.done);
 
   return (
     <section id="draw" className={styles.panel} aria-labelledby="draw-title">
@@ -41,63 +51,44 @@ export function GameDraw({
         <div>
           <p>{knockout ? "Knockout" : "Manual rounds"}</p>
           <h2 id="draw-title">
-            {knockout ? "Draw and bracket" : "Rounds and matches"}
+            {knockout ? "Create the matches" : "Rounds and matches"}
           </h2>
           <span>
-            {bracket.confirmed.length} confirmed{" "}
-            {bracket.confirmed.length === 1 ? "player" : "players"}.{" "}
             {knockout
-              ? "The draw uses confirmed players only. Top seeds get byes when the field is not a power of two, and winners move on automatically."
-              : "Create each round and choose who plays in each match. Results are recorded, and you decide who plays next."}
+              ? `Press one button and every round and match is created for you, from the ${bracket.confirmed.length} confirmed ${bracket.confirmed.length === 1 ? "player" : "players"}.`
+              : `You make each round and pick who plays, from the ${bracket.confirmed.length} confirmed ${bracket.confirmed.length === 1 ? "player" : "players"}.`}
           </span>
         </div>
+        {knockout ? <DrawGuide /> : null}
       </div>
 
       {knockout && !hasRounds ? (
         <>
-          {blockers.length ? (
-            <ul className={draw.blockers}>
-              {blockers.map((blocker) => (
-                <li key={blocker}>{blocker}</li>
-              ))}
-            </ul>
-          ) : null}
+          {ready ? null : (
+            <ol className={draw.checklist} aria-label="Before you can draw">
+              {steps
+                .filter((step) => !step.done)
+                .map((step) => (
+                  <li key={step.label}>
+                    <AlertTriangle size={16} aria-hidden="true" />
+                    <span>
+                      <strong>{step.label}</strong>
+                      <small>{step.hint}</small>
+                    </span>
+                  </li>
+                ))}
+            </ol>
+          )}
+
           <form action={generateBracketAction} className={styles.stack}>
             <input type="hidden" name="tournamentGameId" value={game.id} />
-            <fieldset className={draw.seeding}>
-              <legend>Seeding</legend>
-              <label className={styles.check}>
-                <input
-                  type="radio"
-                  name="seeding"
-                  value="RANDOM"
-                  defaultChecked
-                />{" "}
-                Random draw (secure shuffle)
-              </label>
-              <label className={styles.check}>
-                <input type="radio" name="seeding" value="MANUAL" /> Manual
-                order: list below, top seed first
-              </label>
-            </fieldset>
-            <label className={styles.field}>
-              <span>Manual seeding (registration codes, one per line)</span>
-              <textarea
-                name="manualOrder"
-                defaultValue={bracket.confirmed
-                  .map((entry) => entry.code)
-                  .join("\n")}
-              />
-              <small>
-                Used only with manual order. Every confirmed player must appear
-                exactly once.
-              </small>
-            </label>
+            <SeedingPicker players={bracket.confirmed} />
+
             <div className={styles.actions}>
               <button
                 className={styles.primary}
                 type="submit"
-                disabled={blockers.length > 0}
+                disabled={!ready}
               >
                 Make the draw
               </button>

@@ -31,9 +31,13 @@
   text-transform: uppercase;
 }
 
+.panelHeading > div {
+  min-width: 0;
+}
+
 .panelHeading span {
   display: block;
-  max-width: 680px;
+  max-width: 900px;
   margin-top: 8px;
   color: var(--slate-700);
   font-size: 14px;
@@ -143,9 +147,10 @@
 
 .check {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   min-height: 44px;
+  padding-top: 3px;
   color: var(--navy-900);
   font-size: 14px;
 }
@@ -153,6 +158,8 @@
 .check input {
   width: 18px;
   height: 18px;
+  margin-top: 2px;
+  flex: none;
   accent-color: var(--green-600);
 }
 
@@ -184,8 +191,9 @@
 }
 
 .primary:disabled {
+  background: #e7e9ea;
+  color: #5c6470;
   cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .secondary {
@@ -645,5 +653,12 @@
 
   .table .meter {
     width: 100%;
+  }
+}
+
+/* The guide button drops under the title rather than squeezing it. */
+@media (max-width: 640px) {
+  .panelHeading {
+    flex-wrap: wrap;
   }
 }

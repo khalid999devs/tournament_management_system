@@ -467,3 +467,9 @@
     transition: none;
   }
 }
+
+.scoreGuide {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}

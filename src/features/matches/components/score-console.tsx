@@ -508,8 +508,7 @@ export function ScoreConsole({
           </summary>
           <div className={styles.issueBody}>
             <p className={styles.hint}>
-              Flags this match for the admins, for example a no-show, a disputed
-              score or a broken table. It does not change the score.
+              Tells the admins. It does not change the score.
             </p>
             {state.permissions.report ? (
               <IssueReportForm

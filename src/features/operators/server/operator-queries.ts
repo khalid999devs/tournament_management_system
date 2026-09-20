@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { getDatabase } from "@/db";
 import {
   games,
@@ -108,7 +108,6 @@ export async function getOperatorDetail(operatorId: string) {
     gameOptions,
     roundOptions,
     matchOptions,
-    entryOptions,
   ] = await Promise.all([
     db
       .select({
@@ -196,28 +195,6 @@ export async function getOperatorDetail(operatorId: string) {
         rounds.sequence,
         matches.code,
       ),
-    db
-      .select({
-        id: registrationGameEntries.id,
-        tournamentId: tournamentGames.tournamentId,
-        tournamentName: tournaments.name,
-        gameName: games.name,
-        label: participants.fullName,
-        registrationCode: registrations.code,
-      })
-      .from(registrationGameEntries)
-      .innerJoin(
-        registrations,
-        eq(registrationGameEntries.registrationId, registrations.id),
-      )
-      .innerJoin(participants, eq(registrations.participantId, participants.id))
-      .innerJoin(
-        tournamentGames,
-        eq(registrationGameEntries.tournamentGameId, tournamentGames.id),
-      )
-      .innerJoin(tournaments, eq(tournamentGames.tournamentId, tournaments.id))
-      .innerJoin(games, eq(tournamentGames.gameId, games.id))
-      .orderBy(desc(tournaments.year), participants.fullName),
   ]);
 
   return {
@@ -229,7 +206,98 @@ export async function getOperatorDetail(operatorId: string) {
       games: gameOptions,
       rounds: roundOptions,
       matches: matchOptions,
-      entries: entryOptions,
+      // Players are not shipped with the page. An event can hold hundreds, so
+      // the picker fetches them on demand and only the assigned ones are
+      // named here.
+      entries: await entryLabels(
+        assignments
+          .map((assignment) => assignment.registrationGameEntryId)
+          .filter((id): id is string => id !== null),
+      ),
     },
   };
+}
+
+/** Names for the handful of players an operator is already assigned to. */
+async function entryLabels(ids: string[]) {
+  if (ids.length === 0) return [];
+  return entrySelect().where(inArray(registrationGameEntries.id, ids));
+}
+
+/** Players an admin can be given, narrowed by a search and always capped. */
+/**
+ * Players an admin can be given, one row per person rather than one per game
+ * they entered. Choosing a player covers every game they are in.
+ */
+export async function searchParticipantEntries(query: string) {
+  await requireSuperAdmin();
+  const term = query.trim();
+  const like = `%${term.replace(/[%_]/g, (match) => `\\${match}`)}%`;
+
+  const rows = await entrySelect()
+    .where(
+      term.length === 0
+        ? undefined
+        : or(
+            ilike(participants.fullName, like),
+            ilike(registrations.code, like),
+            ilike(participants.normalizedStudentId, like),
+            ilike(games.name, like),
+          ),
+    )
+    .orderBy(asc(participants.fullName), asc(games.name))
+    .limit(200);
+
+  const players = new Map<
+    string,
+    {
+      participantId: string;
+      label: string;
+      studentId: string;
+      registrationCode: string;
+      games: string[];
+      entries: { id: string; tournamentId: string }[];
+    }
+  >();
+
+  for (const row of rows) {
+    const player = players.get(row.participantId) ?? {
+      participantId: row.participantId,
+      label: row.label,
+      studentId: row.studentId,
+      registrationCode: row.registrationCode,
+      games: [],
+      entries: [],
+    };
+    player.games.push(row.gameName);
+    player.entries.push({ id: row.id, tournamentId: row.tournamentId });
+    players.set(row.participantId, player);
+  }
+
+  return [...players.values()].slice(0, 40);
+}
+
+function entrySelect() {
+  return getDatabase()
+    .select({
+      id: registrationGameEntries.id,
+      participantId: participants.id,
+      tournamentId: tournamentGames.tournamentId,
+      gameName: games.name,
+      label: participants.fullName,
+      studentId: participants.normalizedStudentId,
+      registrationCode: registrations.code,
+    })
+    .from(registrationGameEntries)
+    .innerJoin(
+      registrations,
+      eq(registrationGameEntries.registrationId, registrations.id),
+    )
+    .innerJoin(participants, eq(registrations.participantId, participants.id))
+    .innerJoin(
+      tournamentGames,
+      eq(registrationGameEntries.tournamentGameId, tournamentGames.id),
+    )
+    .innerJoin(games, eq(tournamentGames.gameId, games.id))
+    .$dynamic();
 }

@@ -4,16 +4,13 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { requireSuperAdminPage } from "@/features/auth/server/staff-session";
+import { describeCapabilities } from "@/features/operators/domain/access-levels";
 import {
-  accessLevels,
-  defaultAccessLevel,
-  describeCapabilities,
-} from "@/features/operators/domain/access-levels";
-import {
-  grantAssignmentAction,
   revokeAssignmentAction,
   setOperatorActiveAction,
 } from "@/features/operators/server/actions";
+import { AccessGuide } from "@/features/operators/components/access-guide";
+import { AssignmentForm } from "@/features/operators/components/assignment-form";
 import { getOperatorDetail } from "@/features/operators/server/operator-queries";
 import adminStyles from "@/features/admin/components/admin.module.css";
 import styles from "@/features/operators/components/operators.module.css";
@@ -36,6 +33,7 @@ const messages: Record<string, string> = {
   assignment_granted: "Access added.",
   assignment_updated:
     "Access updated. They already covered that, so it was replaced rather than added again.",
+  assignments_granted: "Access added.",
   assignment_revoked: "Access removed.",
 };
 
@@ -87,47 +85,6 @@ export default async function OperatorDetailPage({
     ),
   ]);
 
-  const groups = [
-    {
-      label: "Whole tournament",
-      options: options.tournaments.map((item) => ({
-        value: `ALL_TOURNAMENT|${item.id}|`,
-        label: `${item.label} (every game)`,
-      })),
-    },
-    {
-      label: "One game",
-      options: options.games.map((item) => ({
-        value: `GAME|${item.tournamentId}|${item.id}`,
-        label: labels.get(item.id) ?? item.label,
-      })),
-    },
-    {
-      label: "One round",
-      options: options.rounds.map((item) => ({
-        value: `ROUND|${item.tournamentId}|${item.id}`,
-        label: labels.get(item.id) ?? item.label,
-      })),
-    },
-    {
-      label: "One match",
-      options: options.matches.map((item) => ({
-        value: `MATCH|${item.tournamentId}|${item.id}`,
-        label: labels.get(item.id) ?? item.label,
-      })),
-    },
-    {
-      label: "One player",
-      options: options.entries.map((item) => ({
-        value: `PARTICIPANT_ENTRY|${item.tournamentId}|${item.id}`,
-        label: labels.get(item.id) ?? item.label,
-      })),
-    },
-  ].filter((group) => group.options.length > 0);
-
-  const hasTargets = groups.length > 0;
-  const awaitingDraw =
-    options.rounds.length === 0 && options.matches.length === 0;
   // Whole-tournament access already covers every narrower grant beside it.
   const coversEverything = new Set(
     assignments
@@ -176,8 +133,8 @@ export default async function OperatorDetailPage({
             </strong>
             <span>
               {profile.active
-                ? "Can sign in, and sees whatever the assignments below allow."
-                : "Cannot open the operator workspace. Deactivating removed their access, and reactivating does not bring it back."}
+                ? "Can sign in and see whatever is listed below."
+                : "Cannot sign in. Reactivating does not bring their access back."}
             </span>
             {invitation ? (
               <small>Invitation email: {invitation.status.toLowerCase()}</small>
@@ -212,9 +169,7 @@ export default async function OperatorDetailPage({
           <span className={styles.count}>{assignments.length} active</span>
         </div>
         <p className={styles.helper}>
-          Assignments add up: an operator can do anything at least one of them
-          allows, and nothing else. Removing one takes effect on their next page
-          load. Operators never see payment details.
+          Access adds up, and they never see payment details.
         </p>
         {assignments.length === 0 ? (
           <div className={styles.empty}>
@@ -276,59 +231,29 @@ export default async function OperatorDetailPage({
               <p>Give access</p>
               <h2 id="grant-title">Add an assignment</h2>
             </div>
+            <AccessGuide />
           </div>
-          {hasTargets ? (
-            <form className={styles.grantForm} action={grantAssignmentAction}>
-              <input type="hidden" name="operatorId" value={profile.id} />
-              <label className={styles.grantField}>
-                <span>What they cover</span>
-                <select name="scope" required defaultValue="">
-                  <option value="" disabled>
-                    Select a game, round, match or player
-                  </option>
-                  {groups.map((group) => (
-                    <optgroup key={group.label} label={group.label}>
-                      {group.options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
-              <fieldset className={styles.levels}>
-                <legend>What they can do</legend>
-                {accessLevels.map((level) => (
-                  <label key={level.value} className={styles.level}>
-                    <input
-                      type="radio"
-                      name="accessLevel"
-                      value={level.value}
-                      defaultChecked={level.value === defaultAccessLevel}
-                    />
-                    <span>
-                      <strong>{level.label}</strong>
-                      <small>{level.description}</small>
-                    </span>
-                  </label>
-                ))}
-              </fieldset>
-              <button type="submit">Give access</button>
-            </form>
-          ) : (
-            <p className={styles.helper}>
-              Add a game to the tournament first, in{" "}
-              <Link href="/admin/games">Games</Link>.
-            </p>
-          )}
-          <p className={styles.hint}>
-            A whole game covers every match in it, including matches the draw
-            creates later, so it is the usual choice.
-            {awaitingDraw
-              ? " Rounds and matches appear in this list once you make the draw for a game."
-              : null}
-          </p>
+          <AssignmentForm
+            operatorId={profile.id}
+            options={{
+              tournaments: options.tournaments.map((item) => ({
+                value: `ALL_TOURNAMENT|${item.id}|`,
+                label: item.label,
+              })),
+              games: options.games.map((item) => ({
+                value: `GAME|${item.tournamentId}|${item.id}`,
+                label: labels.get(item.id) ?? item.label,
+              })),
+              rounds: options.rounds.map((item) => ({
+                value: `ROUND|${item.tournamentId}|${item.id}`,
+                label: labels.get(item.id) ?? item.label,
+              })),
+              matches: options.matches.map((item) => ({
+                value: `MATCH|${item.tournamentId}|${item.id}`,
+                label: labels.get(item.id) ?? item.label,
+              })),
+            }}
+          />
         </section>
       ) : null}
     </div>

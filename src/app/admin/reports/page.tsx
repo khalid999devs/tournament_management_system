@@ -18,9 +18,8 @@ export default async function ReportsPage() {
           <p>Reports</p>
           <h1>Exports</h1>
           <span>
-            CSV files for spreadsheets. Each file holds every row that matches
-            the filters, not just one page. Downloads are recorded in the audit
-            log because they contain contact details.
+            Every matching row, not just one page. Downloads are logged: these
+            files hold contact details.
           </span>
         </div>
       </header>
@@ -42,7 +41,7 @@ export default async function ReportsPage() {
           <ReportCard
             kind="registrations"
             title="Registrations"
-            description="Every registration with contact details, games, fee and payment reference. The Registrations page exports its current filters too."
+            description="Contact details, games, fee and payment reference."
           >
             <Select name="status" label="Status">
               <option value="ALL">All statuses</option>
@@ -64,7 +63,7 @@ export default async function ReportsPage() {
           <ReportCard
             kind="participants"
             title="Confirmed players by game"
-            description="One row per confirmed player per game, sorted by game and name. Useful for check-in sheets."
+            description="One row per player per game. Good for check-in sheets."
           >
             <Select name="game" label="Game">
               <option value="">All games</option>
@@ -87,7 +86,7 @@ export default async function ReportsPage() {
           <ReportCard
             kind="payments"
             title="Payment verification"
-            description="Payment method, number paid to, transaction ID, amount and who verified it. Match it against the mobile banking statements."
+            description="Transaction IDs and amounts, to check against your banking statement."
           >
             <Select name="status" label="Payment status">
               <option value="">All</option>
@@ -109,7 +108,7 @@ export default async function ReportsPage() {
           <ReportCard
             kind="results"
             title="Match results"
-            description="Every match with players, placings and the final score. The match monitor exports its current filters too."
+            description="Every match with its players, placings and final score."
           >
             <Select name="game" label="Game">
               <option value="">All games</option>
@@ -133,7 +132,7 @@ export default async function ReportsPage() {
           <ReportCard
             kind="activity"
             title="Operator activity"
-            description="Every score change: who entered it, on which match, the server time and the time the button was pressed."
+            description="Every score change, and who entered it."
           >
             <Select name="staff" label="Staff member">
               <option value="">Everyone</option>
