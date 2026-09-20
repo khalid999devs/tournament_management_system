@@ -42,6 +42,28 @@
 - Images have explicit dimensions and appropriate optimization.
 - Realtime subscriptions are limited to authenticated staff workflows.
 
+## Continuous integration
+
+`.github/workflows/checks.yml` runs on every pull request and every push to
+`main`:
+
+| Job             | Runs                                                                                |
+| --------------- | ----------------------------------------------------------------------------------- |
+| **static**      | Route typegen, `typecheck`, `lint`, `format:check`, unit tests                      |
+| **integration** | Migrations, then the PostgreSQL suite against a throwaway container                 |
+| **build**       | Migrations, then a production build, since public pages prerender from the database |
+
+Route and layout prop types are generated rather than committed, so `next
+typegen` runs before `tsc`.
+
+**The browser suite is not in CI.** Staff sign-in has no way to check a
+session without a real Supabase Auth project, and putting those keys in a
+public repository's workflow is not worth the convenience. Run it locally with
+`pnpm test:e2e` before a change that touches a page.
+
+No job uses a secret: the database is a service container with trust
+authentication and the Supabase values are placeholders.
+
 ## Release gates
 
 - Critical unit, integration, and end-to-end tests pass.
