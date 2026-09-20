@@ -160,6 +160,31 @@ Write tests against what a person sees or a table contains, not against
 internal call order. In browser tests, find things by their role and visible
 name, the way a person would.
 
+## Explaining a screen
+
+Anything an organiser could get wrong gets a guide: a `<Guide>` button in the
+panel heading that opens a modal, with an SVG diagram where a picture beats a
+paragraph. Put the diagram in `src/components/guide/diagrams.tsx` and the
+words in a component beside the feature it explains.
+
+Two rules learned the hard way:
+
+- **Keep labels inside their boxes.** SVG text does not wrap or clip, it just
+  runs over the border, and white text on a dark box becomes invisible the
+  moment it escapes. `tests/e2e/support/svg-check.mjs` measures every label
+  against the box it sits in.
+- **A modal inherits the cascade from where it sits in the document**, even
+  though it renders in the top layer. A dialog inside a panel heading picks up
+  that heading's rules for `p` and `h2`. Scope its own rules accordingly.
+
+## Checking a layout
+
+Do not judge a layout by reading a screenshot, and do not trust a running app
+after a rebuild: `next start` serves the build it began with, so restart the
+kept environment first. `docs/qa/END_TO_END_TESTS.md` lists the scripts that
+measure button positions, modal centring, tile heights, stray list markers and
+sideways scrolling.
+
 ## Interface and copy
 
 The full list is [`docs/qa/QUALITY_BARS.md`](docs/qa/QUALITY_BARS.md). The
@@ -167,6 +192,9 @@ ones people get wrong:
 
 - **Plain English, written for a player or a volunteer.** Not "invalid scope
   target", but "That choice does not belong to the tournament."
+- **One line where one line will do.** A hint that wraps onto a second line
+  makes the tile beside it taller and the row ragged. Shorten the words before
+  reaching for CSS.
 - **No em dashes in user-visible copy.** Use a comma, a colon or a full stop.
 - **Say what is true.** Where a detail is not configured yet, the page says
   so. Never invent a date, a fee or a fixture, and never ship sample data that

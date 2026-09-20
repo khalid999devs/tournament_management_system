@@ -1,11 +1,240 @@
-.blockers {
-  margin: 0 0 18px;
-  padding: 12px 16px 12px 32px;
-  border: 1px solid #f1d9a6;
-  background: #fdf6e7;
+.checklist {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-left: 3px solid var(--gold-500);
+  background: #fff8e8;
   color: #6b4608;
   font-size: 14px;
-  line-height: 1.6;
+}
+
+.checklist li > svg {
+  margin-top: 3px;
+  flex: none;
+}
+
+.checklist span {
+  display: grid;
+  gap: 3px;
+}
+
+.checklist strong {
+  color: #6b4608;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.checklist small {
+  color: #7a5a22;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.seeding {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.seeding > legend {
+  grid-column: 1 / -1;
+}
+
+.seeding legend {
+  margin-bottom: 10px;
+  color: var(--slate-700);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.seedOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid #e0e4e7;
+  background: #fafaf8;
+  cursor: pointer;
+}
+
+.seedOption:hover {
+  border-color: #c2c9cf;
+}
+
+.seedOption:has(input:checked) {
+  border-color: var(--navy-900);
+  background: white;
+  box-shadow: inset 0 0 0 1px var(--navy-900);
+}
+
+.seedOption:has(input:focus-visible) {
+  outline: 2px solid var(--navy-900);
+  outline-offset: 2px;
+}
+
+.seedOption input {
+  width: 17px;
+  height: 17px;
+  margin: 3px 0 0;
+  flex: none;
+  accent-color: var(--navy-900);
+}
+
+.seedOption > span {
+  display: grid;
+  gap: 3px;
+}
+
+.seedOption strong {
+  color: var(--navy-950);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.seedOption small {
+  color: var(--slate-700);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ranking {
+  margin-top: 4px;
+}
+
+.rankingHead {
+  max-width: 620px;
+  margin: 0 0 9px;
+  color: var(--slate-700);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.rankingList {
+  display: grid;
+  max-width: 620px;
+  max-height: 340px;
+  overflow-y: auto;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rankingList li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border: 1px solid #e3e6e9;
+  background: #fafaf8;
+  opacity: 0.6;
+}
+
+.ranking[data-active] .rankingList li {
+  background: white;
+  cursor: grab;
+  opacity: 1;
+}
+
+.ranking[data-active] .rankingList li[data-held] {
+  border-color: var(--navy-900);
+  opacity: 0.45;
+}
+
+.seedNumber {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  place-items: center;
+  background: #eceeef;
+  color: var(--navy-950);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.ranking[data-active] .seedNumber {
+  background: var(--navy-900);
+  color: var(--ivory-100);
+}
+
+.grip {
+  flex: none;
+  color: #b3bac0;
+}
+
+.ranking:not([data-active]) .grip {
+  visibility: hidden;
+}
+
+.player {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  flex: 1;
+}
+
+.player strong {
+  color: var(--navy-950);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.player small {
+  color: var(--slate-700);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.rankButtons {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.rankButtons button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #cfd5da;
+  background: white;
+  color: var(--navy-900);
+  cursor: pointer;
+}
+
+.rankButtons button:hover:not(:disabled) {
+  border-color: var(--navy-900);
+}
+
+.rankButtons button:disabled {
+  color: #b8bec4;
+  cursor: not-allowed;
+}
+
+.rankButtons button:focus-visible {
+  outline: 2px solid var(--navy-900);
+  outline-offset: 2px;
+}
+
+.readyNote {
+  align-self: center;
+  color: var(--slate-700);
+  font-size: 13px;
 }
 
 .inlineForm {
@@ -221,6 +450,10 @@
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+.seeding > legend {
+  grid-column: 1 / -1;
 }
 
 .seeding legend {

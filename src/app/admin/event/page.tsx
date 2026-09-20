@@ -20,6 +20,7 @@ import {
 } from "@/features/event/server/actions";
 import { getEventSetup } from "@/features/event/server/event-queries";
 import { ReminderPanel } from "@/features/notifications/components/reminder-panel";
+import { EventGuide } from "@/features/event/components/event-guide";
 
 export const metadata: Metadata = { title: "Event settings" };
 // "Send the reminder now" keeps sending after the page reloads.
@@ -78,6 +79,7 @@ export default async function EventSettingsPage({
             participants.
           </span>
         </div>
+        <EventGuide />
       </header>
 
       <StatusMessages {...status} />
@@ -221,8 +223,8 @@ function EventSetup({ setup }: { setup: Setup }) {
             <p>Public information</p>
             <h2 id="details-title">Event details</h2>
             <span>
-              Times are entered in Bangladesh time (Asia/Dhaka). The start and
-              end are used in the confirmation email and calendar invite.
+              Bangladesh time. The start and end go into every confirmation
+              email.
             </span>
           </div>
         </div>
@@ -374,9 +376,8 @@ function EventSetup({ setup }: { setup: Setup }) {
             <p>Manual verification</p>
             <h2 id="payments-title">Payment methods</h2>
             <span>
-              Participants send the fee to one of these accounts and submit the
-              transaction ID. Each registration keeps a copy of the account
-              shown at the time, so later edits never change past records.
+              Each registration keeps a copy of the number it was shown, so
+              editing one later never changes past records.
             </span>
           </div>
         </div>

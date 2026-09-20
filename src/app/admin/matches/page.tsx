@@ -17,6 +17,9 @@ import { getAdminMatchPage } from "@/features/matches/server/admin-match-queries
 import { formatDhakaDateTime } from "@/lib/dates";
 import styles from "@/features/admin/components/admin.module.css";
 import { FilterForm } from "@/components/filters/filter-form";
+import { MatchRowEdit } from "@/features/matches/components/match-row-edit";
+import { dateToDhakaInput } from "@/features/event/domain/event-settings";
+import { StatusMessages } from "@/features/event/components/status-messages";
 
 export const metadata: Metadata = { title: "Matches" };
 export const dynamic = "force-dynamic";
@@ -38,12 +41,23 @@ export default async function MatchesPage({
     status?: string;
     q?: string;
     page?: string;
+    message?: string;
+    error?: string;
   }>;
 }) {
+  const filters = await searchParams;
   const [data, tournamentId] = await Promise.all([
-    getAdminMatchPage(await searchParams),
+    getAdminMatchPage(filters),
     findCurrentTournamentId(),
   ]);
+
+  // An inline edit comes back to the same page of the same filtered list.
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(
+      ([key, value]) => Boolean(value) && key !== "message" && key !== "error",
+    ) as [string, string][],
+  ).toString();
+  const returnTo = query ? `/admin/matches?${query}` : "/admin/matches";
 
   if (!data) {
     return (
@@ -98,6 +112,8 @@ export default async function MatchesPage({
           ) : null}
         </div>
       </header>
+
+      <StatusMessages message={filters.message} error={filters.error} />
 
       <FilterForm action="/admin/matches" className={styles.filters}>
         <label className={styles.searchField}>
@@ -155,6 +171,7 @@ export default async function MatchesPage({
               <th>Score</th>
               <th>Schedule</th>
               <th>Status</th>
+              <th>Edit</th>
               <th aria-label="Open match" />
             </tr>
           </thead>
@@ -191,6 +208,16 @@ export default async function MatchesPage({
                   <span className={styles.statusBadge} data-status={row.status}>
                     {describeStatus(row.status)}
                   </span>
+                </td>
+                <td data-label="Edit">
+                  <MatchRowEdit
+                    matchId={row.id}
+                    code={row.code}
+                    scheduledAt={dateToDhakaInput(row.scheduledAt)}
+                    station={row.station ?? ""}
+                    status={row.status}
+                    returnTo={returnTo}
+                  />
                 </td>
                 <td className={styles.linkCell}>
                   <Link

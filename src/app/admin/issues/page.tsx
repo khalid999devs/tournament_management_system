@@ -85,8 +85,8 @@ export default async function IssuesPage({
               {data.status === "OPEN" ? "No open reports" : "No reports here"}
             </h2>
             <p>
-              Operators can report a no-show, a disputed score or a broken table
-              from any match. Reports show here straight away.
+              Operators flag problems from any match. They show here straight
+              away.
             </p>
           </div>
         </div>

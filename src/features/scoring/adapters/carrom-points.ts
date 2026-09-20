@@ -101,7 +101,7 @@ export const carromPointsAdapter: ScoringAdapter<Config, Score, Event> = {
       kind: "number",
       name: "maxBoards",
       label: "Board limit",
-      help: "Optional. The leader after this many boards wins; a level score adds tie-break boards.",
+      help: "Optional. The leader after this many boards wins.",
       min: 1,
       max: 50,
       optional: true,

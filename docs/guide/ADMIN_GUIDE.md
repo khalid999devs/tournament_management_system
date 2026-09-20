@@ -21,6 +21,12 @@ operator who opens them is sent back to their own match list.
 
 Times are Bangladesh time everywhere. Money is shown in BDT.
 
+**Every complicated screen has its own guide.** Look for a button in the top
+right of the panel: _How scoring works_, _How the draw works_, _How access
+works_, _How to fix a result_, _How to set up_. Each opens a short illustrated
+explanation without leaving the page. Score operators have one too, on their
+scoring screen.
+
 ---
 
 ## Dashboard
@@ -159,8 +165,18 @@ Pick the scoring type for the game and its settings. The seven types:
 | Highest or lowest score wins | Scrabble, cube times, typing speed, quiz totals | 2 to 64           |
 
 **Progression** is either **knockout**, where winners advance automatically,
-or **manual**, where you build each round and choose who plays. Knockout is
-head-to-head, so the two multi-player types default to manual.
+or **manual rounds**, where you build each round and choose who plays.
+Knockout is head to head, so anything with three or more players in a match
+uses manual rounds.
+
+**A whole lobby in one match.** For thirty players racing or fighting at once,
+set manual rounds and put everyone in a single match. Use **placement points**
+if you rank the finishers, or **highest or lowest score wins** if you record
+each player's time. Two things to know: the operator must record a finishing
+position or value for **every** player before the result can be confirmed, and
+nothing stops the match automatically when the leader finishes. Only
+multi-player points has an optional target that ends a game, and it caps at
+sixteen players.
 
 Scoring rules **lock once the first match in that game starts**, so every
 result in a game is judged by the same rules. Set them before you draw.
@@ -193,7 +209,20 @@ stays for the record and you close it instead.
 
 Every match in one list, with search by code, player or registration code, and
 filters by game and status. 25 to a page. **Export CSV** downloads whatever
-the current filters show.
+the current filters show. Applying a filter refreshes only the list, so the
+page does not reload under you.
+
+**Edit** on any row opens the common changes in place, without opening the
+match:
+
+- **Start time** and **table or station**, which never touch the score.
+- **Postpone**, with a reason, for a match that is scheduled or being played.
+- **Resume**, for one that was postponed.
+
+You are returned to the same page of the same filtered list. Reopening a
+confirmed result and cancelling a match are still only on the match's own
+page, because they change what operators see and need a reason on the
+record.
 
 Opening a match gives you the same scoring screen an operator sees, plus
 **admin controls** down the right:
@@ -325,16 +354,25 @@ your team, and for most events it is the only thing you need to do here.
 ### Narrowing access
 
 **Details** opens one operator's page, for the cases a whole game is too
-broad. There you choose what they cover:
+broad. The form there is three steps: what they cover, which one, and what
+they can do.
+
+What they cover:
 
 - **Whole tournament** — every game
 - **One game**
 - **One round**
 - **One match**
-- **One player** — every match that player is in
+- **Players** — every match those players are in
 
 Rounds and matches only appear in the list once you have made the draw for a
 game, because they do not exist before that.
+
+Choosing **Players** gives you a search box rather than a list. Type a name,
+student ID or registration code and tick as many people as you like. There is
+**one row per person**, not one per game, and ticking someone covers every
+game they entered. The list is only fetched when you open it, so an event with
+hundreds of entrants does not slow the page down.
 
 And what they can do:
 

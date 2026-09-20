@@ -47,6 +47,10 @@ You will never see anyone's payment details. The page says so at the top.
 
 ## Scoring a match
 
+There is a **How to score** button at the top of the scoring screen. It opens
+a short illustrated guide covering these same steps, so you can check
+something mid-match without asking anyone.
+
 Open a match and press **Start match** when play begins. Recording the first
 score starts it too, so there is no way to forget.
 

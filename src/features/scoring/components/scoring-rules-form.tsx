@@ -59,12 +59,8 @@ export function ScoringRulesForm({
           defaultValue={progressionMode}
           disabled={formatLocked}
         >
-          <option value="AUTOMATIC_SINGLE_ELIMINATION">
-            Knockout: winners advance automatically
-          </option>
-          <option value="MANUAL">
-            Manual: admin builds each round and picks who plays
-          </option>
+          <option value="AUTOMATIC_SINGLE_ELIMINATION">Knockout</option>
+          <option value="MANUAL">Manual rounds</option>
         </select>
         {formatLocked ? (
           <input type="hidden" name="progressionMode" value={progressionMode} />
@@ -72,7 +68,7 @@ export function ScoringRulesForm({
         <small>
           {formatLocked
             ? "Scoring type and progression are fixed while a draw exists."
-            : `Suggested for this scoring type: ${
+            : `One draw builds the whole bracket. Suggested here: ${
                 adapter.defaultProgression === "MANUAL" ? "manual" : "knockout"
               }.`}
         </small>

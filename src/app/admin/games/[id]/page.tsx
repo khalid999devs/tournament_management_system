@@ -13,6 +13,7 @@ import {
 import { getTournamentGameDetail } from "@/features/event/server/event-queries";
 import { GameDraw } from "@/features/matches/components/game-draw";
 import { getGameBracket } from "@/features/matches/server/admin-match-queries";
+import { ScoringGuide } from "@/features/scoring/components/scoring-guide";
 import { ScoringRulesForm } from "@/features/scoring/components/scoring-rules-form";
 import { parseScoringConfig } from "@/features/scoring/adapters";
 
@@ -71,10 +72,7 @@ export default async function GameSettingsPage({
           <div>
             <p>Registration</p>
             <h2 id="settings-title">Game settings</h2>
-            <span>
-              Fee changes apply to new registrations only; submitted
-              registrations keep the fee they were quoted.
-            </span>
+            <span>A fee change applies to new registrations only.</span>
           </div>
         </div>
         <form className={styles.formGrid} action={updateTournamentGameAction}>
@@ -168,10 +166,11 @@ export default async function GameSettingsPage({
             <h2 id="scoring-title">Scoring rules</h2>
             <span>
               {bracket.lock.started
-                ? "Locked: matches in this game have started, so every result is judged by the same rules."
-                : "How operators enter scores and how the winner is decided. These lock when the first match starts."}
+                ? "Locked: this game has started, so the rules cannot change."
+                : "How the winner is decided. Locks when the first match starts."}
             </span>
           </div>
+          <ScoringGuide />
         </div>
         <ScoringRulesForm
           tournamentGameId={game.id}
@@ -203,7 +202,7 @@ export default async function GameSettingsPage({
             <h2 id="remove-title">Remove from event</h2>
             <span>
               {game.entryCount > 0
-                ? "This game has registrations, so it stays for the record. Set registration to Closed to stop new entries."
+                ? "It has registrations, so it stays. Close it to stop new entries."
                 : "Removes the game from this event. It can be added again later."}
             </span>
           </div>

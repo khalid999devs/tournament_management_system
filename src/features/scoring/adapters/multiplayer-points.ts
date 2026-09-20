@@ -91,7 +91,7 @@ export const multiplayerPointsAdapter: ScoringAdapter<Config, Score, Event> = {
       kind: "number",
       name: "targetPoints",
       label: "Game ends at",
-      help: "Optional. The game can be finalized once any total reaches this (e.g. 29 Cards to 6).",
+      help: "Optional. A total reaching this can end the game.",
       min: 1,
       max: 100000,
       optional: true,

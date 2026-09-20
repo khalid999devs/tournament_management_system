@@ -44,8 +44,9 @@ test("admin invites an operator, the operator sets a password, and sees only the
   ).toBeVisible();
 
   // Grant one game; the operator then sees that game's matches and nothing else.
+  await adminPage.getByRole("radio", { name: /A whole game/ }).check();
   await adminPage
-    .getByLabel("What they cover")
+    .getByLabel("Target")
     .selectOption({ label: "Mobile Football" });
   await adminPage
     .getByRole("radio", { name: /Score and confirm results/ })
@@ -57,8 +58,9 @@ test("admin invites an operator, the operator sets a password, and sees only the
 
   // Granting the same game again replaces that assignment instead of adding
   // a second one beside it.
+  await adminPage.getByRole("radio", { name: /A whole game/ }).check();
   await adminPage
-    .getByLabel("What they cover")
+    .getByLabel("Target")
     .selectOption({ label: "Mobile Football" });
   await adminPage.getByRole("radio", { name: /Score only/ }).check();
   await adminPage.getByRole("button", { name: "Give access" }).click();
@@ -74,8 +76,9 @@ test("admin invites an operator, the operator sets a password, and sees only the
   await expect(assignments.getByText("Score only")).toBeVisible();
 
   // Put the operator back on full scoring for the rest of the run.
+  await adminPage.getByRole("radio", { name: /A whole game/ }).check();
   await adminPage
-    .getByLabel("What they cover")
+    .getByLabel("Target")
     .selectOption({ label: "Mobile Football" });
   await adminPage
     .getByRole("radio", { name: /Score and confirm results/ })
@@ -147,6 +150,19 @@ test("admin invites an operator, the operator sets a password, and sees only the
   ).toBeVisible();
   await expect(panel.getByText("0 active")).toBeVisible();
   await expect(panel.getByText("Mobile Football")).toHaveCount(0);
+
+  // Players are searched on demand and several can be given at once.
+  await adminPage.goto(operatorPath);
+  await adminPage.getByRole("radio", { name: /^Players/ }).check();
+  const picker = adminPage.locator("form").filter({ hasText: "Which players" });
+  await expect(picker.getByRole("checkbox").first()).toBeVisible();
+  const first = picker.getByRole("checkbox").first();
+  await first.check();
+  await adminPage.getByRole("button", { name: /Give access/ }).click();
+  await expect(adminPage).toHaveURL(
+    new RegExp(`${operatorPath}\\?message=assignments?_granted`),
+  );
+  await expect(panel.getByText("One player")).toBeVisible();
 
   await admin.close();
   await operator.close();

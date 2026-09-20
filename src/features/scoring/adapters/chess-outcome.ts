@@ -49,7 +49,7 @@ export const chessOutcomeAdapter: ScoringAdapter<Config, Score, never> = {
       kind: "boolean",
       name: "allowDraws",
       label: "Draws can stand as a final result",
-      help: "Only in manually progressed games. Knockout games always need a tie-break winner after a draw.",
+      help: "Manual games only. A knockout always needs a winner.",
     },
   ],
   scoreSchema,

@@ -17,6 +17,7 @@ import {
   updateMatchScheduleAction,
 } from "@/features/matches/server/actions";
 import { getMatchState } from "@/features/matches/server/match-queries";
+import { MatchGuide } from "@/features/matches/components/match-guide";
 
 export const metadata: Metadata = { title: "Match" };
 export const dynamic = "force-dynamic";
@@ -56,6 +57,9 @@ export default async function AdminMatchPage({
         <ScoreConsole initial={state} actorId={staff.id} />
 
         <aside className={styles.matchSide} aria-label="Admin controls">
+          <div className={styles.matchGuide}>
+            <MatchGuide />
+          </div>
           {finished ? (
             <section className={styles.panel} aria-labelledby="reopen-title">
               <div className={styles.panelHeading}>

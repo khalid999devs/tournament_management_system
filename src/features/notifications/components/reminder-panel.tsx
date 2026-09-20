@@ -29,8 +29,8 @@ export async function ReminderPanel() {
           <p>Communication</p>
           <h2 id="reminders-title">Reminder email</h2>
           <span>
-            Confirmed players get one email with their games, the date, the
-            venue, their registration code and the check-in instructions.
+            One email with their games, the date, the venue and check-in
+            details.
           </span>
         </div>
       </div>
@@ -90,9 +90,8 @@ export async function ReminderPanel() {
 
       <form className={styles.stack} action={sendRemindersNowAction}>
         <p className={styles.checkHelp}>
-          Sends it now instead, to every confirmed player who has not had it.
-          Players confirmed later get theirs from the daily run while reminders
-          are on. Each player gets it once.
+          Sends now to every confirmed player who has not had it. Each player
+          gets it once.
         </p>
         <div className={styles.actions}>
           <button

@@ -64,6 +64,16 @@ function withStatus(
 }
 
 // signal tells open staff screens to fetch the change (after the response).
+/**
+ * Edits can be made from the match monitor as well as a match's own page, so
+ * an action returns to wherever it was submitted from. Only in-app paths are
+ * accepted, never an absolute URL.
+ */
+function returnPath(formData: FormData, fallback: string) {
+  const raw = String(formData.get("returnTo") ?? "");
+  return /^\/admin\/[\w/?=&.-]*$/.test(raw) ? raw : fallback;
+}
+
 async function run(
   destination: string,
   action: () => Promise<unknown>,
@@ -234,7 +244,7 @@ export async function postponeMatchAction(formData: FormData) {
   const actor = await requireSuperAdmin();
   const matchId = matchTarget(formData);
   await run(
-    `/admin/matches/${matchId}`,
+    returnPath(formData, `/admin/matches/${matchId}`),
     () => postponeMatch({ actor, matchId, reason: text(formData, "reason") }),
     "match_postponed",
     () => signalMatchChange(matchId),
@@ -245,7 +255,7 @@ export async function resumeMatchAction(formData: FormData) {
   const actor = await requireSuperAdmin();
   const matchId = matchTarget(formData);
   await run(
-    `/admin/matches/${matchId}`,
+    returnPath(formData, `/admin/matches/${matchId}`),
     () => resumeMatch({ actor, matchId }),
     "match_resumed",
     () => signalMatchChange(matchId),
@@ -268,11 +278,11 @@ export async function updateMatchScheduleAction(formData: FormData) {
   const matchId = matchTarget(formData);
   const scheduled = text(formData, "scheduledAt");
   const scheduledAt = scheduled ? dhakaInputToDate(scheduled) : null;
-  if (scheduled && !scheduledAt)
-    redirect(`/admin/matches/${matchId}?error=invalid_schedule`);
+  const back = returnPath(formData, `/admin/matches/${matchId}`);
+  if (scheduled && !scheduledAt) redirect(`${back}?error=invalid_schedule`);
 
   await run(
-    `/admin/matches/${matchId}`,
+    back,
     () =>
       updateMatchSchedule({
         actor,

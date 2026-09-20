@@ -61,10 +61,8 @@ export default async function OperatorsPage({
           <UserPlus size={24} aria-hidden="true" />
         </div>
         <p className={styles.helper}>
-          An invitation creates the account only. They see no matches until you
-          tick a game below, which lets them score every match in that game. The
-          email is sent from the official NDCAK Gmail and its delivery is
-          visible under Notifications.
+          They see no matches until you tick a game below. Delivery shows under{" "}
+          <Link href="/admin/notifications">Notifications</Link>.
         </p>
         {!invitationsConfigured ? (
           <div className={styles.notice} role="status">
@@ -106,7 +104,10 @@ export default async function OperatorsPage({
             <p>Team directory</p>
             <h2 id="team-title">Current operators</h2>
           </div>
-          <span className={styles.count}>{operators.length}</span>
+          <span className={styles.count}>
+            {operators.length}{" "}
+            {operators.length === 1 ? "operator" : "operators"}
+          </span>
         </div>
         {operators.length === 0 ? (
           <div className={styles.empty}>
