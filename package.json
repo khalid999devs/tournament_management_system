@@ -1,6 +1,26 @@
 {
   "name": "ndcak-tournament-management",
   "version": "0.1.0",
+  "description": "Tournament platform for the NDCAK Indoor Games Championship: account-free registration, manual payment verification and live multi-game scoring.",
+  "license": "MIT",
+  "author": "Khalid Ahammed Uzzal <khalidahammeduzzal@gmail.com> (https://khalidahammed.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khalid999devs/tournament_management_system.git"
+  },
+  "homepage": "https://ndcak-indoor-games.vercel.app",
+  "bugs": {
+    "url": "https://github.com/khalid999devs/tournament_management_system/issues"
+  },
+  "keywords": [
+    "tournament",
+    "bracket",
+    "scoring",
+    "nextjs",
+    "supabase",
+    "drizzle",
+    "event-management"
+  ],
   "private": true,
   "type": "module",
   "scripts": {

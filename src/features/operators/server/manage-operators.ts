@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
 import { getDatabase } from "@/db";
 import {
   auditLogs,
@@ -15,6 +16,10 @@ import {
   tournaments,
 } from "@/db/schema";
 import type { OperatorCapability } from "@/db/schema/assignments";
+import {
+  capabilitiesForLevel,
+  defaultAccessLevel,
+} from "@/features/operators/domain/access-levels";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type ScopeType =
@@ -187,6 +192,34 @@ export async function grantOperatorAssignment(input: {
       registrationGameEntryId:
         input.scopeType === "PARTICIPANT_ENTRY" ? input.targetId : null,
     };
+    const capabilities = Array.from(
+      new Set(["VIEW" as const, ...input.capabilities]),
+    );
+    const [existing] = await tx
+      .select({ id: operatorAssignments.id })
+      .from(operatorAssignments)
+      .where(
+        and(
+          eq(operatorAssignments.operatorId, operator.id),
+          eq(operatorAssignments.scopeType, input.scopeType),
+          eq(operatorAssignments.tournamentId, input.tournamentId),
+          columnMatches(
+            operatorAssignments.tournamentGameId,
+            targetColumns.tournamentGameId,
+          ),
+          columnMatches(operatorAssignments.roundId, targetColumns.roundId),
+          columnMatches(operatorAssignments.matchId, targetColumns.matchId),
+          columnMatches(
+            operatorAssignments.registrationGameEntryId,
+            targetColumns.registrationGameEntryId,
+          ),
+        ),
+      )
+      .limit(1)
+      .for("update");
+
+    // The same operator and target may only hold one assignment, so a repeat
+    // grant rewrites the capabilities and brings a revoked one back.
     const [assignment] = await tx
       .insert(operatorAssignments)
       .values({
@@ -194,16 +227,36 @@ export async function grantOperatorAssignment(input: {
         tournamentId: input.tournamentId,
         scopeType: input.scopeType,
         ...targetColumns,
-        capabilities: Array.from(
-          new Set(["VIEW" as const, ...input.capabilities]),
-        ),
+        capabilities,
         grantedBy: input.actorId,
+      })
+      .onConflictDoUpdate({
+        target: [
+          operatorAssignments.operatorId,
+          operatorAssignments.scopeType,
+          operatorAssignments.tournamentId,
+          operatorAssignments.tournamentGameId,
+          operatorAssignments.roundId,
+          operatorAssignments.matchId,
+          operatorAssignments.registrationGameEntryId,
+        ],
+        set: {
+          capabilities,
+          active: true,
+          grantedBy: input.actorId,
+          revokedBy: null,
+          revokedAt: null,
+        },
       })
       .returning({ id: operatorAssignments.id });
 
+    const replaced = Boolean(existing);
+
     await tx.insert(auditLogs).values({
       actorStaffId: input.actorId,
-      action: "OPERATOR_ASSIGNMENT_GRANTED",
+      action: replaced
+        ? "OPERATOR_ASSIGNMENT_UPDATED"
+        : "OPERATOR_ASSIGNMENT_GRANTED",
       entityType: "operator_assignment",
       entityId: assignment.id,
       after: {
@@ -215,7 +268,53 @@ export async function grantOperatorAssignment(input: {
       },
     });
 
-    return assignment.id;
+    return { id: assignment.id, replaced };
+  });
+}
+
+/**
+ * The everyday move: hand an operator a whole game, or take it back. Turning a
+ * game on gives the full scoring level, which an admin can narrow afterwards
+ * on the operator's own page.
+ */
+export async function setOperatorGameAccess(input: {
+  actorId: string;
+  operatorId: string;
+  tournamentId: string;
+  tournamentGameId: string;
+  enabled: boolean;
+}) {
+  if (input.enabled) {
+    await grantOperatorAssignment({
+      actorId: input.actorId,
+      operatorId: input.operatorId,
+      tournamentId: input.tournamentId,
+      scopeType: "GAME",
+      targetId: input.tournamentGameId,
+      capabilities: capabilitiesForLevel(defaultAccessLevel),
+    });
+    return;
+  }
+
+  const [existing] = await getDatabase()
+    .select({ id: operatorAssignments.id })
+    .from(operatorAssignments)
+    .where(
+      and(
+        eq(operatorAssignments.operatorId, input.operatorId),
+        eq(operatorAssignments.scopeType, "GAME"),
+        eq(operatorAssignments.tournamentGameId, input.tournamentGameId),
+        eq(operatorAssignments.active, true),
+      ),
+    )
+    .limit(1);
+
+  if (!existing) return;
+
+  await revokeOperatorAssignment({
+    actorId: input.actorId,
+    assignmentId: existing.id,
+    operatorId: input.operatorId,
   });
 }
 
@@ -266,6 +365,10 @@ export async function revokeOperatorAssignment(input: {
 type Transaction = Parameters<
   Parameters<ReturnType<typeof getDatabase>["transaction"]>[0]
 >[0];
+
+function columnMatches(column: PgColumn, value: string | null) {
+  return value === null ? isNull(column) : eq(column, value);
+}
 
 async function targetBelongsToTournament(
   tx: Transaction,

@@ -645,7 +645,7 @@ describe("operators", () => {
       ),
     ).rejects.toMatchObject({ code: "UNAUTHORIZED_SCOPE" });
 
-    const assignment = await grantOperatorAssignment({
+    const { id: assignment } = await grantOperatorAssignment({
       actorId: admin.id,
       operatorId,
       tournamentId,

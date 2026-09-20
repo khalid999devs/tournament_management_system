@@ -68,17 +68,6 @@ export default function DevelopersPage() {
 
               <p className={styles.summary}>{person.summary}</p>
 
-              {person.contributions.length ? (
-                <ul
-                  className={styles.contributions}
-                  aria-label={`What ${person.name} built`}
-                >
-                  {person.contributions.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              ) : null}
-
               <ul className={styles.links}>
                 {profileLinks(person).map(({ href, label, icon: Icon }) => (
                   <li key={label}>

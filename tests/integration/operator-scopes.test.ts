@@ -4,6 +4,7 @@ import { getDatabase } from "@/db";
 import {
   matchEntries,
   matches,
+  operatorAssignments,
   registrationGameEntries,
   registrations,
   rounds,
@@ -15,6 +16,7 @@ import { reviewRegistration } from "@/features/admin/server/review-registration"
 import {
   grantOperatorAssignment,
   revokeOperatorAssignment,
+  setOperatorGameAccess,
 } from "@/features/operators/server/manage-operators";
 import { operatorMatchAccessPredicate } from "@/features/operators/server/workload";
 import { submitRegistration } from "@/features/registration/server/submit-registration";
@@ -101,7 +103,7 @@ async function grant(
   targetId: string | null,
   capabilities: OperatorCapability[] = ["VIEW"],
 ) {
-  return grantOperatorAssignment({
+  const { id } = await grantOperatorAssignment({
     actorId: fixture.adminId,
     operatorId,
     tournamentId: fixture.tournamentId,
@@ -109,6 +111,7 @@ async function grant(
     targetId,
     capabilities,
   });
+  return id;
 }
 
 beforeAll(async () => {
@@ -237,6 +240,118 @@ describe("operator assignment scopes", () => {
       operatorId,
     });
     expect(await visibleMatches(operatorId)).toEqual([]);
+  });
+
+  it("replaces an assignment when the same target is granted again", async () => {
+    const operatorId = await createStaff("SCORE_OPERATOR");
+    const first = await grant(operatorId, "GAME", fixture.gameIds.Chess, [
+      "VIEW",
+    ]);
+    const second = await grant(operatorId, "GAME", fixture.gameIds.Chess, [
+      "VIEW",
+      "SCORE_UPDATE",
+    ]);
+
+    expect(second).toBe(first);
+    const rows = await getDatabase()
+      .select({
+        id: operatorAssignments.id,
+        capabilities: operatorAssignments.capabilities,
+        active: operatorAssignments.active,
+      })
+      .from(operatorAssignments)
+      .where(eq(operatorAssignments.operatorId, operatorId));
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].capabilities).toEqual(["VIEW", "SCORE_UPDATE"]);
+    expect(rows[0].active).toBe(true);
+  });
+
+  it("brings a removed assignment back instead of leaving a dead row", async () => {
+    const operatorId = await createStaff("SCORE_OPERATOR");
+    const assignmentId = await grant(operatorId, "GAME", fixture.gameIds.Chess);
+    await revokeOperatorAssignment({
+      actorId: fixture.adminId,
+      assignmentId,
+      operatorId,
+    });
+    expect(await visibleMatches(operatorId)).toEqual([]);
+
+    const again = await grant(operatorId, "GAME", fixture.gameIds.Chess);
+    expect(again).toBe(assignmentId);
+    expect(await visibleMatches(operatorId)).toHaveLength(2);
+
+    const rows = await getDatabase()
+      .select({
+        active: operatorAssignments.active,
+        revokedAt: operatorAssignments.revokedAt,
+        revokedBy: operatorAssignments.revokedBy,
+      })
+      .from(operatorAssignments)
+      .where(eq(operatorAssignments.operatorId, operatorId));
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      active: true,
+      revokedAt: null,
+      revokedBy: null,
+    });
+  });
+
+  it("hands over a whole game, and takes it back, in one step", async () => {
+    const operatorId = await createStaff("SCORE_OPERATOR");
+    await setOperatorGameAccess({
+      actorId: fixture.adminId,
+      operatorId,
+      tournamentId: fixture.tournamentId,
+      tournamentGameId: fixture.gameIds.Chess,
+      enabled: true,
+    });
+
+    expect(await visibleMatches(operatorId)).toHaveLength(2);
+    const [granted] = await getDatabase()
+      .select({ capabilities: operatorAssignments.capabilities })
+      .from(operatorAssignments)
+      .where(eq(operatorAssignments.operatorId, operatorId));
+    expect(granted.capabilities).toEqual([
+      "VIEW",
+      "SCORE_UPDATE",
+      "FINALIZE_MATCH",
+      "ISSUE_REPORT",
+    ]);
+
+    await setOperatorGameAccess({
+      actorId: fixture.adminId,
+      operatorId,
+      tournamentId: fixture.tournamentId,
+      tournamentGameId: fixture.gameIds.Chess,
+      enabled: false,
+    });
+    expect(await visibleMatches(operatorId)).toEqual([]);
+
+    // Turning it off twice is harmless.
+    await setOperatorGameAccess({
+      actorId: fixture.adminId,
+      operatorId,
+      tournamentId: fixture.tournamentId,
+      tournamentGameId: fixture.gameIds.Chess,
+      enabled: false,
+    });
+    expect(await visibleMatches(operatorId)).toEqual([]);
+  });
+
+  it("keeps assignments to different targets apart", async () => {
+    const operatorId = await createStaff("SCORE_OPERATOR");
+    await grant(operatorId, "GAME", fixture.gameIds.Chess);
+    await grant(operatorId, "GAME", fixture.gameIds.Carrom);
+    await grant(operatorId, "ALL_TOURNAMENT", null);
+
+    const rows = await getDatabase()
+      .select({ id: operatorAssignments.id })
+      .from(operatorAssignments)
+      .where(eq(operatorAssignments.operatorId, operatorId));
+
+    expect(rows).toHaveLength(3);
   });
 
   it("rejects a target from another tournament", async () => {

@@ -6,6 +6,7 @@ import {
   jsonb,
   pgTable,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { assignmentScopeEnum } from "./enums";
@@ -83,5 +84,18 @@ export const operatorAssignments = pgTable(
       "operator_assignments_revocation_check",
       sql`(${table.active} and ${table.revokedAt} is null and ${table.revokedBy} is null) or (not ${table.active} and ${table.revokedAt} is not null)`,
     ),
+    // One row per operator and target: granting the same scope again updates
+    // the capabilities instead of stacking another assignment beside it.
+    unique("operator_assignments_scope_unique")
+      .on(
+        table.operatorId,
+        table.scopeType,
+        table.tournamentId,
+        table.tournamentGameId,
+        table.roundId,
+        table.matchId,
+        table.registrationGameEntryId,
+      )
+      .nullsNotDistinct(),
   ],
 ).enableRLS();

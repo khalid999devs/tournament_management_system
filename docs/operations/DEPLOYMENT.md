@@ -13,17 +13,17 @@ automatically, and email goes out through Gmail SMTP.
 
 ## Environment variables (Production)
 
-| Variable                               | Value                                                  |
-| -------------------------------------- | ------------------------------------------------------ |
-| `DATABASE_URL`                         | Supabase Transaction Pooler URL                        |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                                   |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                               |
-| `SUPABASE_SECRET_KEY`                  | Supabase server-only secret key                        |
-| `SUPER_ADMIN_EMAIL`                    | `ndcakofficial@gmail.com`                              |
-| `SMTP_USER`                            | `ndcakofficial@gmail.com`                              |
-| `SMTP_PASSWORD`                        | Google App Password (see `docs/integrations/EMAIL.md`) |
-| `EMAIL_REPLY_TO`                       | `ndcakofficial@gmail.com`                              |
-| `CRON_SECRET`                          | 16+ random characters; protects the daily job          |
+| Variable                               | Value                                                |
+| -------------------------------------- | ---------------------------------------------------- |
+| `DATABASE_URL`                         | Supabase Transaction Pooler URL                      |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                                 |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                             |
+| `SUPABASE_SECRET_KEY`                  | Supabase server-only secret key                      |
+| `SUPER_ADMIN_EMAIL`                    | `ndcakofficial@gmail.com`                            |
+| `SMTP_USER`                            | `ndcakofficial@gmail.com`                            |
+| `SMTP_PASSWORD`                        | Google App Password (see `docs/operations/EMAIL.md`) |
+| `EMAIL_REPLY_TO`                       | `ndcakofficial@gmail.com`                            |
+| `CRON_SECRET`                          | 16+ random characters; protects the daily job        |
 
 `SUPABASE_SECRET_KEY` also sends the live-update signals to staff screens. Without it the app still works, and staff screens fall back to refreshing every few seconds.
 

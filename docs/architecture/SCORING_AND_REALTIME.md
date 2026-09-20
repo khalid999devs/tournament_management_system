@@ -2,7 +2,7 @@
 
 Design for live score entry by several operators at once, with no lost, duplicated or silently overwritten updates, on the **free** Supabase and Vercel plans.
 
-**Status:** implemented and verified, and rehearsed on the deployed site in Phase 6 (`docs/planning/PHASE_6_COMPLETION.md`). Phase 4 built the scoring and concurrency model (`docs/planning/PHASE_4_COMPLETION.md`); Phase 5 added realtime and the daily job (`docs/planning/PHASE_5_COMPLETION.md`).
+**Status:** implemented, verified and rehearsed on the deployed site. What the rehearsal measured is in [`../planning/LAUNCH_REPORT.md`](../planning/LAUNCH_REPORT.md).
 
 ## Constraints
 
@@ -114,13 +114,13 @@ repeated runs.
 
 ## Verification
 
-Done in Phase 4 (details in `PHASE_4_COMPLETION.md`):
+Scoring and concurrency:
 
 - **Integration tests on local PostgreSQL:** ten parallel deltas produce ten events with versions 2–11; three racing retries of one `clientEventId` apply once; a finalize racing a typed score yields one success and one `STALE_MATCH_VERSION`; sibling semi-finals finishing together both land in the final without deadlock; reopen withdraws the advanced winner and is refused once the next match starts.
 - **Load rehearsal:** 20 operators × 5 matches, about 42 requests per second for 60 seconds, 10% duplicate resends. All requests succeeded, p95 20 ms, and the database matched every accepted event exactly.
 - **Crash test:** the server was killed and restarted mid-load; retries with the same ids landed every event exactly once.
 
-Done in Phase 5 (details in `PHASE_5_COMPLETION.md`):
+Live updates and the daily job:
 
 - **Live authorization check** on the real project with throwaway accounts: server signal accepted (HTTP 202) and delivered to two staff listeners in about 170 ms; every refusal case refused; the accounts were deleted afterwards.
 - **Two-screen walkthrough** (local production build, local data, live Supabase sign-in and Realtime): a point entered on the operator's phone appeared on the admin's match page in 0.3 s and the reverse in 0.3 s; the match monitor followed in about 2 s; a problem report reached the dashboard in 1.1 to 1.7 s; after three seconds offline, the operator's screen caught up 0.15 s after reconnecting.

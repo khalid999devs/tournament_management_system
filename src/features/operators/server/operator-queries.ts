@@ -16,19 +16,68 @@ import {
   tournaments,
 } from "@/db/schema";
 import { requireSuperAdmin } from "@/features/auth/server/staff-session";
+import { findCurrentTournamentId } from "@/features/event/server/event-queries";
 
+/**
+ * The operator directory, with the games each one already covers so the list
+ * page can hand out a whole game in one click.
+ */
 export async function getOperators() {
   await requireSuperAdmin();
-  return getDatabase()
-    .select({
-      id: staffProfiles.id,
-      email: staffProfiles.email,
-      displayName: staffProfiles.displayName,
-      active: staffProfiles.active,
-    })
-    .from(staffProfiles)
-    .where(eq(staffProfiles.role, "SCORE_OPERATOR"))
-    .orderBy(desc(staffProfiles.active), asc(staffProfiles.displayName));
+  const db = getDatabase();
+  const tournamentId = await findCurrentTournamentId(db);
+
+  const [people, gameRows, assignmentRows] = await Promise.all([
+    db
+      .select({
+        id: staffProfiles.id,
+        email: staffProfiles.email,
+        displayName: staffProfiles.displayName,
+        active: staffProfiles.active,
+      })
+      .from(staffProfiles)
+      .where(eq(staffProfiles.role, "SCORE_OPERATOR"))
+      .orderBy(desc(staffProfiles.active), asc(staffProfiles.displayName)),
+    tournamentId
+      ? db
+          .select({ id: tournamentGames.id, name: games.name })
+          .from(tournamentGames)
+          .innerJoin(games, eq(tournamentGames.gameId, games.id))
+          .where(eq(tournamentGames.tournamentId, tournamentId))
+          .orderBy(asc(games.name))
+      : Promise.resolve([]),
+    tournamentId
+      ? db
+          .select({
+            operatorId: operatorAssignments.operatorId,
+            scopeType: operatorAssignments.scopeType,
+            tournamentGameId: operatorAssignments.tournamentGameId,
+          })
+          .from(operatorAssignments)
+          .where(
+            and(
+              eq(operatorAssignments.tournamentId, tournamentId),
+              eq(operatorAssignments.active, true),
+            ),
+          )
+      : Promise.resolve([]),
+  ]);
+
+  const operators = people.map((person) => {
+    const held = assignmentRows.filter((row) => row.operatorId === person.id);
+    return {
+      ...person,
+      coversEverything: held.some((row) => row.scopeType === "ALL_TOURNAMENT"),
+      gameIds: held
+        .filter((row) => row.scopeType === "GAME" && row.tournamentGameId)
+        .map((row) => row.tournamentGameId as string),
+      otherScopes: held.filter(
+        (row) => row.scopeType !== "ALL_TOURNAMENT" && row.scopeType !== "GAME",
+      ).length,
+    };
+  });
+
+  return { tournamentId, games: gameRows, operators };
 }
 
 export async function getOperatorDetail(operatorId: string) {

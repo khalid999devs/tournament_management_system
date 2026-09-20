@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { z } from "zod";
 import { requireSuperAdmin } from "@/features/auth/server/staff-session";
+import {
+  capabilitiesForLevel,
+  type AccessLevel,
+} from "@/features/operators/domain/access-levels";
 import { processOperatorInvite } from "./process-invite";
 import {
   createOperator,
@@ -12,6 +16,7 @@ import {
   OperatorManagementError,
   revokeOperatorAssignment,
   setOperatorActive,
+  setOperatorGameAccess,
 } from "./manage-operators";
 
 const id = z.uuid();
@@ -29,12 +34,11 @@ const scopeType = z.enum([
   "MATCH",
   "PARTICIPANT_ENTRY",
 ]);
-const capability = z.enum([
-  "VIEW",
-  "SCORE_UPDATE",
-  "FINALIZE_MATCH",
-  "ISSUE_REPORT",
-]);
+const accessLevel = z.enum([
+  "SCORE_AND_CONFIRM",
+  "SCORE_ONLY",
+  "WATCH",
+] as const satisfies readonly AccessLevel[]);
 
 export async function createOperatorAction(formData: FormData) {
   const actor = await requireSuperAdmin();
@@ -93,13 +97,12 @@ export async function setOperatorActiveAction(formData: FormData) {
 export async function grantAssignmentAction(formData: FormData) {
   const actor = await requireSuperAdmin();
   const operatorId = id.safeParse(formData.get("operatorId"));
-  const scope = scopeType.safeParse(formData.get("scopeType"));
-  const selected = String(formData.get("scopeTarget") ?? "").split("|");
-  const tournamentId = id.safeParse(selected[0]);
-  const targetId = selected[1] ? id.safeParse(selected[1]) : null;
-  const parsedCapabilities = z
-    .array(capability)
-    .safeParse(formData.getAll("capabilities"));
+  // One select carries the whole choice: scope type, tournament and target.
+  const selected = String(formData.get("scope") ?? "").split("|");
+  const scope = scopeType.safeParse(selected[0]);
+  const tournamentId = id.safeParse(selected[1]);
+  const targetId = selected[2] ? id.safeParse(selected[2]) : null;
+  const level = accessLevel.safeParse(formData.get("accessLevel"));
 
   if (!operatorId.success) redirect("/admin/operators?error=invalid_operator");
 
@@ -109,7 +112,7 @@ export async function grantAssignmentAction(formData: FormData) {
     !scope.success ||
     !tournamentId.success ||
     (targetId && !targetId.success) ||
-    !parsedCapabilities.success
+    !level.success
   ) {
     redirect(`${base}?error=invalid_assignment`);
   }
@@ -117,18 +120,54 @@ export async function grantAssignmentAction(formData: FormData) {
   let destination = `${base}?message=assignment_granted`;
 
   try {
-    await grantOperatorAssignment({
+    const result = await grantOperatorAssignment({
       actorId: actor.id,
       operatorId: operatorId.data,
       tournamentId: tournamentId.data,
       scopeType: scope.data,
       targetId: targetId?.data ?? null,
-      capabilities: parsedCapabilities.data,
+      capabilities: capabilitiesForLevel(level.data),
     });
     revalidatePath(base);
     revalidatePath("/operator");
+    if (result.replaced) destination = `${base}?message=assignment_updated`;
   } catch (error) {
     destination = `${base}?error=${errorCode(error)}`;
+  }
+
+  redirect(destination);
+}
+
+export async function setGameAccessAction(formData: FormData) {
+  const actor = await requireSuperAdmin();
+  const operatorId = id.safeParse(formData.get("operatorId"));
+  const tournamentId = id.safeParse(formData.get("tournamentId"));
+  const tournamentGameId = id.safeParse(formData.get("tournamentGameId"));
+  const enabled = formData.get("enabled") === "true";
+
+  if (
+    !operatorId.success ||
+    !tournamentId.success ||
+    !tournamentGameId.success
+  ) {
+    redirect("/admin/operators?error=invalid_assignment");
+  }
+
+  let destination = `/admin/operators?message=${enabled ? "game_added" : "game_removed"}`;
+
+  try {
+    await setOperatorGameAccess({
+      actorId: actor.id,
+      operatorId: operatorId.data,
+      tournamentId: tournamentId.data,
+      tournamentGameId: tournamentGameId.data,
+      enabled,
+    });
+    revalidatePath("/admin/operators");
+    revalidatePath(`/admin/operators/${operatorId.data}`);
+    revalidatePath("/operator");
+  } catch (error) {
+    destination = `/admin/operators?error=${errorCode(error)}`;
   }
 
   redirect(destination);

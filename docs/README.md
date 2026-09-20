@@ -1,40 +1,65 @@
-# NDCAK Tournament System Documentation
+# Documentation
 
-This directory is the working product and engineering record for the NDCAK Digital Tournament Management System.
+## Running the platform
 
-## Source material
+Start here if you are on the committee.
 
-- [`idea/full_product_PRD_v1.pdf`](idea/full_product_PRD_v1.pdf) - approved PRD and technical blueprint.
-- [`product/full_product_PRD_v1_extracted.txt`](product/full_product_PRD_v1_extracted.txt) - complete 25-page text extraction of the PRD for search and implementation work.
-- [`idea/system_flow_architecture.png`](idea/system_flow_architecture.png) - supplied participant, admin, operator, and backend flow.
-- [`idea/color_designs.png`](idea/color_designs.png) - supplied design system direction.
-- [`assets/logo_full.jpg`](assets/logo_full.jpg) - supplied NDCAK identity artwork.
-- [`assets/README.md`](assets/README.md) - source and generated asset register.
+- [How the platform works](guide/README.md) — the whole thing in one page
+- [Admin handbook](guide/ADMIN_GUIDE.md) — every section of the admin panel
+- [Operator handbook](guide/OPERATOR_GUIDE.md) — score operators, from
+  invitation to the final result
+- [What students see](guide/PARTICIPANT_JOURNEY.md) — registration, payment
+  and the emails
+- [Event day runbook](operations/EVENT_DAY_RUNBOOK.md) — the day itself, and
+  what to do when something breaks
 
-## Working documents
+## Building on it
 
-- [`product/PRODUCT_BRIEF.md`](product/PRODUCT_BRIEF.md) - concise implementation interpretation of the PRD.
-- [`product/PARTICIPANT_UI.md`](product/PARTICIPANT_UI.md) - participant-facing structure, visual rules, and content guardrails.
-- [`planning/ROADMAP.md`](planning/ROADMAP.md) - seven-phase delivery plan and exit criteria.
-- [`planning/STATUS.md`](planning/STATUS.md) - current progress, decisions, and next work.
-- [`planning/PHASE_2_COMPLETION.md`](planning/PHASE_2_COMPLETION.md) - Phase 1 and Phase 2 exit-criteria evidence.
-- [`planning/PHASE_3_PROGRESS.md`](planning/PHASE_3_PROGRESS.md) - operator implementation, flow, evidence, and remaining live rehearsal.
-- [`planning/EXTERNAL_ACCESS.md`](planning/EXTERNAL_ACCESS.md) - credentials and external setup that will be requested only when needed.
-- [`architecture/SYSTEM_ARCHITECTURE.md`](architecture/SYSTEM_ARCHITECTURE.md) - runtime boundaries and major workflows.
-- [`architecture/DATA_MODEL.md`](architecture/DATA_MODEL.md) - relational model, invariants, and indexes.
-- [`architecture/STATE_FLOWS.md`](architecture/STATE_FLOWS.md) - registration and match state machines.
-- [`architecture/AUTHORIZATION.md`](architecture/AUTHORIZATION.md) - staff roles, assignment scopes, and access resolution.
-- [`architecture/SCORING_AND_REALTIME.md`](architecture/SCORING_AND_REALTIME.md) - Phase 4–5 design for concurrent score entry, event log, realtime and free-plan limits.
-- [`operations/DEPLOYMENT.md`](operations/DEPLOYMENT.md) - Vercel hosting, environment variables and first deployment.
-- [`qa/INTEGRATION_TESTS.md`](qa/INTEGRATION_TESTS.md) - running the PostgreSQL integration suite.
-- [`integrations/SUPABASE.md`](integrations/SUPABASE.md) - connection modes, security boundaries, and migration workflow.
-- [`integrations/EMAIL.md`](integrations/EMAIL.md) - Gmail SMTP application email and the App Password setup.
-- [`research/UI_BENCHMARKS.md`](research/UI_BENCHMARKS.md) - UI research and adopted patterns.
-- [`qa/QUALITY_BARS.md`](qa/QUALITY_BARS.md) - engineering, UX, security, and release quality gates.
+- [Product brief](product/PRODUCT_BRIEF.md) — what the platform is for
+- [System architecture](architecture/SYSTEM_ARCHITECTURE.md) — runtime
+  boundaries and the major workflows
+- [Data model](architecture/DATA_MODEL.md) — tables, invariants and indexes
+- [State flows](architecture/STATE_FLOWS.md) — registration and match state
+  machines
+- [Authorization](architecture/AUTHORIZATION.md) — staff roles, assignment
+  scopes and how access is resolved
+- [Scoring and realtime](architecture/SCORING_AND_REALTIME.md) — concurrent
+  score entry, the event log, live updates and the free-plan limits
 
-## Documentation rules
+## Operating it
 
-- The PDF remains the product authority. Working documents clarify implementation but do not silently change scope.
-- Event dates, fees, capacities, rules, payment accounts, and schedules are configuration data.
-- Material product decisions are recorded in `planning/STATUS.md` before implementation diverges from the PRD.
-- Diagrams use Mermaid so their source remains reviewable and versionable.
+- [Deployment](operations/DEPLOYMENT.md) — Vercel, environment variables, the
+  daily job and the one dependency patch
+- [Supabase](operations/SUPABASE.md) — connection modes, security boundaries,
+  migrations
+- [Email](operations/EMAIL.md) — Gmail SMTP and the App Password
+
+## Quality
+
+- [Quality bars](qa/QUALITY_BARS.md) — the gates every change has to pass
+- [Integration tests](qa/INTEGRATION_TESTS.md) — the PostgreSQL suite
+- [End-to-end tests](qa/END_TO_END_TESTS.md) — the browser suite
+
+## Record
+
+- [Project status](planning/STATUS.md) — where things stand, what the owner
+  still has to do, and the decision log
+- [Launch report](planning/LAUNCH_REPORT.md) — what the pre-launch rehearsal
+  measured and the two problems it found
+
+## House rules
+
+These held throughout the build and should hold for anything added later.
+
+- The [product brief](product/PRODUCT_BRIEF.md) is the authority on what the
+  platform must do. Its non-negotiable rules are not style preferences.
+- Dates, fees, capacities, rules, payment accounts and schedules are
+  configuration, never code. Nothing is hardcoded and nothing is invented.
+- Where a detail is not set yet, the site says so rather than showing a
+  plausible sample.
+- Material decisions, and the reason for each, are recorded in the decision
+  log at the end of [`planning/STATUS.md`](planning/STATUS.md). Read it before
+  changing something that looks odd; most oddities are load-bearing.
+- Diagrams are Mermaid so their source stays reviewable.
+- Logos and the images used in the root README are in
+  [`assets/`](assets/README.md).

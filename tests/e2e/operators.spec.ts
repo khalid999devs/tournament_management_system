@@ -44,17 +44,45 @@ test("admin invites an operator, the operator sets a password, and sees only the
   ).toBeVisible();
 
   // Grant one game; the operator then sees that game's matches and nothing else.
-  const game = adminPage.locator("form", {
-    has: adminPage.getByRole("heading", { name: "Game", exact: true }),
-  });
-  await game.getByLabel("Target").selectOption({
-    label: "NDCAK Indoor Games Championship · Mobile Football",
-  });
-  await game.getByLabel("Update scores").check();
-  await game.getByLabel("Finalize matches").check();
-  await game.getByRole("button", { name: "Grant access" }).click();
+  await adminPage
+    .getByLabel("What they cover")
+    .selectOption({ label: "Mobile Football" });
+  await adminPage
+    .getByRole("radio", { name: /Score and confirm results/ })
+    .check();
+  await adminPage.getByRole("button", { name: "Give access" }).click();
   await expect(adminPage).toHaveURL(
     new RegExp(`${operatorPath}\\?message=assignment_granted`),
+  );
+
+  // Granting the same game again replaces that assignment instead of adding
+  // a second one beside it.
+  await adminPage
+    .getByLabel("What they cover")
+    .selectOption({ label: "Mobile Football" });
+  await adminPage.getByRole("radio", { name: /Score only/ }).check();
+  await adminPage.getByRole("button", { name: "Give access" }).click();
+  await expect(adminPage).toHaveURL(
+    new RegExp(`${operatorPath}\\?message=assignment_updated`),
+  );
+  const assignments = adminPage.locator("section", {
+    has: adminPage.getByRole("heading", { name: "Assignments" }),
+  });
+  await expect(
+    assignments.getByText("Mobile Football", { exact: true }),
+  ).toHaveCount(1);
+  await expect(assignments.getByText("Score only")).toBeVisible();
+
+  // Put the operator back on full scoring for the rest of the run.
+  await adminPage
+    .getByLabel("What they cover")
+    .selectOption({ label: "Mobile Football" });
+  await adminPage
+    .getByRole("radio", { name: /Score and confirm results/ })
+    .check();
+  await adminPage.getByRole("button", { name: "Give access" }).click();
+  await expect(adminPage).toHaveURL(
+    new RegExp(`${operatorPath}\\?message=assignment_updated`),
   );
 
   await operatorPage.reload();
@@ -78,6 +106,31 @@ test("admin invites an operator, the operator sets a password, and sees only the
   const [profile] =
     await db()`select active from staff_profiles where lower(email) = ${email}`;
   expect(profile.active).toBe(true);
+
+  // A whole game is handed over, and taken back, from the operator list.
+  await adminPage.goto("/admin/operators");
+  const card = adminPage.locator("article", {
+    has: adminPage.getByText(email),
+  });
+  await expect(
+    card.getByRole("button", { name: "Mobile Football" }),
+  ).toHaveAttribute("aria-pressed", "true");
+
+  await card.getByRole("button", { name: "Table Tennis" }).click();
+  await expect(adminPage).toHaveURL(/\/admin\/operators\?message=game_added/);
+  await operatorPage.reload();
+  await expect(
+    operatorPage.getByRole("row").filter({ hasText: "Table Tennis" }).first(),
+  ).toBeVisible();
+
+  await adminPage.goto("/admin/operators");
+  await card.getByRole("button", { name: "Table Tennis" }).click();
+  await expect(adminPage).toHaveURL(/\/admin\/operators\?message=game_removed/);
+  await operatorPage.reload();
+  await expect(
+    operatorPage.getByRole("row").filter({ hasText: "Table Tennis" }),
+  ).toHaveCount(0);
+
   await admin.close();
   await operator.close();
 });

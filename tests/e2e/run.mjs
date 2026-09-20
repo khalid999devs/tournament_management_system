@@ -281,6 +281,11 @@ try {
     ]);
     sink.stdout.on("data", () => {});
 
+    // A build of your own, against .env.local, leaves cached page data in
+    // .next that this run would otherwise serve. That put the live payment
+    // numbers on a locally seeded registration page once. Start clean.
+    fs.rmSync(path.join(root, ".next"), { recursive: true, force: true });
+
     console.log("Building the production app…");
     const buildLog = fs.openSync(path.join(outDir, "build.log"), "w");
     try {
