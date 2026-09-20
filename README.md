@@ -49,34 +49,55 @@ hand, software should record the check rather than pretend a gateway made it.
 
 ## Features
 
-**For players** — No account, no app. Fill in your details, pick any games
-you want, pay the total once, and enter the transaction ID. Your place is held
+**For players** — No account, no app. Fill in your details, pick any games you
+want, pay the total once, and enter the transaction ID. Your place is held
 while the committee checks the payment, and the confirmation email carries a
 calendar invite.
-
-<img src="docs/assets/screenshots/register-phone.png" alt="Registration on a phone" width="300">
 
 **For the committee** — One workspace for the whole event: a verification
 queue with every payment detail, event and game settings, draws, a live match
 monitor, problem reports from the floor, five CSV exports and a log of every
 email sent.
 
-![The admin dashboard](docs/assets/screenshots/admin-dashboard.png)
-
-![The registration queue](docs/assets/screenshots/admin-registrations.png)
-
-**For score operators** — Each operator sees only the matches they were
-given, with a scoring screen built for the game in hand. Scores entered
-without signal wait on the phone and send themselves; two operators on one
-match can never overwrite each other silently.
-
-<img src="docs/assets/screenshots/operator-score-phone.png" alt="Score entry on a phone" width="300">
-<img src="docs/assets/screenshots/operator-list-phone.png" alt="An operator's match list" width="300">
+**For score operators** — Each operator sees only the matches they were given,
+with a scoring screen built for the game in hand. Scores entered without
+signal wait on the phone and send themselves; two operators on one match can
+never overwrite each other silently.
 
 **In public** — Schedule, rulebook and, once the committee publishes them,
 results and brackets.
 
-![Results and brackets](docs/assets/screenshots/results.png)
+<details>
+<summary><b>Screenshots</b> — the admin workspace, the phone screens and the public pages</summary>
+
+<br>
+
+**Registration, on a phone**
+
+<img src="docs/assets/screenshots/register-phone.png" alt="Registration on a phone" width="300">
+
+**The admin dashboard**
+
+<img src="docs/assets/screenshots/admin-dashboard.png" alt="The admin dashboard">
+
+**The verification queue**
+
+<img src="docs/assets/screenshots/admin-registrations.png" alt="The registration queue">
+
+**Running a match**
+
+<img src="docs/assets/screenshots/admin-match.png" alt="An admin's view of a match">
+
+**An operator's phone: their matches, and scoring one**
+
+<img src="docs/assets/screenshots/operator-list-phone.png" alt="An operator's match list" width="300">
+<img src="docs/assets/screenshots/operator-score-phone.png" alt="Score entry on a phone" width="300">
+
+**Public results and brackets**
+
+<img src="docs/assets/screenshots/results.png" alt="Results and brackets">
+
+</details>
 
 ### In detail
 
@@ -232,8 +253,7 @@ games need something the existing ones cannot express.
 Built for the **Notre Dame College Association of KUET** by
 [Khalid Ahammed Uzzal](https://khalidahammed.com), Organizing Secretary and
 full stack engineer. The people behind it are listed on the
-[developers page](https://ndcak-indoor-games.vercel.app/developers), which is
-driven by a single JSON file rather than an admin screen.
+[developers page](https://ndcak-indoor-games.vercel.app/developers).
 
 Screenshots on this page come from the demo data the test suite seeds, never
 from real participants.
