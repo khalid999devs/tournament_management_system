@@ -136,7 +136,7 @@ opening registration.
 ```bash
 pnpm test              # 116 unit tests, no database needed
 pnpm test:integration  # 59 tests against a local PostgreSQL
-pnpm test:e2e          # 39 browser tests
+pnpm test:e2e          # 40 browser tests
 pnpm typecheck && pnpm lint
 ```
 
@@ -198,23 +198,22 @@ re-checks authorization on the server.
 
 Issues and pull requests are welcome, particularly from other university clubs
 adapting this for their own events.
+[CONTRIBUTING.md](CONTRIBUTING.md) has the full rules: the workflow, the
+architecture constraints, what each test suite is for, and the copy and
+accessibility bars. The short version:
 
-`main` is protected: every change arrives through a pull request, including
-the maintainer's own. Branch, push the branch, open a PR, merge it.
-
-- Open an issue first for anything substantial, so we can agree on the shape
-  before you spend time on it.
-- Run `pnpm typecheck && pnpm lint && pnpm test` before opening a pull
-  request. Touching registration, payments, scoring or access also means
-  `pnpm test:integration`.
-- Match the surrounding code, and keep business rules in `domain` where they
-  can be tested without a database.
-- User-visible copy is plain English, written for a player or a volunteer
-  rather than a developer.
+- `main` is protected. Every change arrives as a pull request, including the
+  maintainer's own.
+- Open an issue first for anything substantial.
+- `pnpm typecheck && pnpm lint && pnpm test` before you open it; add
+  `pnpm test:integration` if you touched registration, payments, scoring or
+  access.
+- Keep business rules in `domain`, where they can be tested without a
+  database, and authorize on the server every time.
 - Never commit secrets, real participant data or a database dump.
 
-[docs/qa/QUALITY_BARS.md](docs/qa/QUALITY_BARS.md) lists the bars a change has
-to clear.
+Found a security problem? Email khalidahammeduzzal@gmail.com rather than
+opening an issue.
 
 ## Adapting it for your own event
 
