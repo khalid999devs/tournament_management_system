@@ -1,7 +1,7 @@
 {
   "name": "ndcak-tournament-management",
   "version": "0.1.0",
-  "description": "Tournament platform for the NDCAK Indoor Games Championship: account-free registration, manual payment verification and live multi-game scoring.",
+  "description": "Run an offline game competition end to end: account-free multi-game entry, manual payment verification, knockout draws and live scoring from the operators' phones.",
   "license": "MIT",
   "author": "Khalid Ahammed Uzzal <khalidahammeduzzal@gmail.com> (https://khalidahammed.com)",
   "repository": {
@@ -16,10 +16,11 @@
     "tournament",
     "bracket",
     "scoring",
+    "esports",
+    "event-management",
     "nextjs",
     "supabase",
-    "drizzle",
-    "event-management"
+    "drizzle"
   ],
   "private": true,
   "type": "module",

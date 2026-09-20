@@ -1,11 +1,14 @@
 <div align="center">
 
-# NDCAK Indoor Games Championship
+# Game Tournament Management System
 
-**A tournament platform for university clubs that collect entry fees by hand.**
+**Run an offline game competition end to end, from the first entry to the
+final bracket.**
 
-Students register and pay for several games in one go, the committee verifies
-each payment, and score operators run the matches from their phones.
+Built for clubs that hold their tournaments in a room rather than online:
+chess boards, carrom, table tennis, a row of phones for a Free Fire lobby.
+Players enter several games at once, organisers verify who is in, and score
+operators run the matches from their phones on the day.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org)
@@ -25,21 +28,28 @@ each payment, and score operators run the matches from their phones.
 
 ## Why this exists
 
-Most tournament software assumes two things that are not true for a university
-club in Bangladesh: that every participant will make an account, and that
-money arrives through a payment gateway.
+An offline tournament is mostly logistics. The games take care of themselves;
+what breaks is everything around them. A few hundred entries arrive through
+a form nobody can search. Nobody is sure who has actually paid. On the day,
+a dozen volunteers walk around with phones on venue wifi that drops, writing
+scores on paper because the app they were given needs a signal, and by the
+evening two people disagree about who won a quarter-final.
 
-Here, students pay with bKash, Nagad or Rocket and send a transaction ID; a
-committee member checks it against the bank statement by hand. This platform
-is built around that reality instead of fighting it, and around a second one:
-on event day, scoring happens on the volunteers' own phones, on patchy venue
-wifi, sometimes with two people looking at the same match.
+This platform is built for that day. Entries are searchable and
+account-free, so a player never makes a password for a one-afternoon event.
+Every match is scored from a phone, and a phone that loses signal keeps
+working and catches up by itself. Two operators on the same match cannot
+overwrite each other. Every score change is kept, with who made it, so a
+disputed result has an answer.
 
-Everything else follows from those two facts.
+Entry fees are handled the way clubs actually collect them: players pay by
+mobile banking and submit the transaction reference, and an organiser
+verifies it against the statement. That is deliberate. Where money arrives by
+hand, software should record the check rather than pretend a gateway made it.
 
 ## Features
 
-**For students** — No account, no app. Fill in your details, pick any games
+**For players** — No account, no app. Fill in your details, pick any games
 you want, pay the total once, and enter the transaction ID. Your place is held
 while the committee checks the payment, and the confirmation email carries a
 calendar invite.
@@ -196,7 +206,7 @@ adapting this for their own events.
   `pnpm test:integration`.
 - Match the surrounding code, and keep business rules in `domain` where they
   can be tested without a database.
-- User-visible copy is plain English, written for a student or a volunteer
+- User-visible copy is plain English, written for a player or a volunteer
   rather than a developer.
 - Never commit secrets, real participant data or a database dump.
 
